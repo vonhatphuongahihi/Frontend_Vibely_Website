@@ -1,0 +1,28 @@
+.conversation {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; 
+    padding: 15px 10px; 
+    width: 75%;
+    gap: 10px; 
+}
+
+.conversation:hover {
+    background-color: #CDE8FF;
+    cursor: pointer;
+}
+
+.conversationImg {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 10px; 
+}
+
+.conversationName {
+    font-weight: 500;
+    font-size: 14px;
+    white-space: nowrap; 
+    flex: 1;
+}
