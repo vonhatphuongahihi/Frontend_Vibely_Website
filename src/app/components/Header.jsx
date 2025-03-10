@@ -183,11 +183,11 @@ const Header = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/faqs`)}>
                     <img src="images/faqs_dropdown.png" alt="faqs" className="mr-0" />
-                    <span className="ml-2 font-semibold">Hộp thư hỗ trợ</span>
+                    <span className="ml-2.5 font-semibold">Hộp thư hỗ trợ</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/about-us`)}>
                     <img src="images/about_dropdown.png" alt="faqs" className="mr-0" />
-                    <span className="ml-2 font-semibold">Về chúng tôi</span>
+                    <span className="ml-1 font-semibold">Về chúng tôi</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer mb-3" onClick={handleLogout}>
                     <img src="images/logout_dropdown.png" alt="logout" className="mr-0" />
