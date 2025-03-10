@@ -177,13 +177,17 @@ const Header = () => {
                     <span className="ml-2 font-semibold">Cài đặt</span>
                     <ChevronRight className="absolute right-2 text-[#54C8FD]" />
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/help_center`)}>
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/help-center`)}>
                     <img src="images/help_dropdown.png" alt="help" className="mr-0" />
                     <span className="ml-2 font-semibold">Trung tâm trợ giúp</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/faqs`)}>
                     <img src="images/faqs_dropdown.png" alt="faqs" className="mr-0" />
                     <span className="ml-2 font-semibold">Hộp thư hỗ trợ</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/about-us`)}>
+                    <img src="images/about_dropdown.png" alt="faqs" className="mr-0" />
+                    <span className="ml-2 font-semibold">Về chúng tôi</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer mb-3" onClick={handleLogout}>
                     <img src="images/logout_dropdown.png" alt="logout" className="mr-0" />
