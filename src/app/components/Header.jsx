@@ -8,13 +8,12 @@ import { logout } from "@/service/auth.service";
 import useSidebarStore from "@/store/sidebarStore";
 import userStore from "@/store/userStore";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
-import { Bell, ChevronRight, LogOut, Menu, MessageCircle, Search, Users } from "lucide-react";
+import { Bell, ChevronRight, Menu, MessageCircle, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { useState } from "react";
 import { SettingsMenu } from './SettingsMenu';
 
 
@@ -181,8 +180,8 @@ const Header = () => {
                     <img src="images/help_dropdown.png" alt="help" className="mr-0" />
                     <span className="ml-2 font-semibold">Trung tâm trợ giúp</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/faqs`)}>
-                    <img src="images/faqs_dropdown.png" alt="faqs" className="mr-0" />
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/support`)}>
+                    <img src="images/faqs_dropdown.png" alt="support" className="mr-0" />
                     <span className="ml-2.5 font-semibold">Hộp thư hỗ trợ</span>
                   </DropdownMenuItem>
                   <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/about-us`)}>
