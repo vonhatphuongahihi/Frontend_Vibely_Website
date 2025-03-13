@@ -1,0 +1,60 @@
+{
+  "WHY_CHOOSE": {
+    "title": "Vibely - Cộng đồng học tập dành cho tất cả mọi người",
+    "picture": "/about/about-img.png",
+    "desc": "Khám phá tri thức một cách dễ dàng và đầy cảm hứng cùng Vibely, người bạn đồng hành lý tưởng trên hành trình học tập của bạn.",
+    "reason": [
+      {"img": "/icons/luggage-03.svg", "label": "Nội dung chất lượng"},
+      {"img": "/icons/coin-hand.svg", "label": "Cộng đồng năng động"},
+      {"img": "/icons/compass.svg", "label": "Cá nhân hóa trải nghiệm"}
+    ]
+  },
+  "ABOUT": {
+    "text": [
+      {
+        "title": "Vibely là gì?",
+        "desc": "Vibely là mạng xã hội học tập được xây dựng bởi những người đam mê giáo dục và công nghệ. Mục tiêu của Vibely là giúp bạn tìm thấy cách học hiệu quả nhất thông qua các phương pháp tiếp cận hiện đại và cộng đồng hỗ trợ."
+      },
+      {
+        "title": "Sứ mệnh",
+        "desc": "Vibely ra đời với mục tiêu tạo ra một môi trường học tập sáng tạo, nơi mọi người có thể cùng nhau trao đổi kiến thức, phát triển kỹ năng và truyền cảm hứng cho nhau."
+      },
+      {
+        "title": "Cam kết",
+        "desc": "Vibely cam kết không chỉ tạo ra một nền tảng học tập mà còn cam kết mang đến trải nghiệm giáo dục chất lượng, kết nối ý nghĩa và sự phát triển bền vững cho mọi thành viên trong cộng đồng."
+      }
+    ],
+    "img": [
+      "/about/europe.jpg",
+      "/about/fuji.jpg",
+      "/about/thailand.jpg"
+    ]
+  },
+  "TEAM": [
+    {
+      "img": "/about/member.png",
+      "name": "Ngô Thị Như Quỳnh",
+      "role": "CEO & Founder"
+    },
+    {
+      "img": "/about/member.png",
+      "name": "Ngô Thị Như Quỳnh",
+      "role": "CEO & Founder"
+    },
+    {
+      "img": "/about/member.png",
+      "name": "Ngô Thị Như Quỳnh",
+      "role": "CEO & Founder"
+    },
+    {
+      "img": "/about/member.png",
+      "name": "Ngô Thị Như Quỳnh",
+      "role": "CEO & Founder"
+    }
+  ],
+  "ICON_SOCIALS": [
+    "/icons/facebook.svg",
+    "/icons/instagram.svg",
+    "/icons/telegram.svg"
+  ]
+}

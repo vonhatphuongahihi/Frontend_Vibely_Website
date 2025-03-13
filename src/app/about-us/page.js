@@ -1,44 +1,144 @@
-import React from 'react';
+import React from "react";
+import Heading from "@/app/components/contact/Heading";
+import Image from "next/image";
+import Line from "@/app/components/about/LineInAbout"
+import ScrollRevealEffect from '@/app/components/about/ScrollRevealEff';
+import ProfileCard from '@/app/components/about/ProfileCard';
+import data from './datasource.json';
 
-const AboutUs = () => {
-  return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-3xl font-bold mb-4">About Us</h1>
-      <div className="mb-6">
-        <img 
-          src="path/to/your/image.jpg" 
-          alt="About Us" 
-          className="w-full h-64 object-cover rounded-lg" 
-        />
-      </div>
-      <p className="text-gray-700 mb-4">
-        Welcome to our social media platform where you can connect with friends and share your thoughts.
-      </p>
-      <h2 className="text-2xl font-semibold mb-2">Our Mission</h2>
-      <p className="text-gray-700 mb-4">
-        To create a space where everyone can express themselves freely and connect with others.
-      </p>
-      <h2 className="text-2xl font-semibold mb-2">Our Vision</h2>
-      <p className="text-gray-700 mb-4">
-        We envision a world where everyone can share their stories and experiences, fostering a sense of community and belonging.
-      </p>
-      <h2 className="text-2xl font-semibold mb-2">Our Values</h2>
-      <ul className="list-disc list-inside text-gray-700 mb-4">
-        <li>Inclusivity</li>
-        <li>Creativity</li>
-        <li>Integrity</li>
-        <li>Collaboration</li>
-      </ul>
-      <h2 className="text-2xl font-semibold mb-2">Study Music Feature</h2>
-      <p className="text-gray-700 mb-4">
-        Enjoy our curated playlists to help you focus while studying!
-      </p>
-      <audio controls className="w-full mt-4">
-        <source src="path/to/your/music.mp3" type="audio/mpeg" />
-        Your browser does not support the audio element.
-      </audio>
-    </div>
-  );
-};
+const { WHY_CHOOSE, ABOUT, TEAM } = data;
 
-export default AboutUs;
+const About = () => {
+    return (
+        <div className="container mx-auto px-4">
+            <ScrollRevealEffect />
+
+            {/* banner */}
+            <div className="my-10 mt-20">
+                <Heading title="Về chúng tôi" />
+            </div>
+            <div className="flex items-center justify-between mb-10">
+                <div className="w-1/2 pr-10 flex items-center justify-end">
+                    <Image
+                        src={WHY_CHOOSE.picture}
+                        width={550}
+                        height={400}
+                        className="filter contrast-125 saturate-150 brightness-75"
+                    />
+                </div>
+
+                <div className="w-1/2 pr-28 pl-10">
+                    <p className="text-2xl font-bold my-3">
+                        {WHY_CHOOSE.title}
+                    </p>
+                    <p className="text-base text-gray-400">{WHY_CHOOSE.desc}</p>
+                    <ul>
+                        {WHY_CHOOSE.reason.map((row, key) => (
+                            <li
+                                key={key}
+                                className="my-4 transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg p-4 overflow-hidden"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="pl-5">
+                                        <Image
+                                            src={row.img}
+                                            height={30}
+                                            width={30}
+                                            alt = ''
+                                        />
+                                    </div>
+
+                                    <span className="text-xl font-medium">
+                                        {row.label}
+                                    </span>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+
+            {/* about us */}
+            <div className="flex items-start justify-center px-4 mx-20">
+                <div className="flex-1 mx-5">
+                    <div className="px-5 mb-16 left-element">
+                        <p className="text-2xl font-bold py-5">
+                            {ABOUT.text[0].title}
+                        </p>
+                        <p className="pl-3 leading-6 text-base">
+                            {ABOUT.text[0].desc}
+                        </p>
+                    </div>
+
+                    <div className="px-5 my-16 left-element">
+                        <Image
+                            src={ABOUT.img[1]}
+                            width={400}
+                            height={200}
+                            className="rounded-xl"
+                        />
+                    </div>
+
+                    <div className="px-5 left-element">
+                        <p className="text-2xl font-bold py-5">
+                            {ABOUT.text[2].title}
+                        </p>
+                        <p className="pl-3 leading-6 text-base">
+                            {ABOUT.text[2].desc}
+                        </p>
+                    </div>
+                </div>
+
+                <Line />
+
+                <div className="flex-1 ml-20">
+                    <div className="px-10 mb-8 right-element">
+                        <Image
+                            src={ABOUT.img[0]}
+                            height={200}
+                            width={400}
+                            className="rounded-xl"
+                        />
+                    </div>
+
+                    <div className="px-10 my-16 right-element text-right">
+                        <p className="text-2xl font-bold py-5">
+                            {ABOUT.text[1].title}
+                        </p>
+                        <p className="pr-3 text-base">{ABOUT.text[1].desc}</p>
+                    </div>
+
+                    <div className="px-10 mt-16 right-element">
+                        <Image
+                            src={ABOUT.img[2]}
+                            height={200}
+                            width={400}
+                            className="rounded-xl"
+                        />
+                    </div>
+                </div>
+            </div>
+            
+            {/* Team  */}
+            <div className="my-10">
+                <Heading title="Team & Founder" />
+            </div>
+            
+            <div className="container mx-auto mt-24 mb-10">
+                <div className="grid grid-cols-4">
+                    {TEAM.map((row, key) => (
+                        <div key={key} className="flex items-center justify-center">
+                            <ProfileCard
+                                img={row.img}
+                                name={row.name}
+                                role={row.role}
+                            />
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
+export default About;
