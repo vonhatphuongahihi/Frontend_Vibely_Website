@@ -8,16 +8,21 @@ import { logout } from "@/service/auth.service";
 import useSidebarStore from "@/store/sidebarStore";
 import userStore from "@/store/userStore";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
-import { Bell, LogOut, Menu, MessageCircle, Search, Users } from "lucide-react";
+import { Bell, ChevronRight, Menu, MessageCircle, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
+import { SettingsMenu } from './SettingsMenu';
+
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
-
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const handleBackToMainMenu = () => {
+    setIsSettingsOpen(false);
+  };
   const navItems = [
     { icon: "/images/home_navbar.svg", path: "/" },
     { icon: "/images/video_navbar.svg", path: "/video-feed" },
@@ -28,7 +33,7 @@ const Header = () => {
 
   const { toggleSidebar } = useSidebarStore();
   const router = useRouter();
-  const {user, clearUser} = userStore();
+  const { user, clearUser } = userStore();
 
   const userPlaceholder = user?.username
     ?.split(" ")
@@ -58,7 +63,7 @@ const Header = () => {
       <div className="mx-auto flex justify-between items-center h-full px-4">
         {/* Logo và Tìm kiếm */}
         <div className="flex items-center gap-2">
-          <Image src="/images/vibely_logo.png" alt="logo" width={60} height={60} className="-ml-2 cursor-pointer" onClick={() => handleNavigation('/')}/>
+          <Image src="/images/vibely_logo.png" alt="logo" width={60} height={60} className="-ml-2 cursor-pointer" onClick={() => handleNavigation('/')} />
           <div className="relative -ml-2">
             <form>
               <div className="relative">
@@ -77,8 +82,8 @@ const Header = () => {
                       <div className="flex items-center gap-2">
                         <Avatar className="h-8 w-8">
                           {user?.profilePicture ? (
-                            <AvatarImage src={user?.profilePicture} alt={user?.username}/>
-                          ):(
+                            <AvatarImage src={user?.profilePicture} alt={user?.username} />
+                          ) : (
                             <AvatarFallback>{userPlaceholder}</AvatarFallback>
                           )}
                         </Avatar>
@@ -100,7 +105,7 @@ const Header = () => {
                 src={icon}
                 alt="nav-icon"
                 className="w-6 h-6 filter brightness-50 contrast-200 transition-all duration-200 hover:invert-[40%] hover:sepia-[50%] hover:saturate-[300%] hover:hue-rotate-[160deg]"
-                />
+              />
             </Link>
           ))}
         </nav>
@@ -110,7 +115,7 @@ const Header = () => {
             <Menu />
           </Button>
           <Button variant="ghost" size="icon" className="hidden md:block text-gray-600 cursor-pointer pl-1"
-          onClick={() => handleNavigation('/messenger')}>
+            onClick={() => handleNavigation('/messenger')}>
             <MessageCircle size={22} className="min-w-[22px] min-h-[22px]" />
           </Button>
           <Button variant="ghost" size="icon" className="hidden md:block text-gray-600 cursor-pointer pl-1">
@@ -124,11 +129,11 @@ const Header = () => {
               >
                 <Avatar>
                   {user?.profilePicture ? (
-                    <AvatarImage 
+                    <AvatarImage
                       src={user?.profilePicture}
                       alt={user?.username}
                     />
-                  ):(
+                  ) : (
                     <AvatarFallback>
                       {userPlaceholder}
                     </AvatarFallback>
@@ -136,43 +141,59 @@ const Header = () => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              className="w-64 z-50 bg-white shadow-lg rounded-lg border border-gray-200" 
-              align="end"
-            >
-              <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
-                  <div className="flex items-center">
-                    <Avatar className="h-8 w-8 mr-2">
-                      {user?.profilePicture ? (
-                        <AvatarImage 
-                          src={user?.profilePicture}
-                          alt={user?.username}
-                        />
-                      ):(
-                        <AvatarFallback>
-                          {userPlaceholder}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div className="ml-2">
-                      <p className="text-sm font-medium leading-none">
-                        {user?.username}
-                      </p>
+            <DropdownMenuContent className="w-64 z-50 bg-white shadow-lg rounded-lg border border-gray-200" align="end" sideOffset={5}>
+              {isSettingsOpen ? (
+                // Hiển thị SettingsMenu khi isSettingsOpen = true
+                <SettingsMenu onBack={handleBackToMainMenu} />
+              ) : (
+                // Menu Chính
+                <>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <div className="flex items-center">
+                        <Avatar className="h-8 w-8 mr-2">
+                          {user?.profilePicture ? (
+                            <AvatarImage src={user?.profilePicture} alt={user?.username} />
+                          ) : (
+                            <AvatarFallback>{userPlaceholder}</AvatarFallback>
+                          )}
+                        </Avatar>
+                        <div className="ml-2">
+                          <p className="text-sm font-medium leading-none">{user?.username}</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
-              </DropdownMenuLabel>
-              <div className="bg-gray-200 h-px my-2"></div>
-              <DropdownMenuItem className="cursor-pointer" onClick={() => handleNavigation(`/user-profile/${user?._id}`)}>
-                <Users/> <span className="ml-2">Trang cá nhân</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
-                <MessageCircle/> <span className="ml-2">Tin nhắn</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
-                <LogOut/> <span className="ml-2">Đăng xuất</span>
-              </DropdownMenuItem>
+                  </DropdownMenuLabel>
+                  <div className="bg-gray-200 h-px my-2"></div>
+                  <DropdownMenuItem
+                    className="cursor-pointer mb-2"
+                    onSelect={(event) => {
+                      event.preventDefault();
+                      setIsSettingsOpen(true);
+                    }}
+                  >
+                    <img src="images/setting_dropdown.png" alt="setting" className="mr-0" />
+                    <span className="ml-2 font-semibold">Cài đặt</span>
+                    <ChevronRight className="absolute right-2 text-[#54C8FD]" />
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/help-center`)}>
+                    <img src="images/help_dropdown.png" alt="help" className="mr-0" />
+                    <span className="ml-2 font-semibold">Trung tâm trợ giúp</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/support`)}>
+                    <img src="images/faqs_dropdown.png" alt="support" className="mr-0" />
+                    <span className="ml-2.5 font-semibold">Hộp thư hỗ trợ</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={() => handleNavigation(`/about-us`)}>
+                    <img src="images/about_dropdown.png" alt="faqs" className="mr-0" />
+                    <span className="ml-1 font-semibold">Về chúng tôi</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="cursor-pointer mb-3" onClick={handleLogout}>
+                    <img src="images/logout_dropdown.png" alt="logout" className="mr-0" />
+                    <span className="ml-2 font-semibold">Đăng xuất</span>
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
 
 
