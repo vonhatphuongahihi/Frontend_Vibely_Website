@@ -1,7 +1,7 @@
 {
   "WHY_CHOOSE": {
     "title": "Vibely - Cộng đồng học tập dành cho tất cả mọi người",
-    "picture": "/about/about-img.png",
+    "picture": "/about/vibely_logo_1000.png",
     "desc": "Khám phá tri thức một cách dễ dàng và đầy cảm hứng cùng Vibely, người bạn đồng hành lý tưởng trên hành trình học tập của bạn.",
     "reason": [
       {"img": "/icons/luggage-03.svg", "label": "Nội dung chất lượng"},
@@ -13,7 +13,7 @@
     "text": [
       {
         "title": "Vibely là gì?",
-        "desc": "Vibely là mạng xã hội học tập được xây dựng bởi những người đam mê giáo dục và công nghệ. Mục tiêu của Vibely là giúp bạn tìm thấy cách học hiệu quả nhất thông qua các phương pháp tiếp cận hiện đại và cộng đồng hỗ trợ."
+        "desc": "Vibely là mạng xã hội kết hợp học tập, nơi công nghệ và giáo dục hòa quyện để mang đến trải nghiệm học tập hiệu quả. Với các phương pháp hiện đại và cộng đồng hỗ trợ, Vibely giúp bạn khám phá cách học tốt nhất, truyền cảm hứng và kết nối với những người cùng chí hướng."
       },
       {
         "title": "Sứ mệnh",
@@ -21,34 +21,34 @@
       },
       {
         "title": "Cam kết",
-        "desc": "Vibely cam kết không chỉ tạo ra một nền tảng học tập mà còn cam kết mang đến trải nghiệm giáo dục chất lượng, kết nối ý nghĩa và sự phát triển bền vững cho mọi thành viên trong cộng đồng."
+        "desc": "Vibely không chỉ là một nền tảng học tập mà còn là một mạng xã hội kết nối những người yêu thích giáo dục. Chúng tôi cam kết mang đến trải nghiệm học tập chất lượng, xây dựng cộng đồng gắn kết và thúc đẩy sự phát triển bền vững cho mọi thành viên."
       }
     ],
     "img": [
-      "/about/europe.jpg",
-      "/about/fuji.jpg",
-      "/about/thailand.jpg"
+      "/about/social network.jpg",
+      "/about/image_2.jpg",
+      "/about/image_4.jpg"
     ]
   },
   "TEAM": [
     {
-      "img": "/about/member.png",
-      "name": "Ngô Thị Như Quỳnh",
+      "img": "/about/quynh1.jpg",
+      "name": "Như Quỳnh",
+      "role": "CEO & Founder"
+    },
+    {
+      "img": "/about/phuong.png",
+      "name": "Nhất Phương",
+      "role": "CEO & Founder"
+    },
+    {
+      "img": "/about/minh.jpg",
+      "name": "Gia Minh",
       "role": "CEO & Founder"
     },
     {
       "img": "/about/member.png",
-      "name": "Ngô Thị Như Quỳnh",
-      "role": "CEO & Founder"
-    },
-    {
-      "img": "/about/member.png",
-      "name": "Ngô Thị Như Quỳnh",
-      "role": "CEO & Founder"
-    },
-    {
-      "img": "/about/member.png",
-      "name": "Ngô Thị Như Quỳnh",
+      "name": "Phương Sang",
       "role": "CEO & Founder"
     }
   ],
