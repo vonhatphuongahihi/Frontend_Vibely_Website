@@ -18,7 +18,7 @@ const About = () => {
                 <Heading title="Về chúng tôi" />
             </div>
             <div className="flex items-center justify-between mb-10">
-                <div className="w-1/2 pr-10 flex items-center justify-end">
+                <div className="w-1/ ml-20 pr-10 flex items-center justify-end">
                     <Image
                         src={WHY_CHOOSE.picture}
                         width={550}
