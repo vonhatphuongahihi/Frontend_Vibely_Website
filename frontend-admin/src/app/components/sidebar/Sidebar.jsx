@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import useSidebarStore from "@/store/sidebarStore";
 import userStore from "@/store/userStore";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const SidebarItem = ({ path, icon, label }) => {
     const router = useRouter();
@@ -48,7 +48,7 @@ const Sidebar = () => {
         { path: "/admin/users", icon: "/svg/user_admin.svg", label: "Người dùng" },
         { path: "/admin/posts", icon: "/svg/post_admin.svg", label: "Bài viết" },
         { path: "/admin/documents", icon: "/svg/document_admin.svg", label: "Tài liệu" },
-        { path: "/admin/supports", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
+        { path: "/admin/support", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
     ];
 
     return (
