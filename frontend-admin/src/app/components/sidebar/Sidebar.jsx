@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import useSidebarStore from "@/store/sidebarStore";
 import userStore from "@/store/userStore";
 import { usePathname, useRouter } from "next/navigation";
-import { useRouter, usePathname } from "next/navigation";
 import React from 'react';
 
 const SidebarItem = ({ path, icon, label }) => {
