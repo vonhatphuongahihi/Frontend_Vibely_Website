@@ -3,31 +3,36 @@
 import React, { useState } from 'react'
 import Image from 'next/image'
 import Sidebar from '../../components/sidebar/Sidebar'
-import { FiSearch, FiTrash2 } from 'react-icons/fi'
+import { FiSearch } from 'react-icons/fi'
+import { FaTrash } from 'react-icons/fa'
 import UserDropdown from '../../components/dashboard/UserDropdown'
 import UserProfile from '../../components/users/UserProfile'
+import DeleteInquiryPopup from '../../components/users/DeleteInquiryPopup'
 
 const UsersPage = () => {
-  // Dữ liệu người dùng mẫu
   const users = [
-    { id: '001', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '002', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '003', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '004', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '005', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '006', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '007', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '008', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '009', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '010', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '011', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '012', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '001', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '002', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '003', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '004', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '005', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '006', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '007', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '008', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '009', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '010', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '011', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '012', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
   ];
 
   // State để theo dõi người dùng được chọn
   const [selectedUser, setSelectedUser] = useState(users[0]);
   const [searchQuery, setSearchQuery] = useState('');
   const [usersList, setUsersList] = useState(users);
+  
+  // State cho popup xóa
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Xử lý khi click vào người dùng
   const handleUserClick = (user) => {
@@ -41,23 +46,36 @@ const UsersPage = () => {
     console.log('Searching for:', searchQuery);
   };
 
-  // Xử lý khi xóa người dùng
-  const handleDeleteUser = (userId, e) => {
+  // Mở popup xác nhận xóa
+  const openDeletePopup = (user, e) => {
     e.stopPropagation(); // Ngăn không cho click vào hàng kích hoạt handleUserClick
-    
-    if (window.confirm('Bạn có chắc chắn muốn xóa người dùng này?')) {
+    setUserToDelete(user);
+    setIsDeletePopupOpen(true);
+  };
+
+  // Đóng popup xác nhận xóa
+  const closeDeletePopup = () => {
+    setIsDeletePopupOpen(false);
+    setUserToDelete(null);
+  };
+
+  // Xử lý khi xác nhận xóa người dùng
+  const handleConfirmDelete = () => {
+    if (userToDelete) {
       // Lọc ra danh sách người dùng mới không bao gồm người dùng bị xóa
-      const updatedUsers = usersList.filter(user => user.id !== userId);
+      const updatedUsers = usersList.filter(user => user.id !== userToDelete.id);
       
       // Cập nhật danh sách người dùng
       setUsersList(updatedUsers);
       
       // Nếu người dùng đang được chọn là người dùng bị xóa, chọn người dùng khác
-      if (selectedUser && selectedUser.id === userId) {
+      if (selectedUser && selectedUser.id === userToDelete.id) {
         setSelectedUser(updatedUsers.length > 0 ? updatedUsers[0] : null);
       }
       
-      console.log(`Đã xóa người dùng có ID: ${userId}`);
+      console.log(`Đã xóa người dùng có ID: ${userToDelete.id}`);
+      
+      closeDeletePopup();
     }
   };
 
@@ -74,13 +92,11 @@ const UsersPage = () => {
         <div className="w-full ml-[-20px] py-6 px-6 mb-[-15px] flex justify-between items-center">
           <h1 className="text-2xl font-semibold text-[#333]">Quản lý người dùng</h1>
           <div className="flex items-center space-x-4">
-            {/* Notifications icon */}
             <button className="text-gray-500 hover:text-gray-700">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </button>
-            {/* User dropdown */}
             <UserDropdown />
           </div>
         </div>
@@ -148,9 +164,9 @@ const UsersPage = () => {
                       <td className="px-4 py-3 text-right">
                         <button 
                           className="text-red-400 hover:text-red-600 transition-colors duration-200"
-                          onClick={(e) => handleDeleteUser(user.id, e)}
+                          onClick={(e) => openDeletePopup(user, e)}
                         >
-                          <FiTrash2 />
+                          <FaTrash />
                         </button>
                       </td>
                     </tr>
@@ -166,6 +182,14 @@ const UsersPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Popup */}
+      <DeleteInquiryPopup
+        isOpen={isDeletePopupOpen}
+        onClose={closeDeletePopup}
+        onConfirm={handleConfirmDelete}
+        userName={userToDelete ? userToDelete.username : ''}
+      />
     </div>
   );
 }
