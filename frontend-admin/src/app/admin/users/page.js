@@ -119,7 +119,7 @@ const UsersPage = () => {
                 </div>
                 <button
                   type="submit"
-                  className="ml-2 px-6 py-2 bg-[#0D6EFD] text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                  className="ml-2 px-6 py-2 bg-[#086280] text-white rounded-lg hover:bg-blue-700 transition duration-200"
                 >
                   <div className="flex items-center">
                     <FiSearch className="mr-1" />

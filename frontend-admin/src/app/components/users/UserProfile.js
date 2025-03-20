@@ -21,7 +21,7 @@ const UserProfile = ({ user }) => {
               className="h-full w-full object-cover"
             />
           </div>
-          <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs rounded-full px-2 py-1">
+          <div className="absolute top-0 right-0 bg-[#086280] text-white text-xs rounded-full px-2 py-1">
             {user.id}
           </div>
         </div>
