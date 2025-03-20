@@ -58,7 +58,7 @@ const UserDropdown = ({ userName = "Như Quỳnh", userEmail = "ngonhuquynh@gmai
               <FiSettings className="mr-3 text-gray-500" />
               <span>Settings</span>
             </Link>
-            <Link href="/admin/profile" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
+            <Link href="/admin/account" className="flex items-center px-4 py-3 text-gray-700 hover:bg-gray-100">
               <FiUser className="mr-3 text-gray-500" />
               <span>Profile</span>
             </Link>
