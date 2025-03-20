@@ -10,18 +10,18 @@ import UserProfile from '../../components/users/UserProfile'
 const UsersPage = () => {
   // Dữ liệu người dùng mẫu
   const users = [
-    { id: '001', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '002', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '003', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '004', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '005', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '006', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '007', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '008', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '009', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '010', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '011', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
-    { id: '012', username: 'Ngô Thị Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '001', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '002', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '003', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '004', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '005', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '006', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '007', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '008', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '009', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '010', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '011', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
+    { id: '012', username: 'Như Quỳnh', email: 'nhuquynh@gmail.com', joinDate: '01/01/2024', posts: 3, avatar: '/images/dashboard/quynh1.jpg' },
   ];
 
   // State để theo dõi người dùng được chọn
