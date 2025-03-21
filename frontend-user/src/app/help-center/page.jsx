@@ -263,6 +263,14 @@ const HelpCenter = () => {
               </div>
             </div>
           )}
+          {selectedContent === null && (
+            <Image
+              src="/images/helpcenter.png"
+              alt="Support Girl"
+              width={500}
+              height={500}
+            />
+          )}
         </div>
       </div>
     </div>
