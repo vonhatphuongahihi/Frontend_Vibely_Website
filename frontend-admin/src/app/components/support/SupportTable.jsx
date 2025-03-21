@@ -1,4 +1,5 @@
-import { FaReply, FaTrash } from 'react-icons/fa';
+
+import { FaTrash } from 'react-icons/fa';
 
 const DocumentTable = ({ inquiries, openModal, setSelectedInquiry }) => {
 
@@ -31,7 +32,7 @@ const DocumentTable = ({ inquiries, openModal, setSelectedInquiry }) => {
                     setSelectedInquiry(inq)}
                   }
                 >
-                  <FaReply />
+                  <img src="/images/reply.svg" alt="" className='w-4 h-4'/>
                 </button>
               )}
               <button 
