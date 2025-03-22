@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -18,6 +19,12 @@ import { SettingsMenu } from './SettingsMenu';
 
 
 const Header = () => {
+  const pathname = usePathname();
+
+  // Kiểm tra nếu đường dẫn hiện tại là forgot-password, ẩn header
+  if (pathname.includes("/forgot-password")|| pathname.includes("/user-login")) {
+    return null;
+  }
   const [isSearchOpen, setIsSearchOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const handleBackToMainMenu = () => {

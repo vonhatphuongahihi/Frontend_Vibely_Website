@@ -25,10 +25,10 @@ export default function Thietlap() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9FDFF] p-6">
       <form onSubmit={handleSubmit} className="w-[42.857%] bg-white shadow-md rounded-lg p-8 text-center border border-[#0E42D2]">
         <div className="mb-6 flex justify-center">
-          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={180} height={50} />
+          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={120} height={30} />
         </div>
         <p className="text-lg mb-4 text-left text-gray-400">
           <strong>Vui lòng kiểm tra email và nhập mã xác nhận để hoàn thành quá 
