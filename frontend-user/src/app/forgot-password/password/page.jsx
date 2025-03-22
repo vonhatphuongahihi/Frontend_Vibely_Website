@@ -19,16 +19,16 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9FDFF] p-6">
       <form onSubmit={handleSubmit} className="w-[42.857%] bg-white shadow-md rounded-lg p-8 text-center border border-[#0E42D2]">
         <div className="mb-6 flex justify-center">
-          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={180} height={50} />
+          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={120} height={30} />
         </div>
         <p className="text-lg mb-6 text-[#1CA2C1]">
           Cùng học tập và kết bạn ở khắp mọi nơi trên thế giới trên Vibely
         </p>
         <div className="w-full">
-          <label className="block text-left font-semibold text-gray-700 mb-1">Nhập mật khẩu mới</label>
+          <label className="block text-left font-semibold text-[#086280] mb-1 ">Nhập mật khẩu mới</label>
           <input
             type="password"
             value={password}
@@ -36,7 +36,7 @@ export default function ResetPassword() {
             className="w-full px-4 py-3 border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] mb-4"
             required
           />
-          <label className="block text-left font-semibold text-gray-700 mb-1">Nhập lại mật khẩu mới</label>
+          <label className="block text-left font-semibold text-[#086280] mb-1">Nhập lại mật khẩu mới</label>
           <input
             type="password"
             value={confirmPassword}

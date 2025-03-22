@@ -124,7 +124,7 @@ const Page = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="w-full max-w-md dark:text-white border-[#0E42D2]">
+        <Card className="w-full max-w-md dark:text-white bg-white border-[#0E42D2]">
           <CardHeader>
             <CardTitle className="flex justify-center">
               <img src="/images/logo.png" alt="Vibely" className="w-20" />
