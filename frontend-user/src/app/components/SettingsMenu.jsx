@@ -24,7 +24,7 @@ export const SettingsMenu = ({ onBack }) => {
       </DropdownMenuItem>
       <DropdownMenuItem
         className="cursor-pointer mb-2"
-        onClick={() => handleNavigation('/forgot-password')}
+        onClick={() => handleNavigation('/change-password')}
       >
         <img src="images/change_password_dropdown.png" alt="help" className="mr-0" />
         <span className="font-semibold ml-2">Đổi mật khẩu</span>

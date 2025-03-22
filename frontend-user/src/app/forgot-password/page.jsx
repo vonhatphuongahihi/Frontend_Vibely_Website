@@ -26,9 +26,9 @@ export default function ResetPassword() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-6">
-      <form onSubmit={handleSubmit} className="w-1/2 bg-white shadow-md rounded-lg p-8 text-center">
+      <form onSubmit={handleSubmit} className="w-[42.857%] bg-white shadow-md rounded-lg p-8 text-center border border-[#0E42D2]">
         <div className="mb-6 flex justify-center">
-          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={200} height={50} />
+          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={180} height={50} />
         </div>
         <p className="text-lg mb-4" style={{ color: '#1CA2C1' }}>
           Để tiếp tục quá trình thiết lập lại mật khẩu, vui lòng nhập email của bạn
@@ -40,7 +40,7 @@ export default function ResetPassword() {
             value={email}
             onFocus={handleFocus} // Khi nhấn vào input, email sẽ hiện ra
             onChange={(e) => setEmail(e.target.value)}
-            className="w-[83%] px-4 py-3 border border-blue-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
+            className="w-full px-4 py-3 border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] mb-4"
             required
           />
         </div>
@@ -48,16 +48,16 @@ export default function ResetPassword() {
         <button
           type="button" // Tránh reload form
           onClick={handleClick} // Gọi handleClick khi bấm button
-          className="w-1/3 bg-[#23CAF1] text-white py-3 rounded-lg hover:bg-[#1AA3C8] transition duration-200 mb-4 font-bold"
+          className="w-[40%] bg-[#23CAF1] text-white py-3 rounded-lg hover:bg-[#1AA3C8] transition duration-200 mb-4 font-bold"
         >
           Tiếp tục
         </button>
 
-        <div className="flex justify-end text-gray-500 mr-14">
-          <a href="/login" className="hover:underline mr-2" style={{ color: '#B0C4DE' }}>
+        <div className="flex justify-end text-gray-500">
+          <a className="hover:underline mr-2" style={{ color: '#B0C4DE' }}>
             Quay trở lại
           </a>
-          <a href="/login" className="font-bold" style={{ color: '#086280' }}>
+          <a href="/user-login" className="font-bold" style={{ color: '#086280' }}>
             Đăng nhập
           </a>
         </div>
