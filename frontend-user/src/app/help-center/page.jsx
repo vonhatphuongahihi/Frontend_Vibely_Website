@@ -1,10 +1,19 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 const HelpCenter = () => {
   const [selectedContent, setSelectedContent] = useState(null);
   const [activeQuestion, setActiveQuestion] = useState(null);
+  const [question1, setQuestion1] = useState(false);
+  const [question2, setQuestion2] = useState(false);
+  const [question3, setQuestion3] = useState(false);
+  const [question4, setQuestion4] = useState(false);
+  const [addFriend_question1, setAddFriendQuestion1] = useState(false);
+  const [loginQuestion1, setLoginQuestion1] = useState(false);
+  const [loginQuestion2, setLoginQuestion2] = useState(false);
+  const [loginQuestion3, setLoginQuestion3] = useState(false);  
 
   const handleShowContent = (content) => {
     setSelectedContent(content);
@@ -16,10 +25,10 @@ const HelpCenter = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center p-10">
+    <div className="h-[80vh] mt-14 flex items-center p-10">
       <div className="max-w-7xl w-full flex gap-10">
         {/* Sidebar */}
-        <div className="w-[30%] bg-white shadow-lg rounded-lg p-6 ml-6">
+        <div className="w-1/4 bg-white p-4 shadow-md ml-10 mt-20 h-[600px]">
           <h2 className="text-xl font-bold mb-6 flex items-center gap-2 mt-6 ml-6">
             <Image
               src="/images/helpcenter_vibely.png"
@@ -31,7 +40,7 @@ const HelpCenter = () => {
           </h2>
           <ul className="mb-6 space-y-4">
             <li
-              className="flex items-center gap-2 ml-14 cursor-pointer"
+              className="flex items-center gap-2 ml-10 cursor-pointer"
               onClick={() => handleShowContent("createAccount")}
             >
               <Image
@@ -42,7 +51,7 @@ const HelpCenter = () => {
               />
               Cách tạo tài khoản
             </li>
-            <li className="flex items-center gap-2 ml-14 cursor-pointer"
+            <li className="flex items-center gap-2 ml-10 cursor-pointer"
             onClick={() => handleShowContent("addFriend")}
             >
               <Image
@@ -66,7 +75,7 @@ const HelpCenter = () => {
           </h2>
           <ul className="space-y-4">
             <li
-              className="flex items-center gap-2 ml-14 cursor-pointer"
+              className="flex items-center gap-2 ml-10 cursor-pointer"
               onClick={() => handleShowContent("loginPassword")}
             >
               <Image
@@ -81,18 +90,22 @@ const HelpCenter = () => {
         </div>
 
         {/* Nội dung chính */}
-        <div className="w-[70%] flex justify-center items-center ml-10">
+        <div className="w-3/4 flex mt-20 ml-20">
           {selectedContent === "createAccount" && (
-            <div className="w-4/5 bg-white shadow-lg rounded-lg p-6">
+            <div className="w-full rounded-lg p-6">
               <h2 className="text-2xl font-bold text-black mb-4">Cách tạo tài khoản</h2>
               <h3 className="text-lg font-bold text-black mb-4">Xác nhận tài khoản</h3>
               <div className="space-y-4">
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("question1")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("question1"); // Gọi hàm toggle
+                      setQuestion1(!question1); // Đảo trạng thái question1
+                    }}
                   >
                     Tạo tài khoản Vibely?
+                    {question1 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
                   {activeQuestion === "question1" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
@@ -106,16 +119,20 @@ const HelpCenter = () => {
                   )}
                 </div>
 
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("question2")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("question2"); // Gọi hàm toggle
+                      setQuestion2(!question2); // Đảo trạng thái question1
+                    }}                  
                   >
                     Tại sao lại yêu cầu tôi thêm email của mình?
+                    {question2 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </button>
                   {activeQuestion === "question2" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
-                      <h5 className="text-lg font-bold">Chúng tôi có thể sử dụng email của bạn cho các mục đích như:</h5>
+                      <p className="font-bold">Chúng tôi có thể sử dụng email của bạn cho các mục đích như:</p>
                       <ol className="list-decimal pl-4">
                         <li>Giúp bạn đăng nhập. Nếu quên mật khẩu, bạn cần địa chỉ email đã cập nhật để đặt lại.</li>
                         <li>Giữ an toàn cho tài khoản của bạn bằng cách chọn các tính năng như cảnh báo qua email.</li>
@@ -126,40 +143,46 @@ const HelpCenter = () => {
 
                 <h3 className="text-lg font-bold text-black">Xác nhận tài khoản</h3>
                 {/* Câu hỏi 3 */}
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("question3")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("question3"); // Gọi hàm toggle
+                      setQuestion3(!question3); // Đảo trạng thái question1
+                    }}
                   >
                     Hoàn tất quá trình tạo tài khoản Vibely và xác nhận email 
+                    {question3 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
                   {activeQuestion === "question3" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
-                      <h5 className="text-lg font-bold">
-                        Để hoàn tất quá trình tạo tài khoản, bạn cần xác nhận rằng bạn sở hữu email dùng để tạo tài khoản:
-                      </h5>
-                      <p>
-                        - Để xác nhận email, hãy nhấp hoặc nhấn vào liên kết trong email mà bạn nhận được khi tạo tài khoản. 
-                        Khi bạn xác nhận email, chúng tôi biết mình gửi thông tin tài khoản đến đúng chỗ.
+                      <p className=" font-bold">
+                        Để hoàn tất đăng ký, hãy xác nhận email của bạn:
                       </p>
                       <p>
-                        Lưu ý: Hãy xác nhận email của bạn sớm nhất có thể. Bạn có thể không sử dụng được tài khoản của mình khi chưa xác nhận email. 
-                        Nếu bạn không xác nhận, tài khoản có thể bị xóa sau một năm không hoạt động.
+                        - Để xác nhận, hãy nhấp vào liên kết trong email để xác nhận tài khoản.
+                      </p>
+                      <p>
+                        Lưu ý: Hãy xác nhận email sớm để sử dụng tài khoản. Tài khoản chưa xác nhận có thể bị xóa sau một năm không hoạt động.
                       </p>
                     </div>
                   )}
                 </div>
 
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("question4")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("question4"); // Gọi hàm toggle
+                      setQuestion4(!question4); // Đảo trạng thái question1
+                    }}
                   >
                     Tìm email xác nhận đăng ký Vibely
+                    {question4 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </button>
                   {activeQuestion === "question4" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
-                      <h5 className="text-lg font-bold">Nếu bạn tạo tài khoản Vibely bằng email, chúng tôi sẽ gửi liên kết xác nhận đến email đó. Nếu bạn không tìm thấy email xác nhận:</h5>
+                      <p className="font-bold">Nếu bạn tạo tài khoản Vibely bằng email, chúng tôi sẽ gửi liên kết xác nhận đến email đó. Nếu bạn không tìm thấy email xác nhận:</p>
                       <ol className="list-decimal pl-4">
                         <li>Hãy kiểm tra thư mục thư rác. Nếu bạn dùng Gmail, hãy kiểm tra email thuộc hạng mục Xã hội.</li>
                         <li>Đảm bảo rằng bạn đã nhập đúng email. Nếu nhập sai email, bạn có thể thay đổi và gửi lại email.</li>
@@ -173,16 +196,20 @@ const HelpCenter = () => {
           )}
           
           {selectedContent === "addFriend" && (
-            <div className="w-4/5 bg-white shadow-lg rounded-lg p-6">
+            <div className="w-full rounded-lg p-6">
               <h2 className="text-2xl font-bold text-black mb-4">Kết bạn</h2>
               <h3 className="text-lg font-bold text-black mb-4">Thêm bạn bè</h3>
               <div className="space-y-4">
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("addFriend_question1")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("addFriend_question1")
+                      setAddFriendQuestion1(!addFriend_question1); // Đảo trạng thái question1
+                    }}
                   >
                     Tìm và thêm bạn bè trên Vibely
+                    {addFriend_question1? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
                   {activeQuestion === "addFriend_question1" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
@@ -199,18 +226,22 @@ const HelpCenter = () => {
           )}
 
           {selectedContent === "loginPassword" && (
-            <div className="w-4/5 bg-white shadow-lg rounded-lg p-6">
+            <div className="w-full rounded-lg p-6">
               <h2 className="text-2xl font-bold text-black mb-4">Đăng nhập và mật khẩu</h2>
               <h3 className="text-lg font-bold text-black mb-4">Đăng nhập tài khoản</h3>
               <div className="space-y-4">
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("loginQuestion")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("loginQuestion1");
+                      setLoginQuestion1(!loginQuestion1);
+                    }}
                   >
                     Đăng nhập tài khoản Vibely?
+                    {loginQuestion1 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </button>
-                  {activeQuestion === "loginQuestion" && (
+                  {activeQuestion === "loginQuestion1" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <ol className="list-decimal pl-4">
                         <li>Truy cập vào Vibely.</li>
@@ -221,14 +252,18 @@ const HelpCenter = () => {
                   )}
                 </div>
 
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white ">
                   <button
-                    className="w-full text-left font-semibold"
-                    onClick={() => toggleQuestion("question2")}
+                    className="w-full flex justify-between text-left font-semibold"
+                    onClick={() => {
+                      toggleQuestion("loginQuestion2");
+                      setLoginQuestion2(!loginQuestion2);
+                    }}
                   >
                     Đăng xuất khỏi Vibely?
+                    {loginQuestion2 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
-                  {activeQuestion === "question2" && (
+                  {activeQuestion === "loginQuestion2" && (
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <ol className="list-decimal pl-4">
                         <li>Nhấp vào ảnh đại diện của bạn ở trên cùng bên phải Facebook.</li>
@@ -239,25 +274,28 @@ const HelpCenter = () => {
                 </div>
 
                 <h3 className="text-lg font-bold text-black">Đổi mật khẩu tài khoản</h3>
-                <div className="border rounded-lg p-4 shadow-sm">
+                <div className="border rounded-lg p-4 shadow-sm bg-white">
                 <button
-                className="w-full text-left font-semibold"
-                onClick={() => toggleQuestion("question3")}
+                className="w-full flex justify-between text-left font-semibold"
+                onClick={() => {
+                  toggleQuestion("loginQuestion3");
+                  setLoginQuestion3(!loginQuestion3);
+                }}
                 >
                 Đổi mật khẩu Vibely 
+                {loginQuestion3 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </button>
-                {activeQuestion === "question3" && (
-                    <div className="mt-2 p-4 border-t text-gray-600">
-                <h5 className="text-lg font-bold">Nếu bạn quên mật khẩu và không thể đăng nhập
-                </h5>
-                <ol className="list-decimal pl-4">
-                    <li>Nhấp vào Quên mật khẩu? ở cuối màn hình đăng nhập.</li>
-                    <li>Nhập email của bạn, rồi nhấp vào Tiếp tục.</li>
-                    <li>Làm theo gợi ý.</li>
-                    <li>Để hoàn tất quá trình tạo tài khoản, bạn cần xác nhận email hoặc số điện thoại di động của mình.</li>
-                </ol>
-                <h5 className="text-lg font-bold">Nếu bạn đã đăng nhập và muốn đổi mật khẩu (bổ sung sau)</h5>
-                    </div>
+                {activeQuestion === "loginQuestion3" && (
+                  <div className="mt-2 p-4 border-t text-gray-600">
+                    <p className="font-bold">Nếu bạn quên mật khẩu và không thể đăng nhập</p>
+                    <ol className="list-decimal pl-4">
+                      <li>Nhấp vào Quên mật khẩu? ở cuối màn hình đăng nhập.</li>
+                      <li>Nhập email của bạn, rồi nhấp vào Tiếp tục.</li>
+                      <li>Làm theo gợi ý.</li>
+                      <li>Để hoàn tất quá trình tạo tài khoản, bạn cần xác nhận email hoặc số điện thoại di động của mình.</li>
+                    </ol>
+                    <p className=" font-bold">Nếu bạn đã đăng nhập và muốn đổi mật khẩu (bổ sung sau)</p>
+                  </div>
                 )}
                 </div>
               </div>
@@ -269,6 +307,7 @@ const HelpCenter = () => {
               alt="Support Girl"
               width={500}
               height={500}
+              className="mx-auto"
             />
           )}
         </div>
