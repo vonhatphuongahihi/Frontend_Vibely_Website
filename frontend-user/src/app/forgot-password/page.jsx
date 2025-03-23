@@ -26,21 +26,21 @@ export default function ResetPassword() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9FDFF] p-6">
-      <form onSubmit={handleSubmit} className="w-[42.857%] bg-white shadow-md rounded-lg p-8 text-center border border-[#0E42D2]">
+      <form onSubmit={handleSubmit} className="w-[34%] bg-white shadow-md rounded-lg p-7 text-center border border-[#0E42D2]">
         <div className="mb-6 flex justify-center">
-          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={120} height={30} />
+          <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={80} height={30} />
         </div>
-        <p className="text-lg mb-4" style={{ color: '#1CA2C1' }}>
+        <p className="text-sm mb-4" style={{ color: '#1CA2C1' }}>
           Để tiếp tục quá trình thiết lập lại mật khẩu, vui lòng nhập email của bạn
         </p>
-        <div className="flex flex-col items-center w-full">
+        <div className="flex flex-col items-center w-full text-sm">
           <input
             type="email"
             placeholder="Nhập email của bạn"
             value={email}
             onFocus={handleFocus} // Khi nhấn vào input, email sẽ hiện ra
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] mb-4"
+            className="w-full px-3 py-2 border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] mb-4 text-[#C6C6C8]"
             required
           />
         </div>
@@ -48,12 +48,12 @@ export default function ResetPassword() {
         <button
           type="button" // Tránh reload form
           onClick={handleClick} // Gọi handleClick khi bấm button
-          className="w-[40%] bg-[#23CAF1] text-white py-3 rounded-lg hover:bg-[#1AA3C8] transition duration-200 mb-4 font-bold"
+          className="w-[40%] bg-[#23CAF1] text-sm text-white py-3 rounded-lg hover:bg-[#1AA3C8] transition duration-200 mb-4 font-bold"
         >
           Tiếp tục
         </button>
 
-        <div className="flex justify-end text-gray-500">
+        <div className="flex justify-end text-gray-500 text-sm">
           <a className="hover:underline mr-2" style={{ color: '#B0C4DE' }}>
             Quay trở lại
           </a>
