@@ -1,7 +1,8 @@
 "use client";
+import { motion } from "framer-motion";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
-import { ChevronUp, ChevronDown } from "lucide-react";
 
 const HelpCenter = () => {
   const [selectedContent, setSelectedContent] = useState(null);
@@ -107,7 +108,14 @@ const HelpCenter = () => {
                     Tạo tài khoản Vibely?
                     {question1 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
-                  {activeQuestion === "question1" && (
+
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "question1" ? "auto" : 0, opacity: activeQuestion === "question1" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <ol className="list-decimal pl-4">
                         <li>Truy cập vào Vibely và chọn Đăng ký.</li>
@@ -116,7 +124,7 @@ const HelpCenter = () => {
                         <li>Để hoàn tất quá trình tạo tài khoản, bạn cần xác nhận email hoặc số điện thoại di động của mình.</li>
                       </ol>
                     </div>
-                  )}
+                  </motion.div>
                 </div>
 
                 <div className="border rounded-lg p-4 shadow-sm bg-white">
@@ -130,7 +138,14 @@ const HelpCenter = () => {
                     Tại sao lại yêu cầu tôi thêm email của mình?
                     {question2 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </button>
-                  {activeQuestion === "question2" && (
+
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "question2" ? "auto" : 0, opacity: activeQuestion === "question2" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <p className="font-bold">Chúng tôi có thể sử dụng email của bạn cho các mục đích như:</p>
                       <ol className="list-decimal pl-4">
@@ -138,7 +153,7 @@ const HelpCenter = () => {
                         <li>Giữ an toàn cho tài khoản của bạn bằng cách chọn các tính năng như cảnh báo qua email.</li>
                       </ol>
                     </div>
-                  )}
+                  </motion.div>
                 </div>
 
                 <h3 className="text-lg font-bold text-black">Xác nhận tài khoản</h3>
@@ -154,7 +169,14 @@ const HelpCenter = () => {
                     Hoàn tất quá trình tạo tài khoản Vibely và xác nhận email 
                     {question3 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
-                  {activeQuestion === "question3" && (
+                  
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "question3" ? "auto" : 0, opacity: activeQuestion === "question3" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <p className=" font-bold">
                         Để hoàn tất đăng ký, hãy xác nhận email của bạn:
@@ -166,7 +188,7 @@ const HelpCenter = () => {
                         Lưu ý: Hãy xác nhận email sớm để sử dụng tài khoản. Tài khoản chưa xác nhận có thể bị xóa sau một năm không hoạt động.
                       </p>
                     </div>
-                  )}
+                  </motion.div>
                 </div>
 
                 <div className="border rounded-lg p-4 shadow-sm bg-white">
@@ -180,7 +202,14 @@ const HelpCenter = () => {
                     Tìm email xác nhận đăng ký Vibely
                     {question4 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </button>
-                  {activeQuestion === "question4" && (
+                  
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "question4" ? "auto" : 0, opacity: activeQuestion === "question4" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <p className="font-bold">Nếu bạn tạo tài khoản Vibely bằng email, chúng tôi sẽ gửi liên kết xác nhận đến email đó. Nếu bạn không tìm thấy email xác nhận:</p>
                       <ol className="list-decimal pl-4">
@@ -188,7 +217,7 @@ const HelpCenter = () => {
                         <li>Đảm bảo rằng bạn đã nhập đúng email. Nếu nhập sai email, bạn có thể thay đổi và gửi lại email.</li>
                       </ol>
                     </div>                  
-                  )}
+                  </motion.div>
                 </div>
 
               </div>
@@ -211,7 +240,14 @@ const HelpCenter = () => {
                     Tìm và thêm bạn bè trên Vibely
                     {addFriend_question1? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
-                  {activeQuestion === "addFriend_question1" && (
+                  
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "addFriend_question1" ? "auto" : 0, opacity: activeQuestion === "addFriend_question1" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <ol className="list-decimal pl-4">
                         <li>Nhấp vào thanh tìm kiếm ở trên cùng bên trái trang bất kỳ trên Vibely.</li>
@@ -219,7 +255,7 @@ const HelpCenter = () => {
                         <li>Để gửi lời mời kết bạn đến ai đó, hãy nhấp vào ... bên cạnh ảnh đại diện của họ. Một số người có thể không có nút ... bên cạnh ảnh đại diện, tùy vào cài đặt quyền riêng tư của họ.</li>
                       </ol>
                     </div>
-                  )}
+                  </motion.div>
                 </div>
               </div>
             </div>
@@ -241,7 +277,14 @@ const HelpCenter = () => {
                     Đăng nhập tài khoản Vibely?
                     {loginQuestion1 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
                   </button>
-                  {activeQuestion === "loginQuestion1" && (
+                  
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "loginQuestion1" ? "auto" : 0, opacity: activeQuestion === "loginQuestion1" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <ol className="list-decimal pl-4">
                         <li>Truy cập vào Vibely.</li>
@@ -249,7 +292,7 @@ const HelpCenter = () => {
                         <li>Nhấn vào Đăng nhập.</li>
                       </ol>
                     </div>
-                  )}
+                  </motion.div>
                 </div>
 
                 <div className="border rounded-lg p-4 shadow-sm bg-white ">
@@ -263,14 +306,21 @@ const HelpCenter = () => {
                     Đăng xuất khỏi Vibely?
                     {loginQuestion2 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                   </button>
-                  {activeQuestion === "loginQuestion2" && (
+                  
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: activeQuestion === "loginQuestion2" ? "auto" : 0, opacity: activeQuestion === "loginQuestion2" ? 1 : 0 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                  >
                     <div className="mt-2 p-4 border-t text-gray-600">
                       <ol className="list-decimal pl-4">
                         <li>Nhấp vào ảnh đại diện của bạn ở trên cùng bên phải Facebook.</li>
                         <li>Nhấp vào Đăng xuất ở cuối menu đang hiển thị.</li>
                       </ol>
                     </div>
-                  )}
+                  </motion.div>
                 </div>
 
                 <h3 className="text-lg font-bold text-black">Đổi mật khẩu tài khoản</h3>
@@ -285,7 +335,14 @@ const HelpCenter = () => {
                 Đổi mật khẩu Vibely 
                 {loginQuestion3 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                 </button>
-                {activeQuestion === "loginQuestion3" && (
+                
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: activeQuestion === "loginQuestion3" ? "auto" : 0, opacity: activeQuestion === "loginQuestion3" ? 1 : 0 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
                   <div className="mt-2 p-4 border-t text-gray-600">
                     <p className="font-bold">Nếu bạn quên mật khẩu và không thể đăng nhập</p>
                     <ol className="list-decimal pl-4">
@@ -296,7 +353,7 @@ const HelpCenter = () => {
                     </ol>
                     <p className=" font-bold">Nếu bạn đã đăng nhập và muốn đổi mật khẩu (bổ sung sau)</p>
                   </div>
-                )}
+                </motion.div>
                 </div>
               </div>
             </div>
