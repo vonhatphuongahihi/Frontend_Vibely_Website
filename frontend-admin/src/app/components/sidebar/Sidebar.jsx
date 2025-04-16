@@ -52,6 +52,7 @@ const Sidebar = () => {
         { path: "/admin/support", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
         { path: "/admin/settings", icon: "/svg/settings_admin.svg", label: "Cài đặt" },
         { path: "/admin/account", icon: "/svg/account_admin.svg", label: "Tài khoản" },
+        { path: "/admin/quiz", icon: "/svg/quiz.png", label: "Quiz" },
     ];
 
 
