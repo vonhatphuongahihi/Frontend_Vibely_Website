@@ -68,6 +68,7 @@ const Sidebar = () => {
         { path: "/admin/support", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
         { path: "/admin/settings", icon: "/svg/settings_admin.svg", label: "Cài đặt" },
         { path: "/admin/account", icon: "/svg/account_admin.svg", label: "Tài khoản" },
+        { path: "/admin/quiz", icon: "/svg/quiz.png", label: "Quiz" },
         { path: "/admin-login", icon: "/svg/logout_admin.svg", label: "Đăng xuất", onClick: handleLogout },
     ];
 
@@ -77,31 +78,31 @@ const Sidebar = () => {
                 <Menu className="w-16 h-16" />
             </Button>
             <aside
-            className={`fixed left-0 h-full w-52 p-4 transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col z-50 md:z-0 ${isSidebarOpen ? "translate-x-0 bg-white shadow-lg " : "-translate-x-full"
-                } ${isSidebarOpen ? "md:hidden" : ""} md:bg-white md:shadow-none`}
-        >
-            <div className="flex flex-col h-full overflow-y-auto">
-                {/* Logo */}
-                <div className="flex flex-col items-center mb-4">
-                    <img src="/logo.png" alt="Vibely Logo" className="w-36" />
-                </div>
-                <hr className="border-t border-gray-100 mb-6" />
+                className={`fixed left-0 h-full w-52 p-4 transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col z-50 md:z-0 ${isSidebarOpen ? "translate-x-0 bg-white shadow-lg " : "-translate-x-full"
+                    } ${isSidebarOpen ? "md:hidden" : ""} md:bg-white md:shadow-none`}
+            >
+                <div className="flex flex-col h-full overflow-y-auto">
+                    {/* Logo */}
+                    <div className="flex flex-col items-center mb-4">
+                        <img src="/logo.png" alt="Vibely Logo" className="w-36" />
+                    </div>
+                    <hr className="border-t border-gray-100 mb-6" />
 
-                {/* Navigation */}
-                <nav className="space-y-3 flex-grow">
-                    {menuItems.map((item) => (
-                        <SidebarItem key={item.path} {...item} />
-                    ))}
-                </nav>
+                    {/* Navigation */}
+                    <nav className="space-y-3 flex-grow">
+                        {menuItems.map((item) => (
+                            <SidebarItem key={item.path} {...item} />
+                        ))}
+                    </nav>
 
-                {/* Footer Image */}
-                <div className="mt-auto flex flex-col items-center pb-4">
-                    <img src="/images/end_sidebar.png" alt="Vibely Logo" className="w-42" />
+                    {/* Footer Image */}
+                    <div className="mt-auto flex flex-col items-center pb-4">
+                        <img src="/images/end_sidebar.png" alt="Vibely Logo" className="w-42" />
+                    </div>
                 </div>
-            </div>
-        </aside>
+            </aside>
         </div>
-        
+
     );
 };
 
