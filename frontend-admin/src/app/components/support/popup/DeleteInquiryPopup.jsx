@@ -1,5 +1,4 @@
-
-const DeleteInquiryPopup = ({ onClose, onConfirm}) => {
+const DeleteInquiryPopup = ({ onConfirm, onClose }) => {
     return (
         <div className="fixed inset-0 bg-[#086280]/50 flex justify-center items-center">
             <div className="relative bg-white p-6 rounded-xl shadow-lg w-[430px]">

@@ -6,14 +6,15 @@ import { formatedDate } from "@/lib/utils";
 import userStore from "@/store/userStore";
 import { ChevronDown, ChevronUp, Send } from "lucide-react";
 import { useEffect, useState } from "react";
-
+import PostComment from "./PostComment";
+import { usePostStore } from "@/store/usePostStore";
 const PostComments = ({post, onComment, commentInputRef}) => {
     const [showAllComments, setShowAllComments] = useState(false);
     const [commentText, setCommentText] = useState("")
     const {user} = userStore();
     const visibleComments = showAllComments ? post?.comments : post?.comments?.slice(0, 2);
     const userPlaceholder = user?.username?.split(" ").map((name) => name[0]).join(""); // tên người dùng viết tắt
-
+    const {fetchPosts,handleReplyComment, handleDeleteComment, handleDeleteReply, handleLikeComment} = usePostStore()
     const handleCommentSubmit = async() =>{
         if(commentText.trim()){
             //console.log("handleCommentSubmit: ",commentText)
@@ -26,30 +27,29 @@ const PostComments = ({post, onComment, commentInputRef}) => {
             <h3 className="font-semibold mb-3">Bình luận</h3>
             <div className="max-h-60 overflow-y-auto pr-2">
                 {visibleComments?.map((comment, index) => (
-                    <div key={index} className="flex items-start space-x-2 mb-2">
-                        <Avatar className="h-8 w-8">
-                            {comment?.user?.profilePicture ? (
-                                <AvatarImage src={comment?.user?.profilePicture} alt={comment?.user?.username}/>
-                            ):(
-                                <AvatarFallback className="bg-gray-200">{comment?.user?.username?.split(" ").map((name) => name[0]).join("")}</AvatarFallback>
-                            )}                         
-                        </Avatar>
-                        <div className='flex flex-col'>
-                            <div className='bg-[#F0F2F5] rounded-lg px-3 py-2'>
-                                <p className='font-semibold text-[13px]'>{comment?.user?.username}</p>
-                                <p className='text-[15px]'>{comment?.text}</p>
-                            </div>
-                            <div className='flex items-center text-xs text-gray-500'>
-                                <Button variant="ghost" size="sm" className="px-2 hover:underline">Thích</Button>
-                                <Button variant="ghost" size="sm" className="px-2 hover:underline">Phản hồi</Button>
-                                <span className="px-2 hover:underline">{formatedDate(comment?.createdAt)}</span>
-                            </div>
-                        </div>
-                    </div>
+                    <PostComment key={index} comment={comment} 
+                    onReply={async(replyText)=>{
+                        console.log("PostComments/onReply:",post?._id,comment?._id,replyText)
+                        await handleReplyComment(post?._id,comment?._id,replyText)
+                        await fetchPosts()
+                    }}
+                    onDeleteComment={async()=>{
+                        await handleDeleteComment(post?._id,comment?._id)
+                        await fetchPosts()
+                    }}
+                    onDeleteReply={async(replyId)=>{
+                        await handleDeleteReply(post?._id,comment?._id,replyId)
+                        await fetchPosts()
+                    }}
+                    likeComment={async()=>{
+                        await handleLikeComment(post?._id,comment?._id)
+                        await fetchPosts()
+                    }}
+                    />
                 ))}
                 {post?.comments?.length > 2 && (
                     <p
-                        className="w-40 mt-2 text-blue-500 cursor-pointer"
+                        className="w-40 mt-2 text-blue-500 cursor-pointer text-[16px] hover:underline"
                         onClick={() => setShowAllComments(!showAllComments)}
                     >
                         {showAllComments ? (

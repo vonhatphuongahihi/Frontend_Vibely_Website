@@ -25,7 +25,7 @@ const Page = () => {
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const registerSchema = yup.object().shape({
     username: yup.string().required("Tên không được để trống"),
     email: yup
@@ -39,7 +39,7 @@ const Page = () => {
     dateOfBirth: yup.date().required("Ngày sinh không được để trống"),
     gender: yup
       .string()
-      .oneOf(["male", "female", "other"], "Vui lòng chọn giới tính")
+      .oneOf(["Nam", "Nữ", "Khác"], "Vui lòng chọn giới tính")
       .required("Giới tính không được để trống"),
   });
   const loginSchema = yup.object().shape({
@@ -69,53 +69,52 @@ const Page = () => {
     formState: { errors: errorsSignUp },
   } = useForm({
     resolver: yupResolver(registerSchema),
-    defaultValues: { gender: "male" }, 
+    defaultValues: { gender: "Nữ" },
   });
-  
-  const onSubmitRegister = async(data) =>{
+
+  const onSubmitRegister = async (data) => {
     try {
       const result = await registerUser(data)
-      if(result.status === 'success'){
+      if (result.status === 'success') {
         router.push('/')
       }
       toast.success('Đăng ký tài khoản thành công')
     } catch (error) {
       console.error(error);
       toast.error('Email đã tồn tại')
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   }
 
 
-  useEffect(() =>{
-     resetLoginForm();
-     resetSignUpForm()
-  },[resetLoginForm,resetSignUpForm])
+  useEffect(() => {
+    resetLoginForm();
+    resetSignUpForm()
+  }, [resetLoginForm, resetSignUpForm])
 
 
-  const onSubmitLogin = async(data) =>{
+  const onSubmitLogin = async (data) => {
     try {
-       const result = await loginUser(data)
-        if(result.status === 'success'){
-          if (rememberMe) {
-            // Lưu thông tin đăng nhập vào localStorage hoặc cookie
-            localStorage.setItem('authToken', result.token);
-          }
-          router.push('/')
+      const result = await loginUser(data)
+      if (result.status === 'success') {
+        if (rememberMe) {
+          localStorage.setItem('authToken', result.token);
         }
-        toast.success('Đăng nhập tài khoản thành công')
+        router.push('/')
+      }
+      toast.success('Đăng nhập tài khoản thành công')
     } catch (error) {
       console.error(error);
       toast.error('Email hoặc mật khẩu không chính xác')
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   }
 
 
-  const handleGoogleLogin = () =>{
-    window.location.href= `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
   }
   return (
     <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center p-4">
@@ -124,7 +123,7 @@ const Page = () => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
       >
-        <Card className="w-full max-w-md dark:text-white bg-white border-[#0E42D2]">
+        <Card className="w-full max-w-md dark:text-white border-[#0E42D2]">
           <CardHeader>
             <CardTitle className="flex justify-center">
               <img src="/images/logo.png" alt="Vibely" className="w-20" />
@@ -190,15 +189,13 @@ const Page = () => {
                       <div className="flex items-center space-x-2">
                         {/* Toggle Switch */}
                         <div
-                          className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${
-                            rememberMe ? "bg-[#23CAF1]" : "bg-gray-300"
-                          }`}
-                          onClick={() => setRememberMe(!rememberMe)}
-                          >
-                          <div
-                            className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${
-                              rememberMe ? "translate-x-6" : "translate-x-0"
+                          className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${rememberMe ? "bg-[#23CAF1]" : "bg-gray-300"
                             }`}
+                          onClick={() => setRememberMe(!rememberMe)}
+                        >
+                          <div
+                            className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${rememberMe ? "translate-x-6" : "translate-x-0"
+                              }`}
                           ></div>
                         </div>
                         <span className="text-sm text-black cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
@@ -213,7 +210,7 @@ const Page = () => {
                       className="w-full bg-[#23CAF1] text-white"
                       type="submit"
                     >
-                    <LogIn className="mr-2 w-4 h-4" />Đăng nhập
+                      <LogIn className="mr-2 w-4 h-4" />Đăng nhập
                     </Button>
                   </div>
                 </form>
@@ -352,15 +349,15 @@ const Page = () => {
                             onValueChange={field.onChange}  // Bắt sự kiện thay đổi giá trị
                           >
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="male" id="male" />
+                              <RadioGroupItem value="Nam" id="male" />
                               <Label htmlFor="male">Nam</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="female" id="female" />
+                              <RadioGroupItem value="Nữ" id="female" />
                               <Label htmlFor="female">Nữ</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="other" id="other" />
+                              <RadioGroupItem value="Khác" id="other" />
                               <Label htmlFor="other">Khác</Label>
                             </div>
                           </RadioGroup>

@@ -6,68 +6,62 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "./components/Header";
 
+export default function AuthWrapper({ children }) {
+    const { setUser, clearUser } = userStore();
+    const router = useRouter();
+    const pathname = usePathname();
+    const [loading, setLoading] = useState(true);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-export default function AuthWrapper ({children}){
-    const {setUser, clearUser} = userStore();
-    const router = useRouter()
-    const pathname = usePathname()
-    const [loading,setLoading] = useState(true)
-    const [isAuthenticated,setIsAuthenticated] = useState(false)
-    
+    const publicPages = ["/user-login", "/forgot-password", "/reset-password"];
+    const isPublicPage = publicPages.includes(pathname);
 
-    const isLoginPage = pathname === '/user-login'
-
-    useEffect(()=>{
-        const checkAuth = async () =>{
+    useEffect(() => {
+        const checkAuth = async () => {
             try {
-                const result = await checkUserAuth()
-                if(result.isAuthenticated){
-                    setUser(result?.user)
-                    setIsAuthenticated(true)
-                }else{
-                    await handleLogout()
+                const result = await checkUserAuth();
+                if (result.isAuthenticated) {
+                    setUser(result?.user);
+                    setIsAuthenticated(true);
+                } else {
+                    await handleLogout();
                 }
             } catch (error) {
-                console.error('Đăng nhập thất bại',error)
-                await handleLogout()
-            }finally{
-                setLoading(false)
+                console.error("Đăng nhập thất bại", error);
+                await handleLogout();
+            } finally {
+                setLoading(false);
             }
-        }
-   
-        const handleLogout = async () =>{
-            clearUser()
+        };
+
+        const handleLogout = async () => {
+            clearUser();
             setIsAuthenticated(false);
             try {
-                await logout()
+                await logout();
             } catch (error) {
-                console.log('Đăng xuất thất bại. Vui lòng thử lại sau',error)
+                console.log("Đăng xuất thất bại. Vui lòng thử lại sau", error);
             }
-            if(!isLoginPage){
-                router.push('/user-login')
+            if (!isPublicPage) {
+                router.push("/user-login");
             }
+        };
+
+        if (!isPublicPage) {
+            checkAuth();
+        } else {
+            setLoading(false);
         }
+    }, [isPublicPage, router, setUser, clearUser]);
 
-        if(!isLoginPage){
-            checkAuth()
-        }else{
-            setLoading(false)
-        }
-
-    },[isLoginPage,router,setUser,clearUser])
-
-    if(loading){
-        return <Loader/>
-    }
-
-    if(!isAuthenticated && !isLoginPage){
-        return <Loader/>
+    if (loading) {
+        return <Loader />;
     }
 
     return (
         <>
-          {!isLoginPage && isAuthenticated && <Header/>}
-          {(isAuthenticated || isLoginPage ) && children}
+            {isAuthenticated && !isPublicPage && <Header />}
+            {children}
         </>
-    )
+    );
 }

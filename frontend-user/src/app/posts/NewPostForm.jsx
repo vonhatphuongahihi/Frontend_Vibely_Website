@@ -18,8 +18,8 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
   const [filePreview, setFilePreview] = useState(null)
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [postContent, setPostContent] = useState('')
-  const {handleCreatePost} = usePostStore()
-  const {user} = userStore()  //lấy thông tin người dùng
+  const { handleCreatePost } = usePostStore()
+  const { user } = userStore()  //lấy thông tin người dùng
   const userPlaceholder = user?.username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
   //chọn biểu cảm
   const handleEmojiClick = (emojiObject) => {
@@ -37,13 +37,13 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
     setFilePreview(URL.createObjectURL(file))
   }
 
-  const handlePost = async()=>{
+  const handlePost = async () => {
     try {
       setLoading(true)
       const formData = new FormData()
       formData.append('content', postContent)
-      if(selectedFile){
-        formData.append('media',selectedFile)
+      if (selectedFile) {
+        formData.append('media', selectedFile)
       }
       await handleCreatePost(formData)
       setPostContent('')
@@ -60,38 +60,39 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
       <CardContent className="p-4">
         <div className="flex space-x-4 items-center">
           <Avatar>
-          {user?.profilePicture ? (
-            <AvatarImage src={user?.profilePicture} alt={user?.username}/>
-            ):(
-            <AvatarFallback>{userPlaceholder}</AvatarFallback>
-          )}
+            {user?.profilePicture ? (
+              <AvatarImage src={user?.profilePicture} alt={user?.username} />
+            ) : (
+              <AvatarFallback>{userPlaceholder}</AvatarFallback>
+            )}
           </Avatar>
           <Dialog open={isPostFormOpen} onOpenChange={setIsPostFormOpen}>
             <DialogTrigger className="w-full">
               <Input
                 placeholder={`${user?.username} ơi, bạn đang nghĩ gì?`}
                 readOnly
-                className="cursor-pointer rounded-full h-12 bg-gray-100 border-none px-4"
+                className="cursor-pointer rounded-full h-12 bg-gray-100 border-none px-4 new-post-input"
               />
             </DialogTrigger>
             <DialogContent className="sm:max-w-[550px] bg-white rounded-lg">
               <DialogHeader>
-                <DialogTitle className="text-center text-lg font-semibold">Tạo bài viết</DialogTitle>
+                <DialogTitle></DialogTitle>
+                <p className="text-center text-lg font-semibold">Tạo bài viết</p>
               </DialogHeader>
               <div className="border-t border-gray-200"></div>
               <div className="flex items-center space-x-3">
                 <Avatar className="h-10 w-10">
-                {user?.profilePicture ? (
-                <AvatarImage src={user?.profilePicture} alt={user?.username}/>
-                ):(
-                <AvatarFallback>{userPlaceholder}</AvatarFallback>
-              )}
+                  {user?.profilePicture ? (
+                    <AvatarImage src={user?.profilePicture} alt={user?.username} />
+                  ) : (
+                    <AvatarFallback>{userPlaceholder}</AvatarFallback>
+                  )}
                 </Avatar>
                 <p className="font-medium">{user?.username}</p>
               </div>
               <Textarea
                 placeholder="Bạn muốn chia sẻ điều gì hôm nay?"
-                className="w-full min-h-[100px] text-sm bg-gray-100 p-2 rounded-md"
+                className="w-full min-h-[100px] text-sm bg-gray-100 p-2 rounded-md textarea-input-post"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
               />
@@ -104,10 +105,10 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                 >
                   {filePreview ? (
                     fileType.startsWith('image') ? (
-                    <img src={filePreview} alt="Preview" className="max-h-[300px] rounded-md " />
-                  ) : (
-                    <video src={filePreview} controls className="max-h-[300px] rounded-md " />
-                  )):null}
+                      <img src={filePreview} alt="Preview" className="max-h-[300px] rounded-md " />
+                    ) : (
+                      <video src={filePreview} controls className="max-h-[300px] rounded-md " />
+                    )) : null}
                   <Button
                     variant="ghost"
                     size="icon"
@@ -119,14 +120,14 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                   >
                     <XIcon className="h-5 w-5 text-gray-500" />
                   </Button>
-                  
+
                 </motion.div>
               )}
               <div className="flex justify-between mt-4">
-                <Button variant="ghost" className="flex items-center space-x-2" onClick={()=>{fileInputRef.current.click()}}>
+                <Button variant="ghost" className="flex items-center space-x-2" onClick={() => { fileInputRef.current.click() }}>
                   <ImageIcon className="h-5 w-5 text-green-500" />
                   <span>Ảnh/Video</span>
-                  <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} ref={fileInputRef}/>
+                  <input type="file" accept="image/*,video/*" className="hidden input-new-file" onChange={handleFileChange} ref={fileInputRef} />
                 </Button>
                 <Popover.Root>
                   <Popover.Trigger asChild>
@@ -136,8 +137,8 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
                     </Button>
                   </Popover.Trigger>
                   <Popover.Portal>
-                  <Popover.Content className="bg-white shadow-lg rounded-md p-2 w-64 z-50" side="top" align="center">
-                  <Picker onEmojiClick={handleEmojiClick} />
+                    <Popover.Content className="bg-white shadow-lg rounded-md p-2 w-64 z-50" side="top" align="center">
+                      <Picker onEmojiClick={handleEmojiClick} />
                       <Popover.Arrow className="fill-white" />
                     </Popover.Content>
                   </Popover.Portal>
@@ -156,8 +157,8 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen }) => {
               )}
               <div className="flex justify-end mt-4">
                 <Button className="bg-blue-500 text-white w-full py-2 rounded-md"
-                onClick={handlePost}>
-                  {loading?'Đang đăng...':'Đăng'}
+                  onClick={handlePost}>
+                  {loading ? 'Đang đăng...' : 'Đăng'}
                 </Button>
               </div>
             </DialogContent>

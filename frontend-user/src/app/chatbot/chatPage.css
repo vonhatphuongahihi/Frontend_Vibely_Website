@@ -1,0 +1,112 @@
+.chatPage {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+
+    .wrapper {
+        margin: 0;
+        flex: 1;
+        display: flex;
+        flex-grow: 1;
+        overflow-y: scroll;
+        width: 100%;
+        justify-content: center;
+
+        &::-webkit-scrollbar {
+            width: 5px;
+            /* Adjust the width as needed */
+        }
+
+        /* Track styling */
+        &::-webkit-scrollbar-track {
+            background: transparent;
+            /* Light background for track */
+            border-radius: 10px;
+        }
+
+        /* Thumb (the draggable part) styling */
+        &::-webkit-scrollbar-thumb {
+            background: #888;
+            /* Color for the thumb */
+            border-radius: 10px;
+            transition: background 0.3s ease;
+            /* Smooth transition on hover */
+        }
+
+        /* Thumb hover effect */
+        &::-webkit-scrollbar-thumb:hover {
+            background: #555;
+            /* Darker color on hover */
+        }
+
+        /* Scroll bar styling for other browsers */
+        .scroll-container {
+            scrollbar-width: thin;
+            /* Firefox */
+            scrollbar-color: #888 #f1f1f1;
+        }
+
+
+
+        .chat {
+            padding: 20px 0;
+            width: 80%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: fit-content;
+
+            p,
+            li {
+                margin: 4px 4px;
+            }
+
+            a {
+                color: rgb(68, 216, 73);
+                text-decoration: none;
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+
+            .message {
+                padding: 10px;
+                position: relative;
+
+                &.user {
+                    background-color: #eafdf3;
+                    border-radius: 20px;
+                    max-width: 70%;
+                    align-self: flex-end;
+                    word-wrap: break-word;
+                    /* IE 5.5-7 */
+                    white-space: -moz-pre-wrap;
+                    /* Firefox 1.0-2.0 */
+                    white-space: pre-wrap;
+                    /* current browsers */
+                }
+
+                &.bot {
+                    max-width: 90%;
+                }
+
+                &.bot::before {
+                    content: "";
+                    height: 50px;
+                    width: 50px;
+                    background-color: transparent;
+                    background-image: url("/logoChat.svg");
+                    background-size: cover;
+                    background-position: center;
+                    position: absolute;
+                    left: -50px;
+                    top: 4px;
+                    border-radius: 50%;
+                }
+            }
+        }
+    }
+}
