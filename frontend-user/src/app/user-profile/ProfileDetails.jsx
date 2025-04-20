@@ -1,95 +1,110 @@
-import React, { useState } from "react";
-import { PostsContent } from "./profileContent/PostsContent";
-import { Card, CardContent } from "@/components/ui/card";
-import { Briefcase, Home, MapPin, Pencil, SaveOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createOrUpdateUserBio } from "@/service/user.service";
+import { usePostStore } from "@/store/usePostStore";
 import { motion } from "framer-motion";
+import { Briefcase, GraduationCap, Home, MapPin } from "lucide-react";
+import { useEffect, useState } from "react";
 import { MutualFriends } from "./profileContent/MutualFriends";
+import { PostsContent } from "./profileContent/PostsContent";
+import { SavedDocuments } from "./profileContent/SavedDocuments";
+import NewPostForm from "../posts/NewPostForm";
+import { useRouter } from "next/navigation";
 
-export const ProfileDetails = ({ activeTab }) => {
+export const ProfileDetails = ({
+  activeTab,
+  id,
+  profileData,
+  isOwner,
+  fetchProfile,
+  setProfileData,
+}) => {
   const [isEditBioModal, setIsEditBioModal] = useState(false);
-  const [bio, setBio] = useState("Hãy học như Seulgi ✨");
+  const [bio, setBio] = useState("");
   const [tempBio, setTempBio] = useState(bio);
 
-  const handleSaveBio = () => {
-    setBio(tempBio);
-    setIsEditBioModal(false);
+  // const handleSaveBio = () => {
+  //   setBio(tempBio);
+  //   setIsEditBioModal(false);
+  // };
+
+  const handleSaveBio = async () => {
+    try {
+      if (!tempBio.trim()) {
+        alert("Tiểu sử không được để trống!");
+        return;
+      }
+
+      // Gửi API cập nhật
+      const updatedBio = await createOrUpdateUserBio(id, { bioText: tempBio });
+
+      // Cập nhật dữ liệu mới vào state
+      setProfileData((prev) => ({
+        ...prev,
+        bio: { ...prev.bio, bioText: tempBio }, // Cập nhật motto mới
+      }));
+
+      // Đóng modal chỉnh sửa
+      setIsEditBioModal(false);
+    } catch (error) {
+      console.error("❌ Lỗi khi cập nhật Bio:", error);
+    }
   };
 
-  const userPosts = [
-    {
-      _id: 1,
-      content: "Hello World",
-      mediaUrl:
-        "https://images.pexels.com/photos/757889/pexels-photo-757889.jpeg?auto=compress&cs=tinysrgb&w=600",
-      mediaType: "image",
-      comments: [
-        {
-          user: {
-            username: "Võ Nhất Phương",
-            text: "Ảnh đẹp quá",
-          },
-        },
-      ],
-    },
-  ];
+  const {
+    userPosts,
+    stories,
+    fetchStories,
+    fetchUserPost,
+    handleCreatePost,
+    handleCreateStory,
+    handleReactPost,
+    handleCommentPost,
+    handleSharePost,
+  } = usePostStore();
 
-  const userFiles = [
-    {
-      id: 1,
-      title: "Tổng hợp 100 câu ngữ pháp từ đề thi Chuyên A...",
-      pages: 7,
-      level: "Trung học phổ thông",
-      subject: "Tiếng Anh",
-      type: "pdf",
-    },
-    {
-      id: 2,
-      title: "Tổng hợp 100 câu ngữ pháp từ đề thi Chuyên A...",
-      pages: 12,
-      level: "Trung học phổ thông",
-      subject: "Toán",
-      type: "docx",
-    },
-    {
-      id: 3,
-      title: "Tổng hợp 100 câu ngữ pháp từ đề thi Chuyên A...",
-      pages: 52,
-      level: "Trung học phổ thông",
-      subject: "Toán",
-      type: "pdf",
-    },
-    {
-      id: 4,
-      title: "Tổng hợp 100 câu ngữ pháp từ đề thi Chuyên A...",
-      pages: 10,
-      level: "Trung học phổ thông",
-      subject: "Ngữ Văn",
-      type: "docx",
-    },
-    {
-      id: 5,
-      title: "Tổng hợp 100 câu ngữ pháp từ đề thi Chuyên A...",
-      pages: 37,
-      level: "Trung học phổ thông",
-      subject: "Toán",
-      type: "pdf",
-    },
-    {
-      id: 6,
-      title: "Tổng hợp 100 câu ngữ pháp từ đề thi Chuyên A...",
-      pages: 5,
-      level: "Trung học phổ thông",
-      subject: "Vật Lý",
-      type: "pdf",
-    },
-  ];
+  useEffect(() => {
+    if (id) {
+      fetchUserPost(id);
+    }
+  }, [id, fetchUserPost]);
+
+  const [reactPosts, setReactPosts] = useState(new Set()); // danh sách những bài viết mà người dùng đã react
+  useEffect(() => {
+    const saveReacts = localStorage.getItem("reactPosts");
+    if (saveReacts) {
+      setReactPosts(JSON.parse(saveReacts));
+    }
+  }, []);
+  const handleReact = async (postId, reactType) => {
+    console.log("reactType: ", reactType);
+    const updatedReactPosts = { ...reactPosts };
+    if (updatedReactPosts && updatedReactPosts[postId] === reactType) {
+      delete updatedReactPosts[postId]; // hủy react nếu nhấn lại
+    } else {
+      updatedReactPosts[postId] = reactType; // cập nhật cảm xúc mới
+    }
+    //lưu danh sách mới vào biến
+    setReactPosts(updatedReactPosts);
+    //lưu vào cục bộ
+    localStorage.setItem("reactPosts", JSON.stringify(updatedReactPosts));
+
+    try {
+      await handleReactPost(postId, updatedReactPosts[postId] || null); //api
+      await fetchPosts(); // tải lại danh sách
+    } catch (error) {
+      console.log(error);
+      toast.error(
+        "Đã xảy ra lỗi khi bày tỏ cảm xúc với bài viết này. Vui lòng thử lại."
+      );
+    }
+  };
+  const router = useRouter();
 
   const userVideos = [
     {
       _id: 1,
-      thumbnail:
-        "https://i.ytimg.com/vi/3aNuJnzVjhE/maxresdefault.jpg",
+      thumbnail: "https://i.ytimg.com/vi/3aNuJnzVjhE/maxresdefault.jpg",
     },
     {
       _id: 2,
@@ -122,23 +137,21 @@ export const ProfileDetails = ({ activeTab }) => {
         "https://static.ybox.vn/2021/4/6/1619279350970-ezgif.com-resize.jpg",
     },
   ];
-
-  
-
+  const [isPostFormOpen, setIsPostFormOpen] = useState(false)
   const tabContent = {
     posts: (
       <div className="flex flex-col lg:flex-row gap-6 ">
         <div className="w-full lg:w-[30%]">
           <Card className="bg-white shadow-md rounded-lg border border-gray-200">
             <CardContent className="p-6">
-              <h2 className="text-xl font-semibold mb-4 dark:text-gray-300">
+              <p className="text-xl font-semibold mb-4 dark:text-gray-300">
                 Giới thiệu
-              </h2>
+              </p>
               {/* Hiện Textarea khi nhấn Chỉnh sửa tiểu sử */}
               {isEditBioModal ? (
                 <div>
                   <textarea
-                    className="w-full p-2 border rounded-md text-gray-700"
+                    className="w-full p-2 border rounded-md text-gray-700 add-bio"
                     value={tempBio}
                     onChange={(e) => setTempBio(e.target.value)}
                     maxLength={101}
@@ -154,7 +167,7 @@ export const ProfileDetails = ({ activeTab }) => {
                       Hủy
                     </Button>
                     <Button
-                      className="bg-[#086280] text-white px-8 py-2 rounded-md"
+                      className="bg-[#086280] text-white px-8 py-2 rounded-md save-bio"
                       onClick={handleSaveBio}
                     >
                       Hoàn tất
@@ -164,44 +177,106 @@ export const ProfileDetails = ({ activeTab }) => {
               ) : (
                 <>
                   <p className="flex justify-center text-gray-600 dark:text-gray-300 mb-4">
-                    {bio}
+                    {profileData?.bio?.bioText || "Chưa có tiểu sử"}
                   </p>
-                  <Button
-                    className="w-full bg-[#A6A7AA] text-white mb-4"
-                    onClick={() => setIsEditBioModal(true)}
-                  >
-                    Chỉnh sửa tiểu sử
-                  </Button>
+                  {isOwner && (
+                    <Button
+                      className="w-full bg-[#086280] text-white mb-4 edit-bio"
+                      onClick={() => setIsEditBioModal(true)}
+                    >
+                      Chỉnh sửa tiểu sử
+                    </Button>
+                  )}
                 </>
               )}
               <div className="space-y-2 mb-4 dark:text-gray-300">
-                <div className="flex items-center">
-                  <MapPin className="w-5 h-5 mr-2 text-[#086280]" />
-                  <p>
-                    Sống tại{" "}
-                    <span className="font-semibold">Khánh Hòa, Việt Nam</span>{" "}
-                  </p>
-                </div>
-
-                <div className="flex items-center">
-                  <Briefcase className="w-5 h-5 mr-3 text-[#086280]" />
-                  <p>
-                    Làm việc tại{" "}
-                    <span className="font-semibold">
-                      {" "}
-                      CLB Sách Và Hành Động UIT
-                    </span>
-                  </p>
-                </div>
+                {profileData?.bio?.education && (
+                  <div className="flex items-center">
+                    <GraduationCap className="w-5 h-5 mr-2 text-[#086280]" />
+                    <p>
+                      Đã học tại{" "}
+                      <span className="font-semibold">
+                        {profileData?.bio?.education}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {profileData?.bio?.workplace && (
+                  <div className="flex items-center">
+                    <Briefcase className="w-5 h-5 mr-2 text-[#086280]" />
+                    <p>
+                      Làm việc tại{" "}
+                      <span className="font-semibold">
+                        {profileData?.bio?.workplace}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {profileData?.bio?.liveIn && (
+                  <div className="flex items-center">
+                    <Home className="w-5 h-5 mr-2 text-[#086280]" />
+                    <p>
+                      Sống tại{" "}
+                      <span className="font-semibold">
+                        {profileData?.bio?.liveIn}
+                      </span>
+                    </p>
+                  </div>
+                )}
+                {profileData?.bio?.hometown && (
+                  <div className="flex items-center">
+                    <MapPin className="w-5 h-5 mr-2 text-[#086280]" />
+                    <p>
+                      Đến từ{" "}
+                      <span className="font-semibold">
+                        {profileData?.bio?.hometown}
+                      </span>
+                    </p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
         {/* Bài viết đã đăng của người dùng */}
         <div className="w-full lg:w-[70%] space-y-6 mb-4">
-          {userPosts?.map((post) => (
-            <PostsContent key={post?._id} post={post} />
-          ))}
+          {isOwner && 
+          <NewPostForm
+          isPostFormOpen={isPostFormOpen}
+          setIsPostFormOpen={setIsPostFormOpen}
+          />
+          }     
+          {userPosts?.length > 0 ? (
+            userPosts.map((post) => (
+              <PostsContent
+                key={post?._id}
+                post={post}
+                reaction={reactPosts[post?._id] || null} // Loại react
+                onReact={(reactType) => handleReact(post?._id, reactType)} // Chức năng react
+                onComment={async (commentText) => {
+                  // Chức năng comment
+                  await handleCommentPost(post?._id, commentText);
+                  await fetchUserPost(id);
+                }}
+                onShare={async () => {
+                  // Chức năng share
+                  await handleSharePost(post?._id);
+                  await fetchUserPost(id);
+                }}
+              />
+            ))
+          ) : (
+            <div className="flex flex-col items-center justify-center text-center space-y-4">
+                <img
+                  src="/nopost.png"
+                  alt="No posts illustration"
+                  className="h-[280px] mx-auto"
+                />
+                <p className="text-center text-gray-500">
+                  Chưa có bài viết
+                </p>
+              </div>
+          )}
         </div>
       </div>
     ),
@@ -215,34 +290,47 @@ export const ProfileDetails = ({ activeTab }) => {
         <Card className="bg-white shadow-md rounded-lg border border-gray-200">
           <CardContent className="p-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold mb-4 dark:text-gray-300">
+              <p className="text-xl font-semibold mb-4 dark:text-gray-300">
                 Video
-              </h2>
-              <h3 className="text-[#086280] font-semibold cursor-pointer">
-                Thêm video
-              </h3>
+              </p>
             </div>
-            {/* Grid hiển thị video */}
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-  {userVideos.map((video) => (
-    <div key={video._id} className="relative w-[200px] h-[150px]">
-      <img
-        src={video.thumbnail}
-        alt="user_video"
-        className="w-full h-full object-cover rounded-lg"
-      />
-      {/* Icon chỉnh sửa */}
-      <div className="absolute top-2 right-2 bg-black bg-opacity-50 p-1 rounded-full cursor-pointer">
-        <Pencil size={16} className="text-white" />
-      </div>
-    </div>
-  ))}
-</div>
+            {userPosts?.some(
+              (post) => post?.mediaType === "video" && post?.mediaUrl
+            ) ? (
+              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {userPosts
+                  ?.filter(
+                    (post) => post?.mediaType === "video" && post?.mediaUrl
+                  )
+                  .map((post) => (
+                    <div key={post?._id} onClick={()=>router.push(`/posts/${post?._id}`)} className="w-[220px] h-[180px]">
+                <video
+                  //controls
+                  className="w-full h-full object-cover rounded-lg"
+                >
+                  <source src={post?.mediaUrl} type="video/mp4" />
+                  Trình duyệt của bạn không hỗ trợ thẻ video.
+                </video>
+              </div>
+                  ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center text-center space-y-4">
+                <img
+                  src="/novideo.png"
+                  alt="No posts illustration"
+                  className="h-[180px] mx-auto"
+                />
+                <p className="text-center text-gray-500">
+                  Bạn chưa đăng Video nào
+                </p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </motion.div>
     ),
-    friends: <MutualFriends />,
+    friends: <MutualFriends id={id} isOwner={isOwner} />,
     photos: (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -253,83 +341,45 @@ export const ProfileDetails = ({ activeTab }) => {
         <Card className="bg-white shadow-md rounded-lg border border-gray-200">
           <CardContent className="p-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold mb-4 dark:text-gray-300">
+              <p className="text-xl font-semibold mb-4 dark:text-gray-300">
                 Ảnh
-              </h2>
-              <h3 className="text-[#086280] font-semibold cursor-pointer">
-                Thêm ảnh
-              </h3>
+              </p>
             </div>
             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {userPosts
-                ?.filter(
-                  (post) => post?.mediaType === "image" && post?.mediaUrl
-                )
-                .map((post) => (
-                  <img
-                    key={post?._id}
-                    src={post?.mediaUrl}
-                    alt="user_all_photos"
-                    className="w-[200px] h-[150px] object-cover rounded-lg"
-                  />
-                ))}
+              {userPosts?.filter(
+                (post) => post?.mediaType === "image" && post?.mediaUrl
+              ).length === 0 ? (
+                <div className="flex flex-col items-center justify-center text-center space-y-4 col-span-full">
+  <img
+    src="/novideo.png"
+    alt="No posts illustration"
+    className="h-[180px] mx-auto"
+  />
+  <p className="text-center text-gray-500">
+    Bạn chưa đăng hình ảnh nào
+  </p>
+</div>
+              ) : (
+                userPosts
+                  .filter(
+                    (post) => post?.mediaType === "image" && post?.mediaUrl
+                  )
+                  .map((post) => (
+                    <img
+                      key={post?._id}
+                      src={post?.mediaUrl}
+                      alt="user_all_photos"
+                      className="w-[200px] h-[150px] object-cover rounded-lg"
+                      onClick={()=>router.push(`/posts/${post?._id}`)}
+                    />
+                  ))
+              )}
             </div>
           </CardContent>
         </Card>
       </motion.div>
     ),
-    files: (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="mb-4"
-      >
-        <Card className="bg-white shadow-md rounded-lg border border-gray-200">
-          <CardContent className="p-6">
-            <h2 className="text-xl font-semibold mb-4 dark:text-gray-300">
-              Tài liệu
-            </h2>
-
-            <div className="grid grid-cols-3 gap-4">
-              {userFiles.map((file) => (
-                <div
-                  key={file.id}
-                  className="relative flex flex-col p-4 border border-gray-200 rounded-lg shadow-md bg-white"
-                >
-                  {/* Icon File */}
-                  <div className="flex justify-center mb-2">
-                    {file.type === "pdf" ? (
-                      <img src="/images/pdf.png" alt="PDF" className="h-25" />
-                    ) : (
-                      <img src="/images/docx.png" alt="DOCX" className="h-25" />
-                    )}
-                  </div>
-
-                  {/* Thông tin tài liệu */}
-                  <p className="text-sm font-semibold line-clamp-2">
-                    {file.title}
-                  </p>
-                  <p className="text-xs text-gray-800 font-semibold">
-                    {file.pages} trang
-                  </p>
-                  {/* Level và Subject trên cùng một hàng */}
-                  <div className="flex justify-between text-sm text-gray-500 font-semibold italic mt-4">
-                    <span>{file.level}</span>
-                    <span>{file.subject}</span>
-                  </div>
-
-                  {/* Nút Hành Động */}
-                  <button className="absolute top-2 right-2 bg-gray-200 p-2 rounded-full">
-                    <SaveOff />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    ),
+    files: <SavedDocuments />,
   };
   return <div>{tabContent[activeTab] || null}</div>;
 };

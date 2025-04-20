@@ -1,0 +1,26 @@
+h2 {
+    position: absolute;
+    bottom: 60px;
+    /* Khoảng cách từ đáy */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    width: 100%;
+    /* Giữ chữ chạy trong khung */
+    text-align: center;
+}
+
+/* Animation chữ chạy */
+@keyframes marquee {
+    0% {
+        transform: translateX(50%);
+    }
+
+    100% {
+        transform: translateX(-50%);
+    }
+}

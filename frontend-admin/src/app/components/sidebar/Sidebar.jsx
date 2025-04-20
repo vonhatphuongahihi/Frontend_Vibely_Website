@@ -4,8 +4,11 @@ import useSidebarStore from "@/store/sidebarStore";
 import userStore from "@/store/userStore";
 import { usePathname, useRouter } from "next/navigation";
 import React from 'react';
+import { logoutAdmin } from "@/service/authAdmin.service";
+import { toast } from "react-hot-toast";
+import { Menu } from "lucide-react";
 
-const SidebarItem = ({ path, icon, label }) => {
+const SidebarItem = ({ path, icon, label, onClick }) => {
     const router = useRouter();
     const pathname = usePathname();
     const { isSidebarOpen, toggleSidebar } = useSidebarStore();
@@ -13,17 +16,21 @@ const SidebarItem = ({ path, icon, label }) => {
     const isActive = pathname === path;
 
     const handleClick = () => {
-        router.push(path);
-        if (isSidebarOpen) {
-            toggleSidebar();
+        if (onClick) {
+            onClick();
+        } else {
+            router.push(path);
+            if (isSidebarOpen) {
+                toggleSidebar();
+            }
         }
     };
 
     return (
         <Button
             variant="ghost"
-            className={`w-full justify-start mb-3 cursor-pointer flex items-center text-[15px] ${isActive ? "text-[#086280]" : "text-[#A3AED0]"
-                }`}
+            className={`w-full justify-start mb-3 cursor-pointer flex items-center text-[15px] ${isActive ? "text-[#086280]" : "text-[#A3AED0]"}`
+            }
             onClick={handleClick}
         >
             <img
@@ -37,12 +44,21 @@ const SidebarItem = ({ path, icon, label }) => {
 };
 
 const Sidebar = () => {
-    const { isSidebarOpen } = useSidebarStore();
+    const { isSidebarOpen, toggleSidebar } = useSidebarStore();
     const { user } = userStore();
-    const userPlaceholder = user?.username
-        ?.split(" ")
-        .map((name) => name[0])
-        .join("");
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        try {
+            await logoutAdmin();
+            localStorage.removeItem("adminToken");
+            userStore.setState({ user: null });
+            router.push("/admin-login");
+        } catch (error) {
+            console.error("Lỗi đăng xuất:", error);
+            toast.error("Có lỗi xảy ra khi đăng xuất");
+        }
+    };
 
     const menuItems = [
         { path: "/admin/dashboard", icon: "/svg/dashboard_admin.svg", label: "Dashboard" },
@@ -52,11 +68,15 @@ const Sidebar = () => {
         { path: "/admin/support", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
         { path: "/admin/settings", icon: "/svg/settings_admin.svg", label: "Cài đặt" },
         { path: "/admin/account", icon: "/svg/account_admin.svg", label: "Tài khoản" },
+        { path: "/admin-login", icon: "/svg/logout_admin.svg", label: "Đăng xuất", onClick: handleLogout },
     ];
 
-
     return (
-        <aside
+        <div>
+            <Button className="fixed top-3 right-3 z-[60] p-3 text-[#086280] rounded-lg hover:bg-[#086280] hover:text-white hover:cursor-pointer md:hidden" onClick={toggleSidebar}>
+                <Menu className="w-16 h-16" />
+            </Button>
+            <aside
             className={`fixed left-0 h-full w-52 p-4 transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col z-50 md:z-0 ${isSidebarOpen ? "translate-x-0 bg-white shadow-lg " : "-translate-x-full"
                 } ${isSidebarOpen ? "md:hidden" : ""} md:bg-white md:shadow-none`}
         >
@@ -80,6 +100,8 @@ const Sidebar = () => {
                 </div>
             </div>
         </aside>
+        </div>
+        
     );
 };
 

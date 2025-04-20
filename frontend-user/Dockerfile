@@ -1,30 +1,59 @@
-# Sử dụng Node.js để build Next.js
+# Giai đoạn build
 FROM node:18 AS builder
 
-# Đặt thư mục làm việc
 WORKDIR /app
 
-# Copy file package.json & package-lock.json
+# Copy package files trước để tận dụng layer caching
 COPY package.json package-lock.json ./
 
 # Cài đặt dependencies
-RUN npm install
+RUN npm ci
 
-# Copy toàn bộ code frontend
+# Copy toàn bộ source code
 COPY . .
 
-# Build Next.js
+# Build ứng dụng (cho production)
 RUN npm run build
 
-# Sử dụng lightweight server để chạy production
-FROM node:18-alpine
+# Giai đoạn production
+FROM node:18-alpine AS production
+
 WORKDIR /app
 
-# Copy code đã build từ container trước
-COPY --from=builder /app ./
+# Chỉ copy những gì cần thiết từ builder
+COPY --from=builder /app/package.json /app/package-lock.json ./
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/node_modules ./node_modules
 
-# Lắng nghe trên cổng 3000
+# Biến môi trường (nhận từ docker run hoặc docker-compose)
+ENV NODE_ENV=production
+ARG URL
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG PUBLIC_FOLDER
+ENV URL=${URL}
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
+ENV PUBLIC_FOLDER=${PUBLIC_FOLDER}
+
+# Chạy server production
+CMD ["npm", "start"]
+
+# Giai đoạn development (nếu cần)
+FROM builder AS development
+
+ENV NODE_ENV=development
+
+# Thêm các biến môi trường development
+ARG URL
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG PUBLIC_FOLDER
+ENV URL=${URL}
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
+ENV PUBLIC_FOLDER=${PUBLIC_FOLDER}
+
 EXPOSE 3000
 
-# Khởi động Next.js app
-CMD ["npm", "start"]
+ENV PORT=3000
+
+# Chạy server development
+CMD ["npm", "run", "dev"]
