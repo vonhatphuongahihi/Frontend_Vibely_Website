@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loginUser, registerUser } from "@/service/auth.service";
+import { loginUser, registerUser, checkUserAuth } from "@/service/auth.service";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
@@ -25,6 +25,32 @@ const Page = () => {
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Kiểm tra trạng thái đăng nhập khi component mount
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      // Kiểm tra token trong localStorage trước
+      const token = localStorage.getItem("token");
+      if (token) {
+        router.replace("/");
+        return;
+      }
+
+      // Nếu không có token, kiểm tra với API
+      try {
+        const { isAuthenticated } = await checkUserAuth();
+        if (isAuthenticated) {
+          router.replace("/"); // Chuyển hướng về trang chủ nếu đã đăng nhập
+        }
+      } catch (error) {
+        console.log('Chưa đăng nhập');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, [router]);
 
   const registerSchema = yup.object().shape({
     username: yup.string().required("Tên không được để trống"),
@@ -87,19 +113,17 @@ const Page = () => {
     }
   }
 
-
   useEffect(() => {
     resetLoginForm();
     resetSignUpForm()
   }, [resetLoginForm, resetSignUpForm])
-
 
   const onSubmitLogin = async (data) => {
     try {
       const result = await loginUser(data)
       if (result.status === 'success') {
         if (rememberMe) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem('token', result.data.token);
         }
         router.push('/')
       }
@@ -112,10 +136,21 @@ const Page = () => {
     }
   }
 
-
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
   }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#086280] font-medium">Đang kiểm tra đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center p-4">
       <motion.div
