@@ -16,7 +16,7 @@ export const loginUser = async (userData) => {
         const response = await axiosInstance.post('/auth/login', userData, { withCredentials: true });
 
         if (response.data.data.token) {
-            localStorage.setItem("token", response.data.data.token); // Lưu token vào localStorage
+            localStorage.setItem("token", response.data.data.token);
         }
 
         return response.data
@@ -29,6 +29,7 @@ export const loginUser = async (userData) => {
 export const logout = async () => {
     try {
         const response = await axiosInstance.get('/auth/logout');
+        localStorage.removeItem("token");
         return response.data
     } catch (error) {
         console.log(error)
@@ -38,6 +39,7 @@ export const logout = async () => {
 export const deleteAccount = async () => {
     try {
         const response = await axiosInstance.delete('/auth/deleteAccount');
+        localStorage.removeItem("token");
         return response.data
     } catch (error) {
         console.log(error)
