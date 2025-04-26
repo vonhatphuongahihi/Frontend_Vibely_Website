@@ -1,13 +1,12 @@
 import axiosInstance from "./urlAdmin.service";
-import { getAuthHeaders } from './auth.service';
 
 // Lấy danh sách tất cả users
 export const getAllUsers = async () => {
     try {
-        const result = await axiosInstance.get("/admin/users", getAuthHeaders());
+        const result = await axiosInstance.get("/admin/users");
         return result?.data?.data;
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi khi lấy danh sách users:", error);
         throw error;
     }
 };
@@ -15,10 +14,10 @@ export const getAllUsers = async () => {
 // Xóa user theo ID
 export const deleteUser = async (userId) => {
     try {
-        const result = await axiosInstance.delete(`/admin/users/${userId}`, getAuthHeaders());
+        const result = await axiosInstance.delete(`/admin/users/${userId}`);
         return result?.data;
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi khi xóa user:", error);
         throw error;
     }
 };
@@ -26,10 +25,10 @@ export const deleteUser = async (userId) => {
 // Tìm kiếm users
 export const searchUsers = async (query) => {
     try {
-        const result = await axiosInstance.get(`/admin/users/search?q=${query}`, getAuthHeaders());
+        const result = await axiosInstance.get(`/admin/users/search?q=${query}`);
         return result?.data?.data;
     } catch (error) {
-        console.error(error);
+        console.error("Lỗi khi tìm kiếm users:", error);
         throw error;
     }
 }; 

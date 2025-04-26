@@ -9,6 +9,7 @@ import { MdOutlineChecklistRtl } from "react-icons/md";
 import { RiPlayListLine } from "react-icons/ri";
 import './pomodoro.css';
 import songs from './songs';
+import LeftSideBar from "../components/LeftSideBar";
 
 const Pomodoro = () => {
   const [time, setTime] = useState(25 * 60);
@@ -56,6 +57,9 @@ const Pomodoro = () => {
 
   return (
     <div className="flex h-screen p-5 bg-background pt-20 justify-center lg:justify-between">
+      <div className="md:hidden">
+      <LeftSideBar/>
+      </div>
       {/* Bên trái */}
       <Button variant="bigIcon" className="flex lg:hidden hover:bg-gray-100 absolute left-0 top-15" //Nút mở info khi mobile
         onClick={()=>{

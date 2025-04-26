@@ -27,6 +27,7 @@ import React, { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import NotificationIcon from "./Notification/NotificationIcon";
 import { SettingsMenu } from './SettingsMenu';
+import axios from "axios";
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -40,6 +41,10 @@ const Header = () => {
   const searchRef = useRef(null);
   const dropdownRef = useRef(null);
   const scrollPositionRef = useRef(0);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [lastMessage, setLastMessage] = useState(null);
+  const [showMessagePreview, setShowMessagePreview] = useState(false);
+  const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
   const handleBackToMainMenu = () => {
     setIsSettingsOpen(false);
@@ -159,9 +164,47 @@ const Header = () => {
     }
   }, [isDropdownOpen, isSettingsOpen]);
 
+  // Lấy số tin nhắn chưa đọc
+  useEffect(() => {
+    const fetchUnreadMessages = async () => {
+      if (!user?._id) return;
+
+      try {
+        const response = await axios.get(`${API_URL}/message/unread/${user._id}`);
+        setUnreadCount(response.data.total);
+      } catch (error) {
+        console.error("Lỗi khi lấy số tin nhắn chưa đọc:", error);
+      }
+    };
+
+    fetchUnreadMessages();
+
+    // Lắng nghe tin nhắn mới từ socket
+    if (window.socket) {
+      window.socket.on("getMessage", (data) => {
+        if (data.senderId !== user?._id) {
+          setUnreadCount(prev => prev + 1);
+          setLastMessage(data);
+          setShowMessagePreview(true);
+
+          // Tự động ẩn preview sau 5 giây
+          setTimeout(() => {
+            setShowMessagePreview(false);
+          }, 5000);
+        }
+      });
+    }
+
+    return () => {
+      if (window.socket) {
+        window.socket.off("getMessage");
+      }
+    };
+  }, [user]);
+
   return (
     <header className="bg-background_header text-foreground shadow-md h-14 fixed top-0 left-0 z-50 w-full">
-      <div className="mx-auto flex justify-between items-center h-full px-1 md:px-4">
+      <div className="mx-auto flex justify-between items-center h-full px-4">
         {/* Logo và Tìm kiếm */}
         <div className="flex items-center gap-2">
           <Image
@@ -248,7 +291,7 @@ const Header = () => {
         </nav>
 
         {/* Profile cá nhân */}
-        <div className="flex space-x-1 md:space-x-4 items-center">
+        <div className="flex space-x-2 md:space-x-4 items-center">
           <Button
             variant="ghost"
             size="icon"
@@ -261,15 +304,20 @@ const Header = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="text-gray-600 cursor-pointer pl-1"
+            className="hidden md:block text-gray-600 cursor-pointer pl-1 relative"
             onClick={() => handleNavigation("/messenger")}
           >
-            <MessageCircle className="min-w-[16px] min-h-[16px] md:min-w-[24px] md:min-h-[24px]" />
+            <MessageCircle size={22} className="min-w-[22px] min-h-[22px]" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                {unreadCount}
+              </span>
+            )}
           </Button>
           <Button
             variant="ghost"
             size="icon"
-            className="text-gray-600 cursor-pointer pl-1"
+            className="hidden md:block text-gray-600 cursor-pointer pl-1"
           >
             <NotificationIcon />
           </Button>
@@ -397,6 +445,21 @@ const Header = () => {
               )}
             </DropdownMenuContent>
           </DropdownMenu>
+          {/* Message Preview */}
+          {showMessagePreview && lastMessage && (
+            <div className="fixed top-16 right-4 bg-white shadow-lg rounded-lg p-4 max-w-sm z-50 border border-gray-200">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="font-semibold">Tin nhắn mới</h3>
+                <button
+                  onClick={() => setShowMessagePreview(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-sm text-gray-600 truncate">{lastMessage.text}</p>
+            </div>
+          )}
         </div>
       </div>
     </header>

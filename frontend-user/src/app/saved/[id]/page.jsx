@@ -1,4 +1,5 @@
 "use client";
+import LeftSideBar from "@/app/components/LeftSideBar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
@@ -103,6 +104,9 @@ const SavedDocumentDetail = () => {
     return (
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
             {/* Thanh bên */}
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>  
             {/* Nút mở rộng khi màn hình nhỏ*/}
             <Button
                 variant="bigIcon"

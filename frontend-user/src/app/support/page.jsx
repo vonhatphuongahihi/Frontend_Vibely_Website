@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
+import LeftSideBar from "../components/LeftSideBar";
 
 const SupportPage = () => {
     const [message, setMessage] = useState("");
@@ -52,6 +53,9 @@ const SupportPage = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-2 lg:p-10 pt-14 ">
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>
             <div className="max-w-7xl w-full flex md:gap-20">
                 {/* Hình ảnh bên trái */}
                 <div className="w-1/2 flex justify-center items-center">

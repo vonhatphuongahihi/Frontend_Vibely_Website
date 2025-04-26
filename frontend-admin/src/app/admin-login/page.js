@@ -14,6 +14,7 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as yup from "yup";
 import Link from 'next/link'
+import axios from "axios";
 
 
 // Schema validation cho form đăng nhập
@@ -25,6 +26,7 @@ const loginSchema = yup.object().shape({
 const Page = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
+    const [isChecking, setIsChecking] = useState(true);
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(loginSchema),
     });
@@ -33,12 +35,20 @@ const Page = () => {
     useEffect(() => {
         const checkLoginStatus = async () => {
             try {
-                const { isAuthenticated } = await checkAdminAuth();
-                if (isAuthenticated) {
-                    router.replace("/admin/dashboard");
+                const token = localStorage.getItem('adminToken');
+                if (token) {
+                    const { isAuthenticated } = await checkAdminAuth();
+                    if (isAuthenticated) {
+                        router.replace("/admin/dashboard");
+                    } else {
+                        localStorage.removeItem('adminToken');
+                    }
                 }
             } catch (error) {
                 console.log('Chưa đăng nhập');
+                localStorage.removeItem('adminToken');
+            } finally {
+                setIsChecking(false);
             }
         };
 
@@ -52,6 +62,15 @@ const Page = () => {
             const response = await loginAdmin(data);
 
             if (response?.status === "success" && response?.data?.token) {
+                // Xóa token cũ nếu có
+                localStorage.removeItem('adminToken');
+
+                // Lưu token mới
+                localStorage.setItem('adminToken', response.data.token);
+
+                // Cập nhật header mặc định cho axios
+                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
+
                 toast.success("Đăng nhập thành công!");
                 router.push("/admin/dashboard");
             } else {
@@ -63,6 +82,17 @@ const Page = () => {
             setLoading(false);
         }
     };
+
+    if (isChecking) {
+        return (
+            <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center">
+                <div className="flex flex-col items-center space-y-4">
+                    <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[#086280] font-medium">Đang kiểm tra đăng nhập...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F9FDFF] p-6">

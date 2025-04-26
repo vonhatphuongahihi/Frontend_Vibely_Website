@@ -11,6 +11,7 @@ import Message from "../components/message/Message";
 import "./messenger.css";
 import { PiDotsThreeVerticalBold } from "react-icons/pi";
 import { IoSend } from "react-icons/io5";
+import LeftSideBar from "../components/LeftSideBar";
 
 
 const Messenger = () => {
@@ -36,38 +37,67 @@ const Messenger = () => {
     const [chatColor, setChatColor] = useState("#30BDFF");
     const [showColorModal, setShowColorModal] = useState(false);
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
+    const [isViewingChat, setIsViewingChat] = useState(false);
+    const [openChat, setOpenChat] = useState(false);
 
     // Kết nối socket
     useEffect(() => {
-        socket.current = io("ws://localhost:8900");
-        socket.current.on("getMessage", (data) => {
-            setArrivalMessage({
-                sender: data.senderId,
-                text: data.text,
-                createdAt: Date.now(),
+        if (window.socket) {
+            socket.current = window.socket;
+
+            // Lắng nghe tin nhắn mới
+            socket.current.on("getMessage", (data) => {
+                setMessages(prev => [...prev, data]); // Cập nhật messages trực tiếp
+            });
+
+            // Lắng nghe sự kiện đã đọc
+            socket.current.on("messageRead", ({ messageId, userId }) => {
+                setMessages(prevMessages =>
+                    prevMessages.map(msg =>
+                        msg._id === messageId
+                            ? {
+                                ...msg,
+                                readBy: [...(msg.readBy || []), userId],
+                                isRead: true
+                            }
+                            : msg
+                    )
+                );
             });
         }
-        );
-    }, []);
 
-    // Thêm tin nhắn mới vào danh sách tin nhắn
-    useEffect(() => {
-        arrivalMessage &&
-            currentChat?.members.includes(arrivalMessage.sender) &&
-            setMessages((prev) => [...prev, arrivalMessage]);
-    }, [arrivalMessage, currentChat]);
+        return () => {
+            if (socket.current) {
+                socket.current.off("getMessage");
+                socket.current.off("messageRead");
+            }
+        };
+    }, []);
 
     // Thêm user vào danh sách online
     useEffect(() => {
-        if (user?._id) {  // Dùng optional chaining để tránh lỗi
-            socket.current.emit("addUser", user._id);
+        if (user?._id && socket.current) {
+            // Lắng nghe sự kiện getUsers để cập nhật danh sách online users
             socket.current.on("getUsers", (users) => {
-                setOnlineUsers(user.followings.filter((f) => users.some((u) => u.userId === f)));
+                console.log("Messenger received online users:", users);
+                if (user.followings && Array.isArray(user.followings)) {
+                    setOnlineUsers(user.followings.filter((f) => users.some((u) => u.userId === f)));
+                } else {
+                    setOnlineUsers([]);
+                }
             });
+
+            // Yêu cầu cập nhật danh sách online users
+            socket.current.emit("requestOnlineUsers");
         }
+
+        // Cleanup function
+        return () => {
+            if (socket.current) {
+                socket.current.off("getUsers");
+            }
+        };
     }, [user]);
-
-
 
     // Kiểm tra xác thực người dùng
     useEffect(() => {
@@ -100,23 +130,6 @@ const Messenger = () => {
         getFriends();
     }, [user]);
 
-    // Lấy danh sách hội thoại của user
-    // useEffect(() => {
-    //     if (!user || !user._id) return;
-
-    //     const getConversations = async () => {
-    //         try {
-    //             const res = await axios.get(`https://vibely-study-social-web.onrender.com/conversation/${user._id}`);
-    //             console.log("📨 Danh sách hội thoại:", res.data);
-    //             setConversations(res.data);
-    //         } catch (err) {
-    //             console.error("❌ Lỗi khi lấy hội thoại:", err);
-    //         }
-    //     };
-
-    //     getConversations();
-    // }, [user]);
-
     // Lấy tin nhắn khi currentChat thay đổi
     useEffect(() => {
         if (!currentChat || !currentChat._id) return;
@@ -138,7 +151,7 @@ const Messenger = () => {
         console.log("🔄 Cập nhật CurrentChat:", currentChat);
     }, [currentChat]);
 
-    // Gửi tin nhắn mới
+    // Gửi tin nhắn
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -148,32 +161,22 @@ const Messenger = () => {
             conversationId: currentChat._id,
         };
 
-        // Gửi tin nhắn qua socket
-        socket.current.emit("sendMessage", {
-            senderId: user._id,
-            receiverId: currentChat.members.find((member) => member !== user._id),
-            text: newMessage,
-        });
-
-
         try {
             const res = await axios.post(`${API_URL}/message`, message);
-            setMessages([...messages, res.data]);
+            setMessages(prev => [...prev, res.data]); // Cập nhật messages với response từ server
             setNewMessage("");
+
+            // Gửi tin nhắn qua socket với đầy đủ thông tin
+            socket.current.emit("sendMessage", {
+                senderId: user._id,
+                receiverId: currentChat.members.find(member => member !== user._id),
+                text: newMessage,
+                messageId: res.data._id // Gửi kèm ID tin nhắn
+            });
         } catch (err) {
             console.error("❌ Lỗi khi gửi tin nhắn:", err);
         }
     };
-
-
-    // Nhận tin nhắn từ socket
-    useEffect(() => {
-        socket.current.on("getMessage", (data) => {
-            setMessages([...messages, data]);
-        }
-        );
-    }, [messages]);
-
 
     // Cuộn xuống cuối cùng khi có tin nhắn mới
     useEffect(() => {
@@ -302,9 +305,72 @@ const Messenger = () => {
         }
         setShowColorModal(false);
     };
-    const [openChat, setOpenChat] = useState(window.matchMedia("(min-width: 768px)").matches)   //<md
+
+    const markMessagesAsRead = async () => {
+        if (!currentChat || !user) return;
+
+        try {
+            const unreadMessages = messages.filter(msg =>
+                msg.sender !== user._id && // Tin nhắn của người khác gửi
+                !msg.readBy?.includes(user._id) // Chưa được đánh dấu là đã đọc
+            );
+
+            console.log("Tin nhắn chưa đọc:", unreadMessages);
+
+            // Gọi API markMessageAsRead cho từng tin nhắn chưa đọc
+            for (const msg of unreadMessages) {
+                try {
+                    await axios.post(`${API_URL}/message/read`, {
+                        messageId: msg._id,
+                        userId: user._id
+                    });
+
+                    // Cập nhật state messages ngay lập tức
+                    setMessages(prev => prev.map(m =>
+                        m._id === msg._id
+                            ? {
+                                ...m,
+                                readBy: [...(m.readBy || []), user._id],
+                                isRead: true
+                            }
+                            : m
+                    ));
+                } catch (err) {
+                    console.error(`Lỗi khi đánh dấu tin nhắn ${msg._id} đã đọc:`, err);
+                }
+            }
+        } catch (err) {
+            console.error("Lỗi khi đánh dấu tin nhắn đã đọc:", err);
+        }
+    };
+
+    useEffect(() => {
+        if (!currentChat || !messages.length || !user) return;
+
+        // Đánh dấu đã đọc khi người dùng đang xem chat
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                markMessagesAsRead();
+            }
+        };
+
+        // Đánh dấu đã đọc khi component mount và có tin nhắn
+        markMessagesAsRead();
+
+        // Theo dõi khi user switch tab/window
+        document.addEventListener('visibilitychange', handleVisibility);
+
+        // Cleanup
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibility);
+        };
+    }, [currentChat, messages, user]);
+
     return (
         <div className="pt-14 messenger">
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>
             {/* Sidebar danh sách hội thoại */}
             <div className="chatMenu">
                 <div className="chatMenuWrapper">
@@ -323,7 +389,7 @@ const Messenger = () => {
                     </div>
                     <div className="md:hidden w-screen">
                         <div className="p-2 h-[100%]">
-                        {user && <ChatOnline onlineUsers={onlineUsers} currentId={user._id} setCurrentChat={setCurrentChat} setSelectedFriend={setSelectedFriend} mode={"mobile"}/>}
+                            {user && <ChatOnline onlineUsers={onlineUsers} currentId={user._id} setCurrentChat={setCurrentChat} setSelectedFriend={setSelectedFriend} mode={"mobile"} />}
                         </div>
                     </div>
                     {/* Danh sách hội thoại */}
@@ -339,7 +405,8 @@ const Messenger = () => {
                                         });
                                         setCurrentChat(res.data);
                                         setSelectedFriend(friend);
-                                        setOpenChat(true)
+                                        // Đánh dấu đã đọc ngay khi click vào conversation
+                                        await markMessagesAsRead();
                                     } catch (err) {
                                         console.error("Lỗi tạo hoặc lấy hội thoại:", err);
                                     }
@@ -412,7 +479,7 @@ const Messenger = () => {
                             <div className="chatBoxTop">
                                 {messages.length > 0 ? (
                                     messages.map((msg) => (
-                                        <div key={msg._id} ref={scrollRef}>
+                                        <div key={msg._id} ref={scrollRef} data-message-id={msg._id}>
                                             <Message message={msg} own={msg.sender === user._id} />
                                         </div>
                                     ))
@@ -450,93 +517,93 @@ const Messenger = () => {
                 </div>
             </div>
             {openChat && (
-            <div className="fixed inset-0 z-50 bg-white w-full h-full md:hidden">
-                <div className="chatBoxWrapper overflow-y-auto h-[calc(100%-64px)]">
+                <div className="fixed inset-0 z-50 bg-white w-full h-full md:hidden">
+                    <div className="chatBoxWrapper overflow-y-auto h-[calc(100%-64px)]">
 
-            {/* Hiển thị ảnh + tên người đang chat */}
-            {selectedFriend && (
-                <div className="flex items-center justify-between gap-4 pr-4 pl-0 py-2 border-b border-gray-300">
-                    <div className="flex items-center gap-4">
-                        <button className="md:hidden" onClick={() => setOpenChat(false)}>
-                            <ChevronLeft size={25} />
-                        </button>
-                        <img
-                            src={selectedFriend.profilePicture || "/images/user_default.jpg"}
-                            alt="avatar"
-                            className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <span className="font-medium">
-                            {friendNickname || selectedFriend?.username}
-                        </span>
-                    </div>
-                    <div className="relative">
-                        <button onClick={() => setShowOptions(!showOptions)}>
-                            <PiDotsThreeVerticalBold size={25} />
-                        </button>
-                        {showOptions && (
-                            <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
-                                <button
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                                    onClick={() => handleOptionClick("changeColor")}
-                                >
-                                    Đổi màu đoạn chat
-                                </button>
-                                <div className="relative">
-                                    <button
-                                        className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                                        onClick={() => {
-                                            handleOptionClick("setNickname");
-                                            setShowNicknameOptions(false);
-                                        }}
-                                    >
-                                        Đặt biệt danh
+                        {/* Hiển thị ảnh + tên người đang chat */}
+                        {selectedFriend && (
+                            <div className="flex items-center justify-between gap-4 pr-4 pl-0 py-2 border-b border-gray-300">
+                                <div className="flex items-center gap-4">
+                                    <button className="md:hidden" onClick={() => setOpenChat(false)}>
+                                        <ChevronLeft size={25} />
                                     </button>
-
+                                    <img
+                                        src={selectedFriend.profilePicture || "/images/user_default.jpg"}
+                                        alt="avatar"
+                                        className="w-10 h-10 rounded-full object-cover"
+                                    />
+                                    <span className="font-medium">
+                                        {friendNickname || selectedFriend?.username}
+                                    </span>
                                 </div>
-                                <button
-                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-                                    onClick={() => handleOptionClick("deleteChat")}
-                                >
-                                    Xóa đoạn chat
-                                </button>
+                                <div className="relative">
+                                    <button onClick={() => setShowOptions(!showOptions)}>
+                                        <PiDotsThreeVerticalBold size={25} />
+                                    </button>
+                                    {showOptions && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-lg">
+                                            <button
+                                                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                                onClick={() => handleOptionClick("changeColor")}
+                                            >
+                                                Đổi màu đoạn chat
+                                            </button>
+                                            <div className="relative">
+                                                <button
+                                                    className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                                    onClick={() => {
+                                                        handleOptionClick("setNickname");
+                                                        setShowNicknameOptions(false);
+                                                    }}
+                                                >
+                                                    Đặt biệt danh
+                                                </button>
+
+                                            </div>
+                                            <button
+                                                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                                                onClick={() => handleOptionClick("deleteChat")}
+                                            >
+                                                Xóa đoạn chat
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
+
+                        {/* Danh sách tin nhắn */}
+                        <div className="chatBoxTop">
+                            {messages.length > 0 ? (
+                                messages.map((msg) => (
+                                    <div key={msg._id} ref={scrollRef}>
+                                        <Message message={msg} own={msg.sender === user._id} />
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="flex justify-center items-center h-full">
+                                    <p className="">Chưa có tin nhắn nào</p>
+                                </div>
+                            )}
+                        </div>
+                        {/* Gửi tin nhắn */}
+                        <div className="chatBoxBottom">
+                            <textarea className="chatMessageInput"
+                                placeholder="Aa"
+                                onChange={(e) => setNewMessage(e.target.value)}
+                                value={newMessage}
+                                onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
+                            ></textarea>
+                            <button
+                                onClick={handleSubmit}
+                                className="chatSubmitButton flex items-center justify-center"
+                                style={{ color: chatColor }}
+                            >
+                                <IoSend size={24} />
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )}
-
-            {/* Danh sách tin nhắn */}
-            <div className="chatBoxTop">
-                {messages.length > 0 ? (
-                    messages.map((msg) => (
-                        <div key={msg._id} ref={scrollRef}>
-                            <Message message={msg} own={msg.sender === user._id} />
-                        </div>
-                    ))
-                ) : (
-                    <div className="flex justify-center items-center h-full">
-                        <p className="">Chưa có tin nhắn nào</p>
-                    </div>
-                )}
-            </div>
-            {/* Gửi tin nhắn */}
-            <div className="chatBoxBottom">
-                <textarea className="chatMessageInput"
-                    placeholder="Aa"
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    value={newMessage}
-                    onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
-                ></textarea>
-                <button
-                    onClick={handleSubmit}
-                    className="chatSubmitButton flex items-center justify-center"
-                    style={{ color: chatColor }}
-                >
-                    <IoSend size={24} />
-                </button>
-            </div>
-            </div>
-            </div>
             )}
             {/* Danh sách bạn bè online */}
             <div className="hidden md:block chatOnline">

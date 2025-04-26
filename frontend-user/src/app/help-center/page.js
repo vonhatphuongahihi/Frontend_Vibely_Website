@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ChevronDown, ChevronUp, Menu } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import LeftSideBar from "../components/LeftSideBar";
 
 const HelpCenter = () => {
     const [selectedContent, setSelectedContent] = useState(null);
@@ -32,8 +33,11 @@ const HelpCenter = () => {
     const toggleSideBar = () => setSibeBarOpen(!sideBarOpen)
     return (
         <div className="flex items-center p-2 md:p-10">
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>
             <div className="max-w-7xl w-full flex gap-2 md:gap-5 lg:gap-10">
-                    <Button className="fixed top-16 left-2 md:hidden z-50" onClick={()=>toggleSideBar()}>
+                    <Button className="fixed top-16 left-2 md:hidden z-20" onClick={()=>toggleSideBar()}>
                         <Menu className="w-5 h-5"/>
                     </Button>
                 {/* Sidebar */}

@@ -1,28 +1,4 @@
-import axios from 'axios';
-
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
-
-const axiosInstance = axios.create({
-    baseURL: API_URL,
-    withCredentials: true,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
-
-// Thêm interceptor để tự động gắn token vào header
-axiosInstance.interceptors.request.use(
-    (config) => {
-        const token = localStorage.getItem('adminToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
+import axiosInstance from "./urlAdmin.service";
 
 // Đăng nhập Admin
 export const loginAdmin = async (adminData) => {
@@ -53,15 +29,8 @@ export const logoutAdmin = async () => {
 // Kiểm tra xem Admin đã đăng nhập chưa
 export const checkAdminAuth = async () => {
     try {
-        const token = localStorage.getItem("adminToken");
-        if (!token) {
-            return { isAuthenticated: false };
-        }
-        const response = await axiosInstance.get('/admin/auth/check-login');
-        if (response.data.status === 'success') {
-            return { isAuthenticated: true, admin: response.data.data };
-        }
-        return { isAuthenticated: false };
+        const response = await axiosInstance.get('/admin/auth/check-auth');
+        return { isAuthenticated: true, admin: response.data.data };
     } catch (error) {
         console.error("Lỗi kiểm tra đăng nhập:", error.response?.data?.message || error.message);
         return { isAuthenticated: false };

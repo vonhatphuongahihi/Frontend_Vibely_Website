@@ -56,7 +56,7 @@ const LeftSideBar = () => {
             className="full justify-start"
             onClick={() => handleNavigation("/friends-list")}
           >
-            <img src="images/friend_sidebar.png" alt="friend" className="mr-2" />
+            <img src="/images/friend_sidebar.png" alt="friend" className="mr-2" />
             Bạn bè
           </Button>
           <br></br>
@@ -65,7 +65,7 @@ const LeftSideBar = () => {
             className="full justify-start"
             onClick={() => handleNavigation("/saved")}
           >
-            <img src="images/save_sidebar.png" alt="saved" className="mr-4" />
+            <img src="/images/save_sidebar.png" alt="saved" className="mr-4" />
             Đã lưu
           </Button>
           <br></br>
@@ -74,7 +74,7 @@ const LeftSideBar = () => {
             className="full justify-start"
             onClick={() => handleNavigation("/video-feed")}
           >
-            <img src="images/video_sidebar.png" alt="video" className="mr-2" />
+            <img src="/images/video_sidebar.png" alt="video" className="mr-2" />
             Video
           </Button>
           <br></br>
@@ -83,7 +83,7 @@ const LeftSideBar = () => {
             className="full justify-start"
             onClick={() => handleNavigation("/calendar")}
           >
-            <img src="images/calendar_sidebar.png" alt="calendar" className="mr-3" />
+            <img src="/images/calendar_sidebar.png" alt="calendar" className="mr-3" />
             Lịch
           </Button>
           <br></br>
@@ -92,7 +92,7 @@ const LeftSideBar = () => {
             className="full justify-start"
             onClick={() => handleNavigation("/document")}
           >
-            <img src="images/document_sidebar.png" alt="document" className="mr-3" />
+            <img src="/images/document_sidebar.png" alt="document" className="mr-3" />
             Tài liệu
           </Button>
           <Button
@@ -100,7 +100,7 @@ const LeftSideBar = () => {
             className="full justify-start"
             onClick={() => handleNavigation("/pomodoro")}
           >
-            <img src="images/pomodoro_sidebar.png" alt="pomodoro" className="-ml-2 mr-2" />
+            <img src="/images/pomodoro_sidebar.png" alt="pomodoro" className="-ml-2 mr-2" />
             Chế độ Pomodoro
           </Button>
           {/* <Button
@@ -118,7 +118,7 @@ const LeftSideBar = () => {
 
             onClick={() => handleNavigation("/quiz")}
           >
-            <img src="images/game_sidebar.png" alt="quiz" className="-ml-2 mr-2" />
+            <img src="/images/game_sidebar.png" alt="quiz" className="-ml-2 mr-2" />
             Củng cố kiến thức
           </Button>
           <Button
