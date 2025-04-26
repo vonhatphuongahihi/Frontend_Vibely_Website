@@ -1,9 +1,9 @@
-'use client'
+'use client';
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/sidebar/Sidebar';
 import ChartSection from '../../components/dashboard/ChartSection';
 import Image from 'next/image';
-import { getTotalUsers, getTotalPosts, getTotalDocuments, getTotalQuestions, getDashboardStats } from '@/service/dashboardAdmin.service';
+import { getDashboardStats } from '@/service/dashboardAdmin.service';
 import './dashboard.css';
 
 const Dashboard = () => {
@@ -13,39 +13,22 @@ const Dashboard = () => {
     const [totalPosts, setTotalPosts] = useState(0);
     const [totalDocuments, setTotalDocuments] = useState(0);
     const [totalQuestions, setTotalQuestions] = useState(0);
-    const [timeRange, setTimeRange] = useState("day");
-
+    const [timeRange, setTimeRange] = useState("month");
 
     useEffect(() => {
-        fetchData(timeRange);
+        fetchData();
     }, [timeRange]);
 
-    const fetchData = async (range) => {
+    const fetchData = async () => {
         try {
-            const users = await getTotalUsers();
-            const posts = await getTotalPosts();
-            const documents = await getTotalDocuments();
-            const questions = await getTotalQuestions();
-            const stats = await getDashboardStats(range);
+            const statsData = await getDashboardStats(timeRange);
 
-            console.log("Dashboard API Response:", stats);
-
-            setTotalUsers(users);
-            setTotalPosts(posts);
-            setTotalDocuments(documents);
-            setTotalQuestions(questions);
-
-            if (!stats || !stats.usersStats || !stats.postsStats) {
-                console.error("API response missing required data:", stats);
-                return;
-            }
-
-            const formattedUserData = stats.usersStats.map(item => ({
+            const formattedUserData = statsData.usersStats.map(item => ({
                 date: item._id.month ? `${item._id.year}-${item._id.month}` : item._id.date,
                 count: item.count
             }));
 
-            const formattedPostData = stats.postsStats.map(item => ({
+            const formattedPostData = statsData.postsStats.map(item => ({
                 date: item._id.month ? `${item._id.year}-${item._id.month}` : item._id.date,
                 count: item.count
             }));
@@ -53,7 +36,9 @@ const Dashboard = () => {
             setUserStats(formattedUserData);
             setPostStats(formattedPostData);
         } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu:", error);
+            console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+            setUserStats([]);
+            setPostStats([]);
         }
     };
 
@@ -67,9 +52,6 @@ const Dashboard = () => {
             <div className="w-full md:w-4/5 md:ml-52 py-6 overflow-y-auto">
                 <div className="flex justify-between items-center mb-6 px-6">
                     <h1 className="text-2xl font-semibold text-[#333]">Dashboard</h1>
-                    <div className="flex items-center space-x-4">
-
-                    </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 px-6">
                     <DashboardCard title="Tổng số người dùng" count={totalUsers} imageSrc="/images/dashboard/users.png" />
@@ -93,7 +75,7 @@ const Dashboard = () => {
                     {userStats.length > 0 && postStats.length > 0 ? (
                         <ChartSection userStats={userStats} postStats={postStats} />
                     ) : (
-                        <p className="text-gray-500">Đang tải dữ liệu...</p>
+                        <p className="text-gray-500">Không có dữ liệu thống kê</p>
                     )}
                 </div>
             </div>
