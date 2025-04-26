@@ -1,14 +1,14 @@
-"use client"; 
+"use client";
 
 import { useEffect } from "react";
-import Image from "next/image"; 
-import "./loader.css"; 
+import Image from "next/image";
+import "./loader.css";
 
 const Loader = ({ onLoad }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       onLoad();
-    }, 3000);
+    }, 10000);
 
     return () => clearTimeout(timer);
   }, [onLoad]);

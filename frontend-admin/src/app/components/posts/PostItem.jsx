@@ -67,7 +67,7 @@ const PostItem = ({ post }) => {
 
                     {/* Nút xóa bài viết */}
                     <button className="mt-14 bg-[#DF0000] font-semibold text-white px-4 py-2 rounded-lg flex items-center gap-2 self-end hover:bg-red-600 cursor-pointer">
-                        <FaTrash className="mr-2" />
+                        <FaTrash className="mr-2"/>
                         Xóa bài viết
                     </button>
                 </div>

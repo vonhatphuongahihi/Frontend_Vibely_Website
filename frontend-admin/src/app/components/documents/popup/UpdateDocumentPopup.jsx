@@ -1,28 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 
-const UpdateDocumentPopup = ({ document, onClose, onUpdate }) => {
-    const levels = ["Tiểu học", "Trung học cơ sở", "Trung học phổ thông", "Đại học"];
-    const subjects = ["Toán", "Vật lý", "Hóa học", "Ngữ văn", "Lịch sử"];
+const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, onClose}) => {
 
     // State để lưu dữ liệu chỉnh sửa
     const [formData, setFormData] = useState({
+        _id: document?._id || "",
         title: document?.title || "",
-        level: document?.level || "",
-        subject: document?.subject || "",
+        level: document?.level._id || "",
+        subject: document?.subject._id || "",
         pages: document?.pages || "",
         fileType: document?.fileType || "",
         fileUrl: document?.fileUrl || "",
     });
 
+    const [errors, setErrors] = useState({});
+    const [subjects, setSubjects] = useState([]);
+    const [loadingSubjects, setLoadingSubjects] = useState(false);
+
+    // Gọi API lấy subjects khi level thay đổi
+    useEffect(() => {
+        if (formData.level) {
+            setLoadingSubjects(true);
+            fetchSubjects(formData.level)
+                .then((data) => {
+                    setSubjects(data || []);
+    
+                    // Chỉ reset subject nếu user chọn cấp học mới, không reset khi load lần đầu
+                    setFormData((prev) => ({
+                        ...prev,
+                        subject: prev.subject && data.some(s => s._id === prev.subject) ? prev.subject : ""
+                    }));
+                })
+                .finally(() => setLoadingSubjects(false));
+        } else {
+            setSubjects([]);
+        }
+    }, [formData.level]);
+
     // Xử lý khi thay đổi dữ liệu nhập
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: name === "pages" ? Number(value) : value, // Ép kiểu nếu là pages
+        }));
+        setErrors((prev) => ({ ...prev, [name]: "" })); // Xóa lỗi khi nhập vào
+    };
+
+    const validate = () => {
+        let newErrors = {};
+        if (!formData.title.trim()) newErrors.title = "Tiêu đề không được để trống";
+        if (!formData.level) newErrors.level = "Vui lòng chọn cấp học";
+        if (!formData.subject) newErrors.subject = "Vui lòng chọn môn học";
+        if (!formData.pages || isNaN(formData.pages) || formData.pages <= 0)
+            newErrors.pages = "Số trang phải là số dương";
+        if (!formData.fileType.trim()) newErrors.fileType = "Định dạng không được để trống";
+        if (!formData.fileUrl.trim()) newErrors.fileUrl = "URL không được để trống";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     // Gửi dữ liệu cập nhật
     const handleSubmit = () => {
-        onUpdate(formData);
+        if (validate()) {
+            updateDocument(formData);
+        }
     };
 
     return (
@@ -37,7 +81,7 @@ const UpdateDocumentPopup = ({ document, onClose, onUpdate }) => {
                 </div>
 
                 {/* Form */}
-                <div className="grid grid-cols-2 gap-8">
+                <div className={`grid grid-cols-2 gap-8`}>
                     <div className="col-span-2">
                         <label className="block mb-2 font-semibold">Tiêu đề</label>
                         <input
@@ -45,9 +89,11 @@ const UpdateDocumentPopup = ({ document, onClose, onUpdate }) => {
                             name="title"
                             value={formData.title}
                             onChange={handleChange}
-                            className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none"
+                            className={`w-full border p-2 rounded-lg focus:outline-none
+                                ${errors.title ? "border-red-500 mb-2" : "border-gray-400"}`}
                             placeholder="Nhập tiêu đề tài liệu"
                         />
+                        {errors.title && <p className="text-red-500 text-sm">{errors.title}</p>}
                     </div>
 
                     <div>
@@ -56,15 +102,20 @@ const UpdateDocumentPopup = ({ document, onClose, onUpdate }) => {
                             name="level"
                             value={formData.level}
                             onChange={handleChange}
-                            className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none bg-white"
+                            className={`w-full border p-2 rounded-lg focus:outline-none bg-white
+                                ${errors.level ? "border-red-500 mb-2" : "border-gray-400"}`}
                         >
                             <option value="">Chọn cấp học</option>
                             {levels.map((level) => (
-                                <option key={level} value={level}>
-                                    {level}
+                                <option 
+                                    key={level._id} 
+                                    value={level._id}
+                                >
+                                    {level.name}
                                 </option>
                             ))}
                         </select>
+                        {errors.level && <p className="text-red-500 text-sm">{errors.level}</p>}
                     </div>
 
                     <div>
@@ -73,15 +124,21 @@ const UpdateDocumentPopup = ({ document, onClose, onUpdate }) => {
                             name="subject"
                             value={formData.subject}
                             onChange={handleChange}
-                            className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none bg-white"
+                            className={`w-full border border-gray-400 p-2 rounded-lg focus:outline-none bg-white
+                                ${errors.subject ? "border-red-500 mb-2" : "border-gray-400"}`}
+                            disabled={!formData.level || loadingSubjects}
                         >
                             <option value="">Chọn môn học</option>
                             {subjects.map((subject) => (
-                                <option key={subject} value={subject}>
-                                    {subject}
+                                <option 
+                                    key={subject._id}
+                                    value={subject._id}
+                                >
+                                    {subject.name}
                                 </option>
                             ))}
                         </select>
+                        {errors.subject && <p className="text-red-500 text-sm">{errors.subject}</p>}
                     </div>
 
                     <div>
@@ -91,33 +148,40 @@ const UpdateDocumentPopup = ({ document, onClose, onUpdate }) => {
                             name="pages"
                             value={formData.pages}
                             onChange={handleChange}
-                            className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none"
+                            className={`w-full border border-gray-400 p-2 rounded-lg focus:outline-none
+                                ${errors.pages ? "border-red-500 mb-2" : "border-gray-400"}`}
                             placeholder="Nhập số trang"
                         />
+                        {errors.pages && <p className="text-red-500 text-sm">{errors.pages}</p>}
                     </div>
 
                     <div>
                         <label className="block mb-2 font-semibold">Định dạng</label>
                         <input
                             type="text"
-                            name="format"
+                            name="fileType"
                             value={formData.fileType}
                             onChange={handleChange}
-                            className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none"
+                            className={`w-full border border-gray-400 p-2 rounded-lg focus:outline-none
+                                ${errors.fileType ? "border-red-500 mb-2" : "border-gray-400"}`}
                             placeholder="Nhập định dạng tài liệu"
                         />
+                        {errors.fileType && <p className="text-red-500 text-sm">{errors.fileType}</p>}
                     </div>
 
                     <div className="col-span-2">
                         <label className="block mb-2 font-semibold">URL của tài liệu</label>
                         <textarea
-                            name="url"
+                            type="text"
+                            name="fileUrl"
                             value={formData.fileUrl}
                             onChange={handleChange}
-                            className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none"
+                            className={`w-full border border-gray-400 p-2 rounded-lg focus:outline-none
+                                ${errors.fileUrl ? "border-red-500 mb-2" : "border-gray-400"}`}
                             placeholder="Nhập URL của tài liệu"
                             rows={2}
                         />
+                        {errors.fileUrl && <p className="text-red-500 text-sm">{errors.fileUrl}</p>}
                     </div>
                 </div>
 

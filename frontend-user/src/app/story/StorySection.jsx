@@ -1,51 +1,21 @@
 "use client";
-import React, {useEffect, useState, useRef} from "react";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import StoryCard from "./StoryCard";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { usePostStore } from "@/store/usePostStore";
-import toast from "react-hot-toast";
+import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import StoryCard from "./StoryCard";
 
 
 const StorySection = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
   const containerRef = useRef();
-  const {stories, fetchStories, handleReactStory} = usePostStore()
+  const {stories, fetchStories, handleReactStory, handleDeleteStory} = usePostStore()
   useEffect(()=>{
     fetchStories()
   },[fetchStories])
-  const[reactStories, setReactStories] = useState(new Set()); // danh sách những story mà người dùng đã react
-  useEffect(()=>{
-    const saveReacts = localStorage.getItem('reactStories')
-    if(saveReacts){
-      setReactStories(JSON.parse(saveReacts))
-    }
-  },[])
-
-  const handleReact = async(storyId, reactType)=>{
-    const updatedReactStories = { ...reactStories }; 
-    if(updatedReactStories && updatedReactStories[storyId]=== reactType){ 
-      delete updatedReactStories[storyId]; // hủy react nếu nhấn lại
-    }
-    else{ 
-      updatedReactStories[storyId] = reactType; // cập nhật cảm xúc mới
-    }
-    //lưu danh sách mới vào biến
-    setReactStories(updatedReactStories)
-    //lưu vào cục bộ
-    localStorage.setItem('reactStories', JSON.stringify(updatedReactStories));
-
-    try {
-      await handleReactStory(storyId, updatedReactStories[storyId] || null) //api
-      await fetchStories()// tải lại danh sách
-    } catch (error) {
-      console.log(error)
-      toast.error("Đã xảy ra lỗi khi bày tỏ cảm xúc với bài viết này. Vui lòng thử lại.")
-    }
-  }
-
+ 
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
@@ -77,7 +47,7 @@ const StorySection = () => {
       <div
         ref={containerRef}
         onScroll={handleScroll}
-        className='flex space-x-2 overflow-x-hidden py-4'
+        className='flex space-x-2 overflow-x-hidden py-4 md:py-0'
         style={{scrollbarWidth: "none", msOverflowStyle: "none"}}
       >
        <motion.div
@@ -93,16 +63,22 @@ const StorySection = () => {
           <StoryCard isAddStory={true}/>
           {stories?.map((story) => (
             <StoryCard story={story} key={story._id} 
-            reaction = {reactStories[story?._id]||null} //loại react 
-            onReact={(reactType) => handleReact(story?._id, reactType)} />
+            onReact={async(reactType) => {
+              await handleReactStory(story?._id, reactType) 
+              await fetchStories()// tải lại danh sách
+            }}
+            onDelete={async()=>{
+              await handleDeleteStory(story?._id)
+              await fetchStories()
+            }} />
           ))}
         </motion.div>
         {/* left side scrollbutton  */}
         {scrollPosition > 0 && (
           <Button
-            variant="outline"
             size="icon"
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 roudned-full shadow-lg transition-opacity duration-300 ease-in-out"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white 
+            rounded-full shadow-lg transition-opacity duration-300 ease-in-out border border-[#000]/50 hover:bg-gray-200"
             onClick={() => scroll("left")}
           >
             <ChevronLeft className="h-4 w-4" />
@@ -113,9 +89,9 @@ const StorySection = () => {
 
         {scrollPosition < maxScroll && (
           <Button
-            variant="outline"
             size="icon"
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-800 roudned-full shadow-lg transition-opacity duration-300 ease-in-out"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-white
+            rounded-full shadow-lg transition-opacity duration-300 ease-in-out border border-[#000]/50 hover:bg-gray-200"
             onClick={() => scroll("right")}
           >
             <ChevronRight className="h-4 w-4" />

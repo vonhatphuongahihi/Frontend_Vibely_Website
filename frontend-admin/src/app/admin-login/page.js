@@ -4,37 +4,93 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { loginAdmin, checkAdminAuth } from "@/service/authAdmin.service";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import * as yup from "yup";
+import Link from 'next/link'
+import axios from "axios";
 
+
+// Schema validation cho form đăng nhập
 const loginSchema = yup.object().shape({
     email: yup.string().email("Email không hợp lệ").required("Email không được để trống"),
     password: yup.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").required("Mật khẩu không được để trống"),
 });
 
 const Page = () => {
+    const router = useRouter();
     const [loading, setLoading] = useState(false);
-
+    const [isChecking, setIsChecking] = useState(true);
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(loginSchema),
     });
 
-    const onSubmit = (data) => {
+    // Kiểm tra trạng thái đăng nhập khi component mount
+    useEffect(() => {
+        const checkLoginStatus = async () => {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (token) {
+                    const { isAuthenticated } = await checkAdminAuth();
+                    if (isAuthenticated) {
+                        router.replace("/admin/dashboard");
+                    } else {
+                        localStorage.removeItem('adminToken');
+                    }
+                }
+            } catch (error) {
+                console.log('Chưa đăng nhập');
+                localStorage.removeItem('adminToken');
+            } finally {
+                setIsChecking(false);
+            }
+        };
+
+        checkLoginStatus();
+    }, [router]);
+
+    // Hàm xử lý đăng nhập
+    const onSubmit = async (data) => {
         setLoading(true);
-        setTimeout(() => setLoading(false), 2000); // Fake loading
+        try {
+            const response = await loginAdmin(data);
+            if (response.success) {
+                toast.success(response.message);
+                router.push("/admin/dashboard");
+            } else {
+                throw new Error(response.message || "Đăng nhập thất bại");
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || error.message || "Sai email hoặc mật khẩu!");
+        } finally {
+            setLoading(false);
+        }
     };
+
+    if (isChecking) {
+        return (
+            <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center">
+                <div className="flex flex-col items-center space-y-4">
+                    <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-[#086280] font-medium">Đang kiểm tra đăng nhập...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-[#F9FDFF] p-6">
             <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-                <Card className="w-[400px] max-w-lg border border-blue-500 shadow-lg p-6">
+                <Card className="max-w-screen w-[350px] md:w-[400px] md:max-w-lg border border-blue-500 shadow-lg p-6">
                     <CardHeader className="text-center">
                         <CardTitle>
-                            <img src="/images/logo.png" alt="Admin Panel" className="w-24 mx-auto" />
+                            <img src="/logo.png" alt="Admin Panel" className="w-24 mx-auto" />
                         </CardTitle>
                         <CardDescription className="text-center text-[#1CA2C1] text-[16px]">
                             Đăng nhập vào hệ thống quản trị
@@ -65,7 +121,11 @@ const Page = () => {
                                     />
                                     {errors.password && <p className="text-red-500">{errors.password.message}</p>}
                                 </div>
-                                <Button className="w-full bg-[#23CAF1] text-white mt-5" type="submit" disabled={loading}>
+                                <Button
+                                    className="w-full bg-[#23CAF1] text-white mt-5"
+                                    type="submit"
+                                    disabled={loading}
+                                >
                                     {loading ? "Đang đăng nhập..." : <><LogIn className="mr-2 w-4 h-4" /> Đăng nhập</>}
                                 </Button>
                             </div>

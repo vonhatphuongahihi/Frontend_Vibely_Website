@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loginUser, registerUser } from "@/service/auth.service";
+import { loginUser, registerUser, checkUserAuth } from "@/service/auth.service";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
@@ -23,8 +23,35 @@ import * as yup from "yup";
 
 const Page = () => {
   const router = useRouter();
+  const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  
+
+  // Kiểm tra trạng thái đăng nhập khi component mount
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      // Kiểm tra token trong localStorage trước
+      const token = localStorage.getItem("token");
+      if (token) {
+        router.replace("/");
+        return;
+      }
+
+      // Nếu không có token, kiểm tra với API
+      try {
+        const { isAuthenticated } = await checkUserAuth();
+        if (isAuthenticated) {
+          router.replace("/"); // Chuyển hướng về trang chủ nếu đã đăng nhập
+        }
+      } catch (error) {
+        console.log('Chưa đăng nhập');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, [router]);
+
   const registerSchema = yup.object().shape({
     username: yup.string().required("Tên không được để trống"),
     email: yup
@@ -38,7 +65,7 @@ const Page = () => {
     dateOfBirth: yup.date().required("Ngày sinh không được để trống"),
     gender: yup
       .string()
-      .oneOf(["male", "female", "other"], "Vui lòng chọn giới tính")
+      .oneOf(["Nam", "Nữ", "Khác"], "Vui lòng chọn giới tính")
       .required("Giới tính không được để trống"),
   });
   const loginSchema = yup.object().shape({
@@ -68,50 +95,62 @@ const Page = () => {
     formState: { errors: errorsSignUp },
   } = useForm({
     resolver: yupResolver(registerSchema),
-    defaultValues: { gender: "male" }, 
+    defaultValues: { gender: "Nữ" },
   });
-  
-  const onSubmitRegister = async(data) =>{
+
+  const onSubmitRegister = async (data) => {
     try {
       const result = await registerUser(data)
-      if(result.status === 'success'){
+      if (result.status === 'success') {
         router.push('/')
       }
       toast.success('Đăng ký tài khoản thành công')
     } catch (error) {
       console.error(error);
       toast.error('Email đã tồn tại')
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   }
 
+  useEffect(() => {
+    resetLoginForm();
+    resetSignUpForm()
+  }, [resetLoginForm, resetSignUpForm])
 
-  useEffect(() =>{
-     resetLoginForm();
-     resetSignUpForm()
-  },[resetLoginForm,resetSignUpForm])
-
-
-  const onSubmitLogin = async(data) =>{
+  const onSubmitLogin = async (data) => {
     try {
-       const result = await loginUser(data)
-        if(result.status === 'success'){
-          router.push('/')
+      const result = await loginUser(data)
+      if (result.status === 'success') {
+        if (rememberMe) {
+          localStorage.setItem('token', result.data.token);
         }
-        toast.success('Đăng nhập tài khoản thành công')
+        router.push('/')
+      }
+      toast.success('Đăng nhập tài khoản thành công')
     } catch (error) {
       console.error(error);
       toast.error('Email hoặc mật khẩu không chính xác')
-    }finally{
+    } finally {
       setIsLoading(false);
     }
   }
 
-
-  const handleGoogleLogin = () =>{
-    window.location.href= `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
+  const handleGoogleLogin = () => {
+    window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
   }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-[#086280] font-medium">Đang kiểm tra đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F9FDFF] flex items-center justify-center p-4">
       <motion.div
@@ -180,6 +219,27 @@ const Page = () => {
                           {errorsLogin.password.message}
                         </p>
                       )}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        {/* Toggle Switch */}
+                        <div
+                          className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition ${rememberMe ? "bg-[#23CAF1]" : "bg-gray-300"
+                            }`}
+                          onClick={() => setRememberMe(!rememberMe)}
+                        >
+                          <div
+                            className={`bg-white w-5 h-5 rounded-full shadow-md transform transition ${rememberMe ? "translate-x-6" : "translate-x-0"
+                              }`}
+                          ></div>
+                        </div>
+                        <span className="text-sm text-black cursor-pointer" onClick={() => setRememberMe(!rememberMe)}>
+                          Ghi nhớ
+                        </span>
+                      </div>
+                      <div className="text-sm text-[#086280] hover:text-[#1AA3C8] transition-colors duration-200 font-bold">
+                        <a href="/forgot-password">Quên mật khẩu?</a>
+                      </div>
                     </div>
                     <Button
                       className="w-full bg-[#23CAF1] text-white"
@@ -324,15 +384,15 @@ const Page = () => {
                             onValueChange={field.onChange}  // Bắt sự kiện thay đổi giá trị
                           >
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="male" id="male" />
+                              <RadioGroupItem value="Nam" id="male" />
                               <Label htmlFor="male">Nam</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="female" id="female" />
+                              <RadioGroupItem value="Nữ" id="female" />
                               <Label htmlFor="female">Nữ</Label>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="other" id="other" />
+                              <RadioGroupItem value="Khác" id="other" />
                               <Label htmlFor="other">Khác</Label>
                             </div>
                           </RadioGroup>

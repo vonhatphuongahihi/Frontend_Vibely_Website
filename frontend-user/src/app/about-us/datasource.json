@@ -32,23 +32,23 @@
   },
   "TEAM": [
     {
-      "img": "/about/quynh1.jpg",
-      "name": "Như Quỳnh",
-      "role": "CEO & Founder"
-    },
-    {
       "img": "/about/phuong.png",
       "name": "Nhất Phương",
       "role": "CEO & Founder"
     },
     {
-      "img": "/about/minh.jpg",
-      "name": "Gia Minh",
+      "img": "/about/duong.jpg",
+      "name": "Thùy Dương",
       "role": "CEO & Founder"
     },
     {
-      "img": "/about/member.png",
-      "name": "Phương Sang",
+      "img": "/about/uyen.jpg",
+      "name": "Hương Uyên",
+      "role": "CEO & Founder"
+    },
+    {
+      "img": "/about/minh.jpg",
+      "name": "Gia Minh",
       "role": "CEO & Founder"
     }
   ],

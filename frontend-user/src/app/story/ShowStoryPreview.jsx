@@ -4,9 +4,15 @@ import { Heart, X } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 import { motion } from 'framer-motion'
+import userStore from '@/store/userStore'
 
-const ShowStoryPreview = ({file,fileType,onClose,onPost,isNewStory,username,avatar,isLoading,onReact,reaction}) => {
-    const userPlaceholder = username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
+const ShowStoryPreview = ({file,fileType,onClose,onPost,isNewStory,userStory,avatar,isLoading,onReact,reaction, reactions, onDelete}) => {
+    const userPlaceholder = userStory?.username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
+    const handleDeleteStory = () =>{
+        onDelete();
+        onClose();
+    }
+    const {user} = userStore()
   return (
     <div className='fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50'>
         <div className='relative w-full max-w-md h-[70vh] flex flex-col bg-white rounded-lg overflow-hidden'>
@@ -21,12 +27,12 @@ const ShowStoryPreview = ({file,fileType,onClose,onPost,isNewStory,username,avat
         <div className='absolute top-4 left-4 z-10 flex items-center'>
             <Avatar className='w-10 h-10 mr-2'>
                 {avatar ? (
-                    <AvatarImage src={avatar} alt={username}/>
+                    <AvatarImage src={avatar} alt={userStory?.username}/>
                 ):(                   
                     <AvatarFallback>{userPlaceholder}</AvatarFallback>
                 )}
             </Avatar>
-            <span className='text-gray-700 font-semibold'>{username}</span>
+            <span className='text-gray-700 font-semibold'>{userStory?.username}</span>
         </div>
         {/*file phuong tien*/}
         <div className='flex flex-grow items-center justify-center bg-gray-100'>
@@ -58,6 +64,22 @@ const ShowStoryPreview = ({file,fileType,onClose,onPost,isNewStory,username,avat
         )}
         {/*tym*/}
         {!isNewStory && (
+            <div>
+                {user._id===userStory._id && (
+                    <div>
+                        <div className='absolute bottom-20 left-5 transform flex gap-5'>
+                    <Image src={"/love.png"} alt="loved" width={24} height={24}/>
+                    <p className='text-lg font-semibold'>{reactions?.length}</p>
+                </div>
+                <Button className='absolute bottom-6 left-5 transform py-3 bg-red-300 opacity-70'
+                    variant="ghost"
+                    onClick={()=>handleDeleteStory()}
+                >
+                Xóa story
+                </Button>
+                    </div>
+                )}
+               
         <motion.div className='absolute bottom-4 right-2 transform' whileTap={!reaction?{ scale: 5 }:{}}>
             <Button className='py-6'
             variant="ghost"
@@ -74,6 +96,7 @@ const ShowStoryPreview = ({file,fileType,onClose,onPost,isNewStory,username,avat
                 }
             </Button>
         </motion.div>
+        </div>
         )}
         </div>
     </div>

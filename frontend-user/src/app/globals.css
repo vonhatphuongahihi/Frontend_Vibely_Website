@@ -1,8 +1,8 @@
 @import '@syncfusion/ej2-base/styles/material.css';
-@import '@syncfusion/ej2-buttons/styles/material.css';  
-@import '@syncfusion/ej2-calendars/styles/material.css';  
-@import '@syncfusion/ej2-dropdowns/styles/material.css';  
-@import '@syncfusion/ej2-inputs/styles/material.css';  
+@import '@syncfusion/ej2-buttons/styles/material.css';
+@import '@syncfusion/ej2-calendars/styles/material.css';
+@import '@syncfusion/ej2-dropdowns/styles/material.css';
+@import '@syncfusion/ej2-inputs/styles/material.css';
 @import '@syncfusion/ej2-navigations/styles/material.css';
 @import '@syncfusion/ej2-popups/styles/material.css';
 @import '@syncfusion/ej2-splitbuttons/styles/material.css';
@@ -15,7 +15,6 @@
   --foreground: #000000;
   --background: #F9FDFF;
 }
-
 
 @layer utilities {
   .text-balance {
@@ -64,6 +63,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
@@ -71,10 +71,11 @@
 
 /* Ẩn thanh cuộn nhưng vẫn cho phép cuộn */
 .hidden-scrollbar::-webkit-scrollbar {
-  display: none; /* Ẩn trên Chrome, Safari */
+  display: none;
+  /* Ẩn trên Chrome, Safari */
 }
 
 .hidden-scrollbar {
-  scrollbar-width: none; /* Ẩn trên Firefox */
+  scrollbar-width: none;
+  /* Ẩn trên Firefox */
 }
-

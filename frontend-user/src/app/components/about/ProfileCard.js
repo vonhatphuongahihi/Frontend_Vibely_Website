@@ -23,7 +23,7 @@ const ProfileCard = (props) => {
       </div>
 
       <div className="text-center flex justify-center items-center">
-        <div className="translate-y-[70px] group-hover:translate-y-[100px] transition-all duration-300">
+        <div className="translate-y-[30px] group-hover:translate-y-[50px] md:translate-y-[50px] md:group-hover:translate-y-[80px] lg:translate-y-[70px] lg:group-hover:translate-y-[100px] transition-all duration-300">
           <p className="text-xl p-2">{props.name}</p>
           
           {/* Chỉ hiện khi hover */}
