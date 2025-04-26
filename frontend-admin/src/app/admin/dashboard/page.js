@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/sidebar/Sidebar';
 import ChartSection from '../../components/dashboard/ChartSection';
 import Image from 'next/image';
-import { getDashboardStats } from '@/service/dashboardAdmin.service';
+import { getAllDashboardData, getDashboardStats } from '@/service/dashboardAdmin.service';
 import './dashboard.css';
 
 const Dashboard = () => {
@@ -21,6 +21,14 @@ const Dashboard = () => {
 
     const fetchData = async () => {
         try {
+            // Gọi API để lấy dữ liệu tổng
+            const dashboardData = await getAllDashboardData();
+            setTotalUsers(dashboardData.totalUsers);
+            setTotalPosts(dashboardData.totalPosts);
+            setTotalDocuments(dashboardData.totalDocuments);
+            setTotalQuestions(dashboardData.totalInquiries);
+
+            // Gọi API để lấy dữ liệu thống kê
             const statsData = await getDashboardStats(timeRange);
 
             const formattedUserData = statsData.usersStats.map(item => ({
@@ -36,7 +44,7 @@ const Dashboard = () => {
             setUserStats(formattedUserData);
             setPostStats(formattedPostData);
         } catch (error) {
-            console.error("Lỗi khi lấy dữ liệu thống kê:", error);
+            console.error("Lỗi khi lấy dữ liệu:", error);
             setUserStats([]);
             setPostStats([]);
         }
@@ -75,7 +83,7 @@ const Dashboard = () => {
                     {userStats.length > 0 && postStats.length > 0 ? (
                         <ChartSection userStats={userStats} postStats={postStats} />
                     ) : (
-                        <p className="text-gray-500">Không có dữ liệu thống kê</p>
+                        <p></p>
                     )}
                 </div>
             </div>
