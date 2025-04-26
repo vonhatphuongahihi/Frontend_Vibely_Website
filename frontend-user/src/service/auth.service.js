@@ -28,7 +28,7 @@ export const loginUser = async (userData) => {
 // Đăng xuất người dùng
 export const logout = async () => {
     try {
-        const response = await axiosInstance.get('/auth/logout');
+        const response = await axiosInstance.post('/auth/logout');
         localStorage.removeItem("token");
 
         // Ngắt kết nối socket nếu có
@@ -57,10 +57,10 @@ export const deleteAccount = async () => {
 // Kiểm tra xem người dùng đã đăng nhập chưa
 export const checkUserAuth = async () => {
     try {
-        const response = await axiosInstance.get('users/check-auth');
+        const response = await axiosInstance.get('/users/check-auth');
         if (response.data.status === 'success') {
             return { isAuthenticated: true, user: response?.data?.data }
-        } else if (response.status === 'error') {
+        } else if (response.data.status === 'error') {
             return { isAuthenticated: false }
         }
     } catch (error) {

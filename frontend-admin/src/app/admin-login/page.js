@@ -60,24 +60,14 @@ const Page = () => {
         setLoading(true);
         try {
             const response = await loginAdmin(data);
-
-            if (response?.status === "success" && response?.data?.token) {
-                // Xóa token cũ nếu có
-                localStorage.removeItem('adminToken');
-
-                // Lưu token mới
-                localStorage.setItem('adminToken', response.data.token);
-
-                // Cập nhật header mặc định cho axios
-                axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
-
-                toast.success("Đăng nhập thành công!");
+            if (response.success) {
+                toast.success(response.message);
                 router.push("/admin/dashboard");
             } else {
-                throw new Error(response?.message || "Đăng nhập thất bại!");
+                throw new Error(response.message || "Đăng nhập thất bại");
             }
         } catch (error) {
-            toast.error(error.response?.data?.message || "Sai email hoặc mật khẩu!");
+            toast.error(error.response?.data?.message || error.message || "Sai email hoặc mật khẩu!");
         } finally {
             setLoading(false);
         }

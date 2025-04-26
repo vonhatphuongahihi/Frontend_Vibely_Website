@@ -8,12 +8,20 @@ export const requireAuth = async () => {
             return;
         }
 
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            redirect("/admin-login");
+            return;
+        }
+
         const { isAuthenticated } = await checkAdminAuth();
         if (!isAuthenticated) {
+            localStorage.removeItem('adminToken');
             redirect("/admin-login");
         }
     } catch (error) {
         console.error("Lỗi kiểm tra đăng nhập:", error);
+        localStorage.removeItem('adminToken');
         redirect("/admin-login");
     }
-}; 
+};
