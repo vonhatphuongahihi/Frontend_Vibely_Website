@@ -4,16 +4,16 @@ import axiosInstance from "./urlAdmin.service";
 export const loginAdmin = async (adminData) => {
     try {
         const response = await axiosInstance.post('/admin/auth/login', adminData);
-        if (response.data.data.token) {
-            localStorage.setItem("adminToken", response.data.data.token);
+        if (response.data && response.data.token) {
+            localStorage.setItem("adminToken", response.data.token);
+            return response.data;
         }
-        return response.data;
+        throw new Error('Không nhận được token từ server');
     } catch (error) {
         console.error("Lỗi đăng nhập:", error.response?.data?.message || error.message);
         throw error;
     }
 };
-
 // Đăng xuất Admin
 export const logoutAdmin = async () => {
     try {
