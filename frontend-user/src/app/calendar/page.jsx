@@ -11,6 +11,7 @@ import "@syncfusion/ej2-react-schedule/styles/material.css";
 import { registerLicense } from '@syncfusion/ej2-base';
 import axios from "axios";
 import './schedule.css';
+import LeftSideBar from '../components/LeftSideBar';
 
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NNaF5cXmBCe0x3WmFZfVtgdl9DZVZURWYuP1ZhSXxWdkFjWH9cdXFQQ2ZZU0x9XUs=');
 
@@ -35,8 +36,6 @@ const Schedule = () => {
                 if (!response.ok) throw new Error("Lỗi lấy dữ liệu");
 
                 const result = await response.json();
-                console.log("API Response:", result);
-
                 const data = Array.isArray(result.data) ? result.data : [];
                 const formattedData = data.map((item) => ({
                     Id: item._id,
@@ -83,7 +82,6 @@ const Schedule = () => {
             if (!response.ok) throw new Error(result.message);
 
             setEvents([...events, { ...event, Id: result.data._id }]);
-            console.log("✅ Lịch trình đã được thêm:", result);
         } catch (error) {
             console.error("❌ Lỗi khi thêm lịch trình:", error);
         }
@@ -111,7 +109,6 @@ const Schedule = () => {
             if (!response.ok) throw new Error("Lỗi cập nhật lịch trình");
 
             const result = await response.json();
-            console.log("✅ Cập nhật thành công:", result);
 
             // Cập nhật dữ liệu trong state
             setEvents(events.map(e => (e.Id === event.Id ? event : e)));
@@ -122,8 +119,6 @@ const Schedule = () => {
 
     const deleteEvent = async (eventId) => {
         try {
-            console.log("🗑 Xóa sự kiện với ID:", eventId);
-
             const token = localStorage.getItem("token");
             if (!token) throw new Error("❌ Không tìm thấy token");
 
@@ -138,7 +133,6 @@ const Schedule = () => {
             if (!response.ok) throw new Error("Lỗi xóa lịch trình");
 
             const result = await response.json();
-            console.log("✅ Xóa thành công:", result);
 
             setEvents(events.filter(e => e.Id !== eventId));
         } catch (error) {
@@ -147,6 +141,7 @@ const Schedule = () => {
     };
     return (
         <main className='pt-14'>
+            <LeftSideBar />
             <ScheduleComponent
                 width="100%"
                 height="650px"

@@ -30,6 +30,14 @@ export const logout = async () => {
     try {
         const response = await axiosInstance.get('/auth/logout');
         localStorage.removeItem("token");
+
+        // Ngắt kết nối socket nếu có
+        const socket = window.socket;
+        if (socket) {
+            socket.disconnect();
+            window.socket = null;
+        }
+
         return response.data
     } catch (error) {
         console.log(error)

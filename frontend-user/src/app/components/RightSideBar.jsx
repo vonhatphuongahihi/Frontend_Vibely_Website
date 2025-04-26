@@ -22,7 +22,6 @@ const RightSideBar = () => {
   useEffect(() => {
     axios.get(`${API_URL}/quotations/random`)
       .then((response) => {
-        console.log("✅ API trả về:", response.data);
         if (response.data.text) {
           setQuote(response.data.text);
           setAuthor(response.data.author || "Khuyết danh");

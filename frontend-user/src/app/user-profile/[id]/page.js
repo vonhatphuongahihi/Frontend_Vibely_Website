@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import ProfileHeader from "../ProfileHeader";
 import ProfileTabs from "../ProfileTabs";
 import { fetchUserProfile } from "@/service/user.service";
+import LeftSideBar from "@/app/components/LeftSideBar";
 
 const Page = () => {
   const params = useParams();
@@ -38,6 +39,9 @@ const Page = () => {
 
   return (
     <div>
+      <div className="md:hidden">
+        <LeftSideBar/>
+      </div>
       <ProfileHeader
         profileData={profileData}
         setProfileData={setProfileData}

@@ -1,13 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import AchievementPopup from '@/app/components/plant-tree/AchievementPopup';
+import NewPostForm from '@/app/posts/NewPostForm';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion, AnimatePresence } from "framer-motion";
 import axios from 'axios';
+import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import toast from "react-hot-toast";
-import AchievementPopup from '@/app/components/AchievementPopup';
 
 const Cloud = ({ delay, position }) => {
     return (
@@ -138,6 +139,9 @@ const GoalTreePage = () => {
     const [previousLevel, setPreviousLevel] = useState(null);
     const [newAchievements, setNewAchievements] = useState([]);
     const [isAchievementPopupOpen, setIsAchievementPopupOpen] = useState(false);
+    const [isPostFormOpen, setIsPostFormOpen] = useState(false);
+    const [postImage, setPostImage] = useState(null);
+    const [postDefaultContent, setPostDefaultContent] = useState('');
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
     // Lấy token từ localStorage
@@ -395,6 +399,12 @@ const GoalTreePage = () => {
         }
     };
 
+    const handleShareAchievement = (image) => {
+        setPostImage(image);
+        setPostDefaultContent('Tôi vừa đạt được một thành tích mới! 🏆');
+        setIsPostFormOpen(true);
+    };
+
     return (
         <div className="min-h-screen pt-14">
             <LevelUpPopup
@@ -406,10 +416,18 @@ const GoalTreePage = () => {
                 isOpen={isAchievementPopupOpen}
                 onClose={() => setIsAchievementPopupOpen(false)}
                 achievements={newAchievements}
+                onShare={handleShareAchievement}
             />
-            <div className="flex h-[650px]">
+            <NewPostForm
+                isPostFormOpen={isPostFormOpen}
+                setIsPostFormOpen={setIsPostFormOpen}
+                defaultImage={postImage}
+                defaultContent={postDefaultContent}
+                hideTrigger={true}
+            />
+            <div className="flex h-[673px]">
                 {/* Left Panel */}
-                <div className="w-[420px] h-[650px] bg-white shadow-lg p-6 overflow-y-auto">
+                <div className="w-[420px] bg-white shadow-lg p-6 overflow-y-auto">
                     <div className="space-y-6">
                         <div>
                             <p className="text-xl font-bold mb-4">Mục tiêu học tập</p>
@@ -495,7 +513,7 @@ const GoalTreePage = () => {
                 </div>
 
                 {/* Right Panel - Tree Display */}
-                <div className="flex-1 h-[650px] relative overflow-visible">
+                <div className="flex-1 relative overflow-visible">
                     <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{ backgroundImage: "url('/study-plant/background-plant-tree.gif')" }}

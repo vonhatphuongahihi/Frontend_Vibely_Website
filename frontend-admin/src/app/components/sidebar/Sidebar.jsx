@@ -65,7 +65,7 @@ const Sidebar = () => {
         { path: "/admin/users", icon: "/svg/user_admin.svg", label: "Người dùng" },
         { path: "/admin/posts", icon: "/svg/post_admin.svg", label: "Bài viết" },
         { path: "/admin/documents", icon: "/svg/document_admin.svg", label: "Tài liệu" },
-        { path: "/admin/support", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
+        { path: "/admin/inquiry", icon: "/svg/support_admin.svg", label: "Hỗ trợ" },
         { path: "/admin/settings", icon: "/svg/settings_admin.svg", label: "Cài đặt" },
         { path: "/admin/account", icon: "/svg/account_admin.svg", label: "Tài khoản" },
         { path: "/admin/quiz", icon: "/svg/quiz.png", label: "Quiz" },

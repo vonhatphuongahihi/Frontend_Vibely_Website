@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import 'react-h5-audio-player/lib/styles.css';
 import { AiOutlineClose } from "react-icons/ai";
 import { GiHamburgerMenu } from "react-icons/gi";
+import LeftSideBar from "../components/LeftSideBar";
 
 const DocumentPage = () => {
     const router = useRouter();
@@ -113,6 +114,9 @@ const DocumentPage = () => {
     return (
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
             {/* Thanh bên */}
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>            
             {/* Nút mở rộng khi màn hình nhỏ*/}
             <Button
                 variant="bigIcon"

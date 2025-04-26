@@ -25,10 +25,10 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [editPost, setEditPost] = useState(false)
   const [showReactionChooser, setShowReactionChooser] = useState(false)
   const [isChoosing, setIsChoosing] = useState(false)
-  const totalReact = post?.reactionStats?.like+post?.reactionStats?.love+post?.reactionStats?.haha+post?.reactionStats?.wow+post?.reactionStats?.sad+post?.reactionStats?.angry
+  const totalReact = post?.reactionStats?.like + post?.reactionStats?.love + post?.reactionStats?.haha + post?.reactionStats?.wow + post?.reactionStats?.sad + post?.reactionStats?.angry
   const totalComment =
-  (post.comments?.length || 0) +
-  post.comments.reduce((total, cmt) => total + (cmt.replies?.length || 0), 0);
+    (post.comments?.length || 0) +
+    post.comments.reduce((total, cmt) => total + (cmt.replies?.length || 0), 0);
   const commentInputRef = useRef(null)
   const router = useRouter()
 
@@ -109,7 +109,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
 
   //Các biến và hàm cho Chia Sẻ Bài Viết
   const generateSharedLink = () => {
-    return `https://vibely-study-social-web.vercel.app/posts/${post?._id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
+    return `https://vibely-study-social-web-user.vercel.app/posts/${post?._id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
   };
   const handleShare = (platform) => {
     const url = generateSharedLink();
@@ -476,11 +476,11 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                 className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer"
                 onClick={() => setShowComments(!showComments)}
               >
-              {
-              totalComment > 0 && (  
-                totalComment>1000000?totalComment/1000000+" triệu":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1 triệu, 2 triệu,...
-                totalComment>1000?totalComment/1000+" ngàn":totalComment  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1 ngàn, 2 ngàn,...
-              +" bình luận")}
+                {
+                  totalComment > 0 && (
+                    totalComment > 1000000 ? totalComment / 1000000 + " triệu" :  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1 triệu, 2 triệu,...
+                      totalComment > 1000 ? totalComment / 1000 + " ngàn" : totalComment  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1 ngàn, 2 ngàn,...
+                        + " bình luận")}
               </span>
               <span className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer">
                 {

@@ -3,8 +3,12 @@ import { redirect } from "next/navigation";
 
 export const requireAuth = async () => {
     try {
-        const { isAuthenticated } = await checkAdminAuth();
+        // Kiểm tra nếu đang ở trang login thì không cần check auth
+        if (window.location.pathname === '/admin-login') {
+            return;
+        }
 
+        const { isAuthenticated } = await checkAdminAuth();
         if (!isAuthenticated) {
             redirect("/admin-login");
         }

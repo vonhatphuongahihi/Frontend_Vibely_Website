@@ -18,7 +18,7 @@ const FriendsSuggestion = ({ friend, onAction }) => {
         transition={{ duration: 0.3 }}
         className="bg-white mb-4 p-4 shadow rounded-lg border border-gray-200"
       >
-        <Avatar className="h-32 w-32 rounded mx-auto mb-4">
+        <Avatar className="w-24 h-24 lg:w-32 lg:h-32 rounded mx-auto mb-4">
           {friend?.profilePicture ? (
             <AvatarImage src={friend?.profilePicture} alt={friend?.username} />
           ) : (

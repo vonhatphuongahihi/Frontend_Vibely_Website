@@ -234,7 +234,7 @@ function Posts() {
       <div className="flex w-full flex-col py-6 md:ml-52 overflow-y-auto">
         {/*Title*/}
         <div className="flex justify-between items-center mb-6 px-6">
-        <h1 className="text-2xl font-semibold text-[#333]">Quản lý bài viết</h1>
+          <h1 className="text-2xl font-semibold text-[#333]">Quản lý bài viết</h1>
         </div>
         {/*Search & Filter*/}
         <div className="flex h-[10px] items-center mb-10 py-3 px-3 md:px-6 justify-between">
@@ -274,48 +274,48 @@ function Posts() {
               {filterMode}
             </Button>
             {modeChooserOpen && (
-            <div
-              className="absolute top-full right-0 w-28 mt-2 md:w-40 bg-white border border-gray-300 rounded-md shadow-lg z-50"
-              ref={dropdownRef}
-            >
-              <button
-                className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
-                onClick={() => {
-                  setModeChooserOpen(false);
-                  handleModeChooser("Mới nhất");
-                }}
+              <div
+                className="absolute top-full right-0 w-28 mt-2 md:w-40 bg-white border border-gray-300 rounded-md shadow-lg z-50"
+                ref={dropdownRef}
               >
-                Mới nhất
-              </button>
-              <button
-                className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
-                onClick={() => {
-                  setModeChooserOpen(false);
-                  handleModeChooser("Lượt react");
-                }}
-              >
-                Lượt react
-              </button>
-              <button
-                className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
-                onClick={() => {
-                  setModeChooserOpen(false);
-                  handleModeChooser("Lượt bình luận");
-                }}
-              >
-                Lượt bình luận
-              </button>
-              <button
-                className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
-                onClick={() => {
-                  setModeChooserOpen(false);
-                  handleModeChooser("Lượt chia sẻ");
-                }}
-              >
-                Lượt chia sẻ
-              </button>
-            </div>
-          )}
+                <button
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  onClick={() => {
+                    setModeChooserOpen(false);
+                    handleModeChooser("Mới nhất");
+                  }}
+                >
+                  Mới nhất
+                </button>
+                <button
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  onClick={() => {
+                    setModeChooserOpen(false);
+                    handleModeChooser("Lượt react");
+                  }}
+                >
+                  Lượt react
+                </button>
+                <button
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  onClick={() => {
+                    setModeChooserOpen(false);
+                    handleModeChooser("Lượt bình luận");
+                  }}
+                >
+                  Lượt bình luận
+                </button>
+                <button
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  onClick={() => {
+                    setModeChooserOpen(false);
+                    handleModeChooser("Lượt chia sẻ");
+                  }}
+                >
+                  Lượt chia sẻ
+                </button>
+              </div>
+            )}
           </div>
         </div>
         {/*List*/}

@@ -5,12 +5,16 @@ import ScrollRevealEffect from '@/app/components/about/ScrollRevealEff';
 import Heading from "@/app/components/contact/Heading";
 import Image from "next/image";
 import data from './datasource.json';
+import LeftSideBar from "../components/LeftSideBar";
 
 const { WHY_CHOOSE, ABOUT, TEAM } = data;
 
 const About = () => {
     return (
         <div className="container mx-auto px-4">
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>
             <ScrollRevealEffect />
 
             {/* banner */}

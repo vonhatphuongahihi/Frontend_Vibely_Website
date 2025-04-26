@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import QuizCard from '../components/quiz/QuizCard';
 import { getAllQuizzes } from '@/service/quiz.service';
 import { useRouter } from 'next/navigation';
+import LeftSideBar from '../components/LeftSideBar';
 
 function QuizzesArea() {
   const [allQuizzes, setAllQuizzes] = useState([]);
@@ -25,6 +26,9 @@ function QuizzesArea() {
 
   return (
     <div className="poppins mx-12 pt-20">
+      <div className="md:hidden">
+      <LeftSideBar/>
+      </div>
       {isLoading ? (
         <div>Loading...</div>
       ) : (

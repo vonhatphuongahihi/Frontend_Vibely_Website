@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import LeftSideBar from "../components/LeftSideBar";
 
 export default function ResetPassword() {
     const [oldPassword, setOldPassword] = useState("");
@@ -54,6 +55,9 @@ export default function ResetPassword() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9FDFF] p-6">
+            <div className="md:hidden">
+            <LeftSideBar/>
+            </div>
             <form onSubmit={handleSubmit} className="w-full md:w-[50%] lg:w-[31%] bg-white shadow-md rounded-lg p-6 text-center border border-[#0E42D2] mt-14">
                 <div className="mb-6 flex justify-center">
                     <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={80} height={30} />
