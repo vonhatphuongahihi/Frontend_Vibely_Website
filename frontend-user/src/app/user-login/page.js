@@ -25,6 +25,7 @@ const Page = () => {
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
@@ -100,19 +101,26 @@ const Page = () => {
 
   const onSubmitRegister = async (data) => {
     try {
-      const result = await registerUser(data)
-      if (result.status === 'success') {
-        router.push('/')
+      const result = await registerUser(data);
+      if (result) {
+        toast.success("Đăng ký thành công!");
+        resetSignUpForm({
+          username: "",
+          email: "",
+          password: "",
+          dateOfBirth: "",
+          gender: "Nữ",
+        });
+        router.push({
+          pathname: "/user-login",
+          query: { justRegistered: "true" },
+        });
       }
-      toast.success('Đăng ký tài khoản thành công')
     } catch (error) {
-      console.error(error);
-      toast.error('Email đã tồn tại')
-    } finally {
-      setIsLoading(false);
+      console.error("Lỗi khi đăng ký:", error);
+      toast.error(error.message || "Đăng ký thất bại!");
     }
-  }
-
+  };
   useEffect(() => {
     resetLoginForm();
     resetSignUpForm()
@@ -120,6 +128,7 @@ const Page = () => {
 
   const onSubmitLogin = async (data) => {
     try {
+      setIsSubmitting(true);
       const result = await loginUser(data)
       if (result.status === 'success') {
         if (rememberMe) {
@@ -132,7 +141,7 @@ const Page = () => {
       console.error(error);
       toast.error('Email hoặc mật khẩu không chính xác')
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   }
 
@@ -244,8 +253,18 @@ const Page = () => {
                     <Button
                       className="w-full bg-[#23CAF1] text-white"
                       type="submit"
+                      disabled={isSubmitting}
                     >
-                      <LogIn className="mr-2 w-4 h-4" />Đăng nhập
+                      {isSubmitting ? (
+                        <div className="flex items-center justify-center">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Đang xử lý...
+                        </div>
+                      ) : (
+                        <>
+                          <LogIn className="mr-2 w-4 h-4" />Đăng nhập
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -403,8 +422,21 @@ const Page = () => {
                       )}
                     </div>
 
-                    <Button className="w-full bg-[#23CAF1] text-white" type="submit">
-                      <LogIn className="mr-2 w-4 h-4" /> Đăng ký
+                    <Button
+                      className="w-full bg-[#23CAF1] text-white"
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center justify-center">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Đang xử lý...
+                        </div>
+                      ) : (
+                        <>
+                          <LogIn className="mr-2 w-4 h-4" /> Đăng ký
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>

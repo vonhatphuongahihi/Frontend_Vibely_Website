@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import Loader from "@/lib/Loader";
 import { checkUserAuth, logout } from "@/service/auth.service";
 import userStore from "@/store/userStore";
@@ -19,19 +19,19 @@ export default function AuthWrapper({ children }) {
     const publicPages = ["/user-login", "/forgot-password", "/reset-password"];
     const isPublicPage = publicPages.includes(pathname);
 
+    // Lấy trạng thái vừa đăng ký từ query
+    const justRegistered = router.query?.justRegistered === "true";
+
     // Hàm kết nối socket
     const connectSocket = (userId) => {
         if (userId && !socketRef.current) {
             socketRef.current = io(API_URL);
             window.socket = socketRef.current;
 
-            // Thêm user vào danh sách online
             socketRef.current.emit("addUser", userId);
 
-            // Lắng nghe sự kiện getUsers để cập nhật danh sách online users
             socketRef.current.on("getUsers", (users) => {
                 console.log("Received online users:", users);
-                // Có thể lưu danh sách online users vào store nếu cần
             });
 
             console.log("Socket connected for user:", userId);
@@ -56,7 +56,6 @@ export default function AuthWrapper({ children }) {
                     setUser(result?.user);
                     setIsAuthenticated(true);
 
-                    // Kết nối socket khi đăng nhập thành công
                     connectSocket(result.user._id);
                 } else {
                     await handleLogout();
@@ -73,7 +72,6 @@ export default function AuthWrapper({ children }) {
             clearUser();
             setIsAuthenticated(false);
 
-            // Ngắt kết nối socket khi đăng xuất
             disconnectSocket();
 
             try {
@@ -86,19 +84,17 @@ export default function AuthWrapper({ children }) {
             }
         };
 
-        if (!isPublicPage) {
+        if (!isPublicPage && !justRegistered) {
             checkAuth();
         } else {
             setLoading(false);
         }
 
-        // Cleanup function
         return () => {
             disconnectSocket();
         };
-    }, [isPublicPage, router, setUser, clearUser]);
+    }, [isPublicPage, justRegistered, router, setUser, clearUser]);
 
-    // Kết nối lại socket nếu user thay đổi
     useEffect(() => {
         if (user?._id && !socketRef.current) {
             connectSocket(user._id);

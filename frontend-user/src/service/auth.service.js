@@ -4,12 +4,20 @@ import axiosInstance from "./url.service";
 export const registerUser = async (userData) => {
     try {
         const response = await axiosInstance.post('/auth/register', userData);
-        return response.data
+        return response.data;
     } catch (error) {
-        console.log(error)
+        if (error.response) {
+            // Server trả về lỗi
+            throw new Error(error.response.data.message || 'Đăng ký thất bại');
+        } else if (error.request) {
+            // Không nhận được response từ server
+            throw new Error('Không thể kết nối đến server');
+        } else {
+            // Lỗi khi thiết lập request
+            throw new Error('Có lỗi xảy ra khi đăng ký');
+        }
     }
 }
-
 // Đăng nhập người dùng
 export const loginUser = async (userData) => {
     try {
