@@ -30,14 +30,6 @@ const Page = () => {
   // Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
     const checkLoginStatus = async () => {
-      // Kiểm tra token trong localStorage trước
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.replace("/");
-        return;
-      }
-
-      // Nếu không có token, kiểm tra với API
       try {
         const { isAuthenticated } = await checkUserAuth();
         if (isAuthenticated) {
@@ -101,6 +93,7 @@ const Page = () => {
 
   const onSubmitRegister = async (data) => {
     try {
+      setIsSubmitting(true);
       const result = await registerUser(data);
       if (result) {
         toast.success("Đăng ký thành công!");
@@ -119,6 +112,8 @@ const Page = () => {
     } catch (error) {
       console.error("Lỗi khi đăng ký:", error);
       toast.error(error.message || "Đăng ký thất bại!");
+    } finally {
+      setIsSubmitting(false);
     }
   };
   useEffect(() => {
@@ -129,21 +124,18 @@ const Page = () => {
   const onSubmitLogin = async (data) => {
     try {
       setIsSubmitting(true);
-      const result = await loginUser(data)
+      const result = await loginUser(data);
       if (result.status === 'success') {
-        if (rememberMe) {
-          localStorage.setItem('token', result.data.token);
-        }
-        router.push('/')
+        toast.success('Đăng nhập tài khoản thành công');
+        router.push('/');
       }
-      toast.success('Đăng nhập tài khoản thành công')
     } catch (error) {
       console.error(error);
-      toast.error('Email hoặc mật khẩu không chính xác')
+      toast.error('Email hoặc mật khẩu không chính xác');
     } finally {
       setIsSubmitting(false);
     }
-  }
+  };
 
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`

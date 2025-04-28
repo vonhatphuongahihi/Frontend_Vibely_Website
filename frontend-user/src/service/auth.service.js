@@ -22,57 +22,45 @@ export const registerUser = async (userData) => {
 export const loginUser = async (userData) => {
     try {
         const response = await axiosInstance.post('/auth/login', userData, { withCredentials: true });
-
-        if (response.data.data.token) {
-            localStorage.setItem("token", response.data.data.token);
-        }
-
-        return response.data
+        return response.data;
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        throw error;
     }
 }
 
 // Đăng xuất người dùng
 export const logout = async () => {
     try {
-        const response = await axiosInstance.post('/auth/logout');
-        localStorage.removeItem("token");
-
-        // Ngắt kết nối socket nếu có
-        const socket = window.socket;
-        if (socket) {
-            socket.disconnect();
-            window.socket = null;
-        }
-
-        return response.data
+        const response = await axiosInstance.post('/auth/logout', {}, { withCredentials: true });
+        return response.data;
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        throw error;
     }
 }
 
 export const deleteAccount = async () => {
     try {
-        const response = await axiosInstance.delete('/auth/deleteAccount');
-        localStorage.removeItem("token");
-        return response.data
+        const response = await axiosInstance.delete('/auth/deleteAccount', { withCredentials: true });
+        return response.data;
     } catch (error) {
-        console.log(error)
+        console.log(error);
+        throw error;
     }
 }
 
 // Kiểm tra xem người dùng đã đăng nhập chưa
 export const checkUserAuth = async () => {
     try {
-        const response = await axiosInstance.get('/users/check-auth');
+        const response = await axiosInstance.get('/users/check-auth', { withCredentials: true });
         if (response.data.status === 'success') {
-            return { isAuthenticated: true, user: response?.data?.data }
+            return { isAuthenticated: true, user: response?.data?.data };
         } else if (response.data.status === 'error') {
-            return { isAuthenticated: false }
+            return { isAuthenticated: false };
         }
     } catch (error) {
-        console.log(error)
-        return { isAuthenticated: false }
+        console.log(error);
+        return { isAuthenticated: false };
     }
 }
