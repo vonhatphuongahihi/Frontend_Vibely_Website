@@ -38,6 +38,7 @@ export const userFriendStore = create((set, get) => ({
       set({ loading: false });
     }
   },
+
   fetchMutualFriends: async (userId) => {
     set({ loading: true });
     try {
@@ -49,26 +50,34 @@ export const userFriendStore = create((set, get) => ({
       set({ loading: false });
     }
   },
-  followUser: async (userId) => {
+
+  followUser: async (userId, action) => {
     try {
       await followUser(userId);
+      if (action === "makeFriend") {
+        toast.success("Gửi lời mời kết bạn thành công!");
+      } else if (action === "confirm") {
+        toast.success("Kết bạn thành công!");
+      }
     } catch (error) {
-      console.log(error);
+      toast.error("Gửi lời mời kết bạn thất bại!");
     }
   },
+
   UnfollowUser: async (userId) => {
     try {
       await UnfollowUser(userId);
     } catch (error) {
-        console.log(error);
+      toast.error("Hủy kết bạn thất bại!");
     }
   },
+
   deleteUserFromRequest: async (userId) => {
     try {
       await deleteUserFromRequest(userId);
-      toast.success("you have deleted friend successfully");
+      toast.success("Xóa lời mời kết bạn thành công!");
     } catch (error) {
-        console.log(error);
+      toast.error("Xóa lời mời kết bạn thất bại!");
     }
   },
 }));

@@ -1,24 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import Image from "next/image";
-import Sidebar from "../../components/sidebar/Sidebar";
-import { FiSearch } from "react-icons/fi";
-import { FaTrash } from "react-icons/fa";
-import UserProfile from "../../components/users/UserProfile";
-import DeleteInquiryPopup from "../../components/users/DeleteInquiryPopup";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  getAllUsers,
   deleteUser,
+  getAllFriends,
+  getAllUsers,
   searchUsers,
 } from "@/service/userAdmin.service";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useEffect, useState } from "react";
+import { FaTrash } from "react-icons/fa";
+import { FiSearch } from "react-icons/fi";
+import Sidebar from "../../components/sidebar/Sidebar";
+import DeleteInquiryPopup from "../../components/users/DeleteInquiryPopup";
+import UserProfile from "../../components/users/UserProfile";
 
 const UsersPage = () => {
   // State để theo dõi người dùng được chọn
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [usersList, setUsersList] = useState([]);
+  const [friendsList, setFriendsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -40,6 +41,7 @@ const UsersPage = () => {
       setUsersList(users);
       if (users.length > 0) {
         setSelectedUser(users[0]);
+        fetchFriends(users[0]._id);
       }
     } catch (error) {
       setError("Không thể tải danh sách người dùng");
@@ -49,10 +51,21 @@ const UsersPage = () => {
     }
   };
 
+  // Hàm lấy danh sách bạn bè của người dùng
+  const fetchFriends = async (userId) => {
+    try {
+      const friends = await getAllFriends(userId);
+      setFriendsList(friends);
+    } catch (error) {
+      setError("Không thể tải danh sách bạn bè");
+    }
+  };
+
   // Xử lý khi click vào người dùng
   const handleUserClick = (user) => {
     scrollToTop()
     setSelectedUser(user);
+    fetchFriends(user._id);
   };
 
   // Xử lý khi tìm kiếm
@@ -69,8 +82,10 @@ const UsersPage = () => {
       setUsersList(results);
       if (results.length > 0) {
         setSelectedUser(results[0]);
+        fetchFriends(results[0]._id);
       } else {
         setSelectedUser(null);
+        setFriendsList([]);
       }
     } catch (error) {
       setError("Không thể tìm kiếm người dùng");
@@ -106,7 +121,14 @@ const UsersPage = () => {
 
         // Nếu người dùng đang được chọn là người dùng bị xóa, chọn người dùng khác
         if (selectedUser && selectedUser._id === userToDelete._id) {
-          setSelectedUser(updatedUsers.length > 0 ? updatedUsers[0] : null);
+          // setSelectedUser(updatedUsers.length > 0 ? updatedUsers[0] : null);
+          if (updatedUsers.length > 0) {
+            setSelectedUser(updatedUsers[0]);
+            fetchFriends(updatedUsers[0]._id);
+          } else {
+            setSelectedUser(null);
+            setFriendsList([]);
+          }
         }
 
         closeDeletePopup();
@@ -157,17 +179,17 @@ const UsersPage = () => {
         {/* Header Row */}
         <div className="flex justify-between items-center mb-6 px-6">
           <h1 className="text-2xl font-semibold text-[#333]">Quản lý người dùng</h1>
-            <div className="flex items-center space-x-4"></div>
+          <div className="flex items-center space-x-4"></div>
         </div>
 
         {/* Content Area */}
         <div className="py-6 px-6 overflow-y-auto flex">
           {/* User List Section */}
           <div className="w-full xl:w-4/5 md:pr-6">
-          {/* User Profile Section */}
-          <div className="xl:hidden mb-5">
-            <UserProfile user={selectedUser} />
-          </div>
+            {/* User Profile Section */}
+            <div className="xl:hidden mb-5">
+              <UserProfile user={selectedUser} friends={friendsList} />
+            </div>
             {/* Search Bar */}
             <div className="mb-6 w-full">
               <form onSubmit={handleSearch} className="flex">
@@ -256,10 +278,10 @@ const UsersPage = () => {
                       <td className="px-4 py-3 text-gray-600 font-medium hidden lg:table-cell max-w-[100px]">
                         {new Date(user.createdAt).toLocaleDateString("vi-VN")}
                       </td>
-                      
+
                       <td className="px-4 py-3 text-right">
                         <button
-                          className="text-red-400 hover:text-red-600 transition-colors duration-200"
+                          className="text-red-400 hover:text-red-600 transition-colors duration-200 cursor-pointer"
                           onClick={(e) => openDeletePopup(user, e)}
                         >
                           <FaTrash />
@@ -274,7 +296,7 @@ const UsersPage = () => {
 
           {/* User Profile Section */}
           <div className="hidden xl:block xl:w-1/4 mr-5">
-            <UserProfile user={selectedUser} />
+            <UserProfile user={selectedUser} friends={friendsList} />
           </div>
         </div>
       </div>

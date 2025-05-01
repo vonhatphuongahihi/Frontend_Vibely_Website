@@ -1,6 +1,6 @@
 import axiosInstance from './urlAdmin.service';
 
-// Get all quizzes
+// Lấy danh sách câu hỏi quiz
 export const getQuizzes = async () => {
     try {
         const response = await axiosInstance.get('/admin/quiz');
@@ -10,7 +10,7 @@ export const getQuizzes = async () => {
     }
 };
 
-// Get quiz by ID
+// Lấy danh sách câu hỏi quiz theo ID
 export const getQuizById = async (quizId) => {
     try {
         const response = await axiosInstance.get(`/admin/quiz/${quizId}`);
@@ -20,7 +20,7 @@ export const getQuizById = async (quizId) => {
     }
 };
 
-// Create new quiz
+// Tạo câu hỏi quiz mới
 export const createQuiz = async (quizData) => {
     try {
         const response = await axiosInstance.post('/admin/quiz', quizData);
@@ -30,20 +30,18 @@ export const createQuiz = async (quizData) => {
     }
 };
 
-// Update quiz
+// Cập nhật câu hỏi quiz
 export const updateQuiz = async (quizId, quizData) => {
     try {
-        console.log('Updating quiz with data:', quizData); // Debug log
         const response = await axiosInstance.put(`/admin/quiz/${quizId}`, quizData);
-        console.log('Update response from server:', response); // Debug log
         return response.data;
     } catch (error) {
-        console.error('Error in updateQuiz:', error.response || error); // Debug log
+        console.error('Lỗi:', error.response || error);
         throw error;
     }
 };
 
-// Delete quiz
+// Xóa câu hỏi quiz
 export const deleteQuiz = async (quizId) => {
     try {
         const response = await axiosInstance.delete(`/admin/quiz/${quizId}`);

@@ -1,4 +1,4 @@
-'use client';
+'use client'
 import Loader from "@/lib/Loader";
 import { checkUserAuth, logout } from "@/service/auth.service";
 import userStore from "@/store/userStore";
@@ -17,10 +17,8 @@ export default function AuthWrapper({ children }) {
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
     const publicPages = ["/user-login", "/forgot-password", "/reset-password"];
-    const isPublicPage = publicPages.includes(pathname);
-
-    // Lấy trạng thái vừa đăng ký từ query
-    const justRegistered = router.query?.justRegistered === "true";
+    // const isPublicPage = publicPages.includes(pathname);
+    const isPublicPage = publicPages.some((publicPath) => pathname.startsWith(publicPath));
 
     // Hàm kết nối socket
     const connectSocket = (userId) => {
@@ -28,10 +26,13 @@ export default function AuthWrapper({ children }) {
             socketRef.current = io(API_URL);
             window.socket = socketRef.current;
 
+            // Thêm user vào danh sách online
             socketRef.current.emit("addUser", userId);
 
+            // Lắng nghe sự kiện getUsers để cập nhật danh sách online users
             socketRef.current.on("getUsers", (users) => {
                 console.log("Received online users:", users);
+                // Có thể lưu danh sách online users vào store nếu cần
             });
 
             console.log("Socket connected for user:", userId);
@@ -56,6 +57,7 @@ export default function AuthWrapper({ children }) {
                     setUser(result?.user);
                     setIsAuthenticated(true);
 
+                    // Kết nối socket khi đăng nhập thành công
                     connectSocket(result.user._id);
                 } else {
                     await handleLogout();
@@ -72,6 +74,7 @@ export default function AuthWrapper({ children }) {
             clearUser();
             setIsAuthenticated(false);
 
+            // Ngắt kết nối socket khi đăng xuất
             disconnectSocket();
 
             try {
@@ -84,17 +87,19 @@ export default function AuthWrapper({ children }) {
             }
         };
 
-        if (!isPublicPage && !justRegistered) {
+        if (!isPublicPage) {
             checkAuth();
         } else {
             setLoading(false);
         }
 
+        // Cleanup function
         return () => {
             disconnectSocket();
         };
-    }, [isPublicPage, justRegistered, router, setUser, clearUser]);
+    }, [isPublicPage, router, setUser, clearUser]);
 
+    // Kết nối lại socket nếu user thay đổi
     useEffect(() => {
         if (user?._id && !socketRef.current) {
             connectSocket(user._id);

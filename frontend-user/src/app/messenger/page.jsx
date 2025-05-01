@@ -4,7 +4,6 @@ import { checkUserAuth } from "@/service/auth.service";
 import axios from "axios";
 import { ChevronLeft, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { io } from "socket.io-client";
 import ChatOnline from "../components/chatOnline/ChatOnline";
 import Conversation from "../components/conversations/Conversation";
 import Message from "../components/message/Message";
@@ -105,7 +104,6 @@ const Messenger = () => {
             if (!res.isAuthenticated) {
                 window.location.href = "/user-login";
             } else {
-                console.log("✅ User logged in:", res.user);
                 setUser(res.user);
             }
         });
@@ -121,7 +119,6 @@ const Messenger = () => {
                 const res = await axios.get(`${API_URL}/users/mutual-friends/${user._id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log("Danh sách bạn bè:", res.data.data);
                 setFriends(res.data.data);
             } catch (err) {
                 console.error("Lỗi khi lấy danh sách bạn bè:", err);
@@ -144,11 +141,6 @@ const Messenger = () => {
         };
 
         getMessages();
-    }, [currentChat]);
-
-    // Log để kiểm tra state thay đổi
-    useEffect(() => {
-        console.log("🔄 Cập nhật CurrentChat:", currentChat);
     }, [currentChat]);
 
     // Gửi tin nhắn
@@ -256,8 +248,6 @@ const Messenger = () => {
                 } else {
                     setFriendNickname(newNickname);
                 }
-
-                console.log("Đặt biệt danh thành công");
             } catch (err) {
                 console.error("Không thể đặt biệt danh:", err);
             }
@@ -269,7 +259,6 @@ const Messenger = () => {
             await axios.delete(`${API_URL}/conversation/${currentChat._id}`);
             setCurrentChat(null);
             setShowDeleteModal(false);
-            console.log("Xóa cuộc trò chuyện thành công");
         } catch (err) {
             console.error("Không thể xóa cuộc trò chuyện:", err);
         }
@@ -298,8 +287,6 @@ const Messenger = () => {
 
             setChatColor(newColor);
             document.documentElement.style.setProperty('--message-color', newColor);
-
-            console.log("Đổi màu đoạn chat thành công");
         } catch (err) {
             console.error("Không thể đổi màu đoạn chat:", err);
         }
@@ -314,8 +301,6 @@ const Messenger = () => {
                 msg.sender !== user._id && // Tin nhắn của người khác gửi
                 !msg.readBy?.includes(user._id) // Chưa được đánh dấu là đã đọc
             );
-
-            console.log("Tin nhắn chưa đọc:", unreadMessages);
 
             // Gọi API markMessageAsRead cho từng tin nhắn chưa đọc
             for (const msg of unreadMessages) {
@@ -369,7 +354,7 @@ const Messenger = () => {
     return (
         <div className="pt-14 messenger">
             <div className="md:hidden">
-            <LeftSideBar/>
+                <LeftSideBar />
             </div>
             {/* Sidebar danh sách hội thoại */}
             <div className="chatMenu">
@@ -405,6 +390,7 @@ const Messenger = () => {
                                         });
                                         setCurrentChat(res.data);
                                         setSelectedFriend(friend);
+                                        setOpenChat(true)
                                         // Đánh dấu đã đọc ngay khi click vào conversation
                                         await markMessagesAsRead();
                                     } catch (err) {
@@ -524,7 +510,10 @@ const Messenger = () => {
                         {selectedFriend && (
                             <div className="flex items-center justify-between gap-4 pr-4 pl-0 py-2 border-b border-gray-300">
                                 <div className="flex items-center gap-4">
-                                    <button className="md:hidden" onClick={() => setOpenChat(false)}>
+                                    <button className="md:hidden" onClick={() => {
+                                        setOpenChat(false)
+                                        setCurrentChat(null)
+                                    }}>
                                         <ChevronLeft size={25} />
                                     </button>
                                     <img

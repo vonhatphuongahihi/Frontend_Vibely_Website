@@ -10,6 +10,7 @@ export default function Message({ message, own }) {
   const [user, setUser] = useState(null);
   const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
+  // Lấy thông tin người gửi tin nhắn
   useEffect(() => {
     const getUser = async () => {
       try {

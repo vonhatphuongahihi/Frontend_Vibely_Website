@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import QuizCard from './QuizCard'; // Assuming QuizCard is in the same directory
+import QuizCard from './QuizCard';
 import { getAllQuizzes } from '@/service/quiz.service';
 import { useRouter } from 'next/navigation';
 

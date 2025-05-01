@@ -6,6 +6,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import 'react-h5-audio-player/lib/styles.css';
+import toast from "react-hot-toast";
 import { AiOutlineClose } from "react-icons/ai";
 import { GiHamburgerMenu } from "react-icons/gi";
 import LeftSideBar from "../components/LeftSideBar";
@@ -13,9 +14,9 @@ import LeftSideBar from "../components/LeftSideBar";
 const DocumentPage = () => {
     const router = useRouter();
 
-    const [levels, setLevels] = useState([]); // Danh sách cấp học
-    const [subjects, setSubjects] = useState([]); // Danh sách môn học
-    const [documents, setDocuments] = useState([]); // Danh sách tài liệu
+    const [levels, setLevels] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [documents, setDocuments] = useState([]);
     const [isSidebarOpen, setSidebarOpen] = useState(false)
     const [selectedLevelId, setSelectedLevelId] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
@@ -23,7 +24,6 @@ const DocumentPage = () => {
     const [query, setQuery] = useState("");
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
-    // Hàm cắt chuỗi văn bản
     const truncateText = (text, maxLength) => {
         if (!text) return "";
         return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
@@ -34,8 +34,6 @@ const DocumentPage = () => {
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
             setToken(storedToken);
-        } else {
-            console.error("Lỗi: Không tìm thấy token");
         }
     }, []);
 
@@ -57,7 +55,7 @@ const DocumentPage = () => {
 
                 setDocuments(docsRes.data.data);
             } catch (err) {
-                console.error("Lỗi khi lấy dữ liệu ban đầu:", err);
+                toast.error("Lỗi khi lấy dữ liệu ban đầu");
             }
         };
 
@@ -79,7 +77,7 @@ const DocumentPage = () => {
 
                 setSubjects(res.data.data);
             } catch (err) {
-                console.error("Lỗi khi lấy danh sách môn học:", err);
+                toast.error("Lỗi khi lấy danh sách môn học");
             }
         };
 
@@ -103,7 +101,7 @@ const DocumentPage = () => {
 
                 setDocuments(res.data.data);
             } catch (err) {
-                console.error("Lỗi khi lọc tài liệu:", err);
+                toast.error("Lỗi khi tìm kiếm tài liệu");
             }
         };
 
@@ -115,9 +113,8 @@ const DocumentPage = () => {
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
             {/* Thanh bên */}
             <div className="md:hidden">
-            <LeftSideBar/>
-            </div>            
-            {/* Nút mở rộng khi màn hình nhỏ*/}
+                <LeftSideBar />
+            </div>
             <Button
                 variant="bigIcon"
                 className="flex lg:hidden hover:bg-gray-100 absolute left-0 top-15"
@@ -135,14 +132,12 @@ const DocumentPage = () => {
                 lg:translate-x-0 lg:static lg:w-1/5 rounded-xl shadow-lg overflow-auto`}
             >
 
-                {/*Nút đóng sidebar*/}
                 <Button variant="bigIcon" className="lg:hidden absolute top-4 right-2" onClick={() => setSidebarOpen(false)}>
                     <AiOutlineClose style={{ width: 24, height: 24, color: "black" }} />
                 </Button>
 
                 <p className="font-bold text-xl mb-4">Tài liệu</p>
 
-                {/* Thanh tìm kiếm */}
                 <SearchDocument onSearch={setQuery} initialQuery={query} />
 
                 <Separator className="mt-1 mb-4 border-b border-gray-300" />
@@ -174,7 +169,6 @@ const DocumentPage = () => {
                         </div>
                     ))}
                 </div>
-
 
                 <Separator className="mt-1 mb-4 border-b border-gray-300" />
 

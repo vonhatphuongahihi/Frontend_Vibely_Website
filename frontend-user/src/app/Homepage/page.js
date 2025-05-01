@@ -73,7 +73,7 @@ const Homepage = () => {
       </main>
       <button
         onClick={() => handleNavigation("/chatbot")}
-        className="fixed bottom-6 right-6 w-12 h-12 bg-white rounded-full shadow-lg hover:scale-110 transition duration-300"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-white rounded-full shadow-lg hover:scale-110 transition duration-300"
       >
         <img
           src="/images/chatbot.png"

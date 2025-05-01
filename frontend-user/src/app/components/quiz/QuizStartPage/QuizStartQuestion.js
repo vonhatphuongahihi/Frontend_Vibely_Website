@@ -101,7 +101,7 @@ function QuizStartQuestions({ quizData, onUpdateTime }) {
 
     useEffect(() => {
         if (isQuizEnded) {
-            // reinitialize all answers to -1
+            // Lưu dữ liệu vào DB khi quiz kết thúc
             const updatedQuiz = { ...currentQuiz };
             updatedQuiz.quizQuestions.forEach((quizQuestion) => {
                 quizQuestion.answeredResult = -1;
@@ -111,6 +111,8 @@ function QuizStartQuestions({ quizData, onUpdateTime }) {
         }
     }, [isQuizEnded]);
 
+
+    // Function chọn đáp án
     function selectChoiceFunction(choiceIndexClicked) {
         if (timer === 0 || isHandlingTimeout) return;
         setSelectedChoice(choiceIndexClicked);
@@ -119,6 +121,7 @@ function QuizStartQuestions({ quizData, onUpdateTime }) {
         setCurrentQuiz(updatedQuiz);
     }
 
+    // Function chuyển sang câu hỏi tiếp theo
     function moveToTheNextQuestion() {
         if (timer === 0 || isHandlingTimeout) return;
 
@@ -237,6 +240,7 @@ function QuizStartQuestions({ quizData, onUpdateTime }) {
 
 export default QuizStartQuestions;
 
+// Component hiển thị điểm số và các thông tin khác sau khi quiz kết thúc
 function ScoreComponent({ quizStartParentProps }) {
     const { quizData, currentQuiz } = quizStartParentProps;
     const numberOfQuestions = quizData.quizQuestions.length;

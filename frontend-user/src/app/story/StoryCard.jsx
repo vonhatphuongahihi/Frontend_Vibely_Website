@@ -22,6 +22,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null)
 
+  //Hàm chọn file
   const handleFileChange = (event) => {
     const file = event.target.files[0]
     if (file) {
@@ -33,7 +34,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
     }
     event.target.value = ''
   }
-
+  //Hàm tạo story
   const handleCreateStoryPost = async () => {
     try {
       setLoading(true)
@@ -48,18 +49,18 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       setLoading(false)
     }
   }
-
+  // tải nội dung story nếu ko phải đang tạo tin mới
   const handleStoryClick = () => {  //upload
     setFilePreview(story?.mediaUrl)
     setFileType(story?.mediaType)
     setIsNewStory(false)
     setShowPreview(true)
   }
-
+  //tắt xem story
   const handleClosePreview = () => {
     resetStoryState()
   }
-
+  // reset
   const resetStoryState = () => {
     setShowPreview(false)
     setSelectedFile(null)
@@ -75,6 +76,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
         onClick={isAddStory ? undefined : handleStoryClick}
       >
         <CardContent className="p-0 h-full">
+          {/*Nếu là tạo tin*/}
           {isAddStory ? (
             <div className="w-full h-full flex flex-col">
               <div className="h-3/4 w-full relative border-b">
@@ -107,6 +109,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
             </div>
           ) : (
             <>
+              {/*Xem tin*/}
               {story?.mediaType === 'image' ? (
                 <img src={story?.mediaUrl} alt={story?.user?.username} className="w-full h-full object-cover" />
               ) : (
@@ -133,6 +136,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
           )}
         </CardContent>
       </Card>
+      {/*Nội dung tin*/}
       {showPreview && (
         <ShowStoryPreview
           file={filePreview}
@@ -143,10 +147,10 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
           userStory={isNewStory ? user : story?.user} //viet story moi thi username cua minh, nguoc lai dang xem cua ng khac
           avatar={isNewStory ? user?.profilePicture : story?.user?.profilePicture}
           isLoading={loading}
-          reactions = {story?.reactions}
+          reactions={story?.reactions}
           reaction={story?.reactions?.find(react => react?.user?._id.toString() == user?._id) ? "tym" : null}
           onReact={(reactType) => onReact(reactType)}  // chức năng react
-          onDelete={()=> onDelete()}
+          onDelete={() => onDelete()}
         />
       )}
     </>

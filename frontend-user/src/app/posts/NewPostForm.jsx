@@ -11,21 +11,22 @@ import { motion } from 'framer-motion'
 import { ImageIcon, Smile, XIcon } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState } from 'react'
+import { toast } from 'react-hot-toast'
 
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false })
 
-const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, defaultContent = "", hideTrigger = false}) => {
-  const [filePreview, setFilePreview] = useState(null)
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
+const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, defaultContent = "", hideTrigger = false }) => {
   const [postContent, setPostContent] = useState('')
   const { handleCreatePost } = usePostStore()
   const { user } = userStore()  //lấy thông tin người dùng
   const userPlaceholder = user?.username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
   //chọn biểu cảm
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const handleEmojiClick = (emojiObject) => {
     setPostContent((prev) => prev + emojiObject.emoji)
   }
   //chọn ảnh từ thiết bị
+  const [filePreview, setFilePreview] = useState(null)
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileType, setFileType] = useState("")
   const [loading, setLoading] = useState(false)
@@ -36,7 +37,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
     setFileType(file.type)
     setFilePreview(URL.createObjectURL(file))
   }
-
+  // đăng bài
   const handlePost = async () => {
     try {
       setLoading(true)
@@ -51,7 +52,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
       setFilePreview(null)
       setIsPostFormOpen(false)
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       setLoading(false)
     }
   }
@@ -60,7 +61,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
     if (defaultImage) {
       setFilePreview(defaultImage);
       setFileType('image')
-  
+
       // Chuyển base64 thành Blob, rồi tạo File object
       fetch(defaultImage)
         .then(res => res.blob())
@@ -69,10 +70,10 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
           setSelectedFile(file);
         })
         .catch(err => {
-          console.error("Lỗi khi xử lý ảnh base64:", err);
+          toast.error("Lỗi khi xử lý ảnh base64");
         });
     }
-  
+
     if (defaultContent) {
       setPostContent(defaultContent);
     }
@@ -83,6 +84,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
       <Dialog open={isPostFormOpen} onOpenChange={setIsPostFormOpen}>
         {!hideTrigger && (
           <Card className="bg-white border-none shadow-md rounded-lg">
+            {/*Trigger - ảnh đại diện, tên, hộp thoại nhỏ*/}
             <CardContent className="p-4">
               <div className="flex space-x-4 items-center">
                 <Avatar>
@@ -103,7 +105,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
             </CardContent>
           </Card>
         )}
-
+        {/*Dialog thêm bài viết */}
         <DialogContent className="sm:max-w-[550px] bg-white rounded-lg">
           <DialogHeader>
             <DialogTitle></DialogTitle>
@@ -128,6 +130,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
             value={postContent}
             onChange={(e) => setPostContent(e.target.value)}
           />
+          {/*Ảnh/ video vừa thêm vào (nếu có)*/}
           {filePreview && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -155,6 +158,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
 
             </motion.div>
           )}
+          {/*Nút thêm ảnh/video và biểu cảm */}
           <div className="flex justify-between mt-4">
             <Button variant="ghost" className="flex items-center space-x-2" onClick={() => { fileInputRef.current.click() }}>
               <ImageIcon className="h-5 w-5 text-green-500" />
@@ -175,8 +179,8 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
                 </Popover.Content>
               </Popover.Portal>
             </Popover.Root>
-
           </div>
+          {/*Bảng biểu cảm */}
           {showEmojiPicker && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -187,10 +191,11 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
               <Picker onEmojiClick={handleEmojiClick} />
             </motion.div>
           )}
+          {/*Nút đăng*/}
           <div className="flex justify-end mt-4">
             <Button className="bg-blue-500 text-white w-full py-2 rounded-md"
               onClick={handlePost}>
-              {defaultImage ? ( loading ? 'Đang chia sẻ...' : 'Chia sẻ' ) : (loading ? 'Đang đăng...' : 'Đăng')}
+              {defaultImage ? (loading ? 'Đang chia sẻ...' : 'Chia sẻ') : (loading ? 'Đang đăng...' : 'Đăng')}
             </Button>
           </div>
         </DialogContent>

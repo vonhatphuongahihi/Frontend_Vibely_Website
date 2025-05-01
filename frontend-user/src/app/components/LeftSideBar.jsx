@@ -103,15 +103,6 @@ const LeftSideBar = () => {
             <img src="/images/pomodoro_sidebar.png" alt="pomodoro" className="-ml-2 mr-2" />
             Chế độ Pomodoro
           </Button>
-          {/* <Button
-            variant="ghost"
-            className="full justify-start"
-
-            onClick={() => handleNavigation("/forgot-password")}
-          >
-            <img src="images/bookshop_sidebar.png" alt="bookshop" className="mr-0" />
-            Mua sách
-          </Button> */}
           <Button
             variant="ghost"
             className="full justify-start"

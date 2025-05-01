@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { FiMoreVertical, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { FiEdit2, FiMoreVertical, FiTrash2 } from 'react-icons/fi';
 import convertToFaIcons from './convertToFaIcons';
 
 const QuizCard = ({ quiz, onDelete }) => {
@@ -20,10 +20,11 @@ const QuizCard = ({ quiz, onDelete }) => {
         let correctQuestions = 0;
         let totalAttempts = 0;
 
-        if (quiz.quizQuestions && Array.isArray(quiz.quizQuestions)) {
-            quiz.quizQuestions.forEach((question) => {
-                totalAttempts += (question.statistics?.totalAttempts || 0);
-                correctQuestions += (question.statistics?.correctAttempts || 0);
+        const questions = quiz?.quizQuestions;
+        if (Array.isArray(questions)) {
+            questions.forEach((question) => {
+                totalAttempts += question.statistics?.totalAttempts || 0;
+                correctQuestions += question.statistics?.correctAttempts || 0;
             });
         }
 
@@ -35,7 +36,7 @@ const QuizCard = ({ quiz, onDelete }) => {
     // Xử lý click vào nút edit
     const handleEdit = (e) => {
         e.stopPropagation();
-        router.push(`/admin/quiz/edit-quiz/${quiz._id}`);
+        router.push(`/admin/quiz/edit-quiz/${quiz?._id}`);
         setShowDropdown(false);
     };
 
@@ -43,13 +44,13 @@ const QuizCard = ({ quiz, onDelete }) => {
     const handleDelete = (e) => {
         e.stopPropagation();
         if (window.confirm('Bạn có chắc chắn muốn xóa Quiz này không?')) {
-            onDelete(quiz._id);
+            onDelete(quiz?._id);
         }
         setShowDropdown(false);
     };
 
     const successRate = calculateSuccessRate();
-    const totalQuestions = quiz.quizQuestions?.length || 0;
+    const totalQuestions = quiz?.quizQuestions?.length || 0;
 
     return (
         <div className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 group animate-fadeIn">
@@ -63,7 +64,7 @@ const QuizCard = ({ quiz, onDelete }) => {
                     <div className="w-16 h-16 flex items-center justify-center">
                         <FontAwesomeIcon
                             className="text-white text-5xl"
-                            icon={convertToFaIcons(quiz.icon)}
+                            icon={convertToFaIcons(quiz?.icon)}
                         />
                     </div>
                 </div>
@@ -113,7 +114,7 @@ const QuizCard = ({ quiz, onDelete }) => {
             <div className="p-4">
                 <div className="flex items-start justify-between gap-4">
                     <h3 className="font-bold line-clamp-2 min-h-[2.5rem] flex-1">
-                        {quiz.quizTitle}
+                        {quiz?.quizTitle}
                     </h3>
                     <p className="text-sm text-gray-500 whitespace-nowrap mt-1">
                         {totalQuestions} câu hỏi

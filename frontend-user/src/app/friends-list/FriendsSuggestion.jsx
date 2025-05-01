@@ -1,15 +1,15 @@
-//import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { AnimatePresence, motion } from "framer-motion";
 import { UserPlus } from "lucide-react";
 
 const FriendsSuggestion = ({ friend, onAction }) => {
-    // Tạo chữ viết tắt từ username
+  // Tạo chữ viết tắt từ username
   const userPlaceholder = friend?.username
     ?.split(" ")
     .map((name) => name[0])
     .join("");
+
   return (
     <AnimatePresence>
       <motion.div
@@ -35,7 +35,7 @@ const FriendsSuggestion = ({ friend, onAction }) => {
           <Button
             className="bg-blue-500 text-white"
             size="lg"
-            onClick={() => onAction("confirm", friend?._id)}
+            onClick={() => onAction("makeFriend", friend?._id)}
           >
             <UserPlus className="mr-2 h-4 w-4" /> Kết bạn
           </Button>

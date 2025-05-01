@@ -40,16 +40,6 @@ export const logout = async () => {
     }
 }
 
-export const deleteAccount = async () => {
-    try {
-        const response = await axiosInstance.delete('/auth/deleteAccount', { withCredentials: true });
-        return response.data;
-    } catch (error) {
-        console.log(error);
-        throw error;
-    }
-}
-
 // Kiểm tra xem người dùng đã đăng nhập chưa
 export const checkUserAuth = async () => {
     try {
@@ -62,5 +52,16 @@ export const checkUserAuth = async () => {
     } catch (error) {
         console.log(error);
         return { isAuthenticated: false };
+    }
+}
+
+// Xóa tài khoản người dùng
+export const deleteAccount = async () => {
+    try {
+        const response = await axiosInstance.delete('/auth/deleteAccount');
+        localStorage.removeItem("token");
+        return response.data
+    } catch (error) {
+        console.log(error)
     }
 }
