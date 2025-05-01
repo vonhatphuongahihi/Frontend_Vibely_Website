@@ -240,12 +240,12 @@ export const ProfileDetails = ({
         </div>
         {/* Bài viết đã đăng của người dùng */}
         <div className="w-full lg:w-[70%] space-y-6 mb-4">
-          {isOwner && 
-          <NewPostForm
-          isPostFormOpen={isPostFormOpen}
-          setIsPostFormOpen={setIsPostFormOpen}
-          />
-          }     
+          {isOwner &&
+            <NewPostForm
+              isPostFormOpen={isPostFormOpen}
+              setIsPostFormOpen={setIsPostFormOpen}
+            />
+          }
           {userPosts?.length > 0 ? (
             userPosts.map((post) => (
               <PostsContent
@@ -267,15 +267,15 @@ export const ProfileDetails = ({
             ))
           ) : (
             <div className="flex flex-col items-center justify-center text-center space-y-4">
-                <img
-                  src="/nopost.png"
-                  alt="No posts illustration"
-                  className="h-[280px] mx-auto"
-                />
-                <p className="text-center text-gray-500">
-                  Chưa có bài viết
-                </p>
-              </div>
+              <img
+                src="/nopost.png"
+                alt="No posts illustration"
+                className="h-[280px] mx-auto"
+              />
+              <p className="text-center text-gray-500">
+                Chưa có bài viết
+              </p>
+            </div>
           )}
         </div>
       </div>
@@ -303,15 +303,15 @@ export const ProfileDetails = ({
                     (post) => post?.mediaType === "video" && post?.mediaUrl
                   )
                   .map((post) => (
-                    <div key={post?._id} onClick={()=>router.push(`/posts/${post?._id}`)} className="w-[220px] h-[180px]">
-                <video
-                  //controls
-                  className="w-full h-full object-cover rounded-lg"
-                >
-                  <source src={post?.mediaUrl} type="video/mp4" />
-                  Trình duyệt của bạn không hỗ trợ thẻ video.
-                </video>
-              </div>
+                    <div key={post?._id} onClick={() => router.push(`/posts/${post?._id}`)} className="w-[220px] h-[180px]">
+                      <video
+                        //controls
+                        className="w-full h-full object-cover rounded-lg"
+                      >
+                        <source src={post?.mediaUrl} type="video/mp4" />
+                        Trình duyệt của bạn không hỗ trợ thẻ video.
+                      </video>
+                    </div>
                   ))}
               </div>
             ) : (
@@ -350,15 +350,15 @@ export const ProfileDetails = ({
                 (post) => post?.mediaType === "image" && post?.mediaUrl
               ).length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center space-y-4 col-span-full">
-  <img
-    src="/novideo.png"
-    alt="No posts illustration"
-    className="h-[180px] mx-auto"
-  />
-  <p className="text-center text-gray-500">
-    Bạn chưa đăng hình ảnh nào
-  </p>
-</div>
+                  <img
+                    src="/novideo.png"
+                    alt="No posts illustration"
+                    className="h-[180px] mx-auto"
+                  />
+                  <p className="text-center text-gray-500">
+                    Bạn chưa đăng hình ảnh nào
+                  </p>
+                </div>
               ) : (
                 userPosts
                   .filter(
@@ -370,7 +370,7 @@ export const ProfileDetails = ({
                       src={post?.mediaUrl}
                       alt="user_all_photos"
                       className="w-[200px] h-[150px] object-cover rounded-lg"
-                      onClick={()=>router.push(`/posts/${post?._id}`)}
+                      onClick={() => router.push(`/posts/${post?._id}`)}
                     />
                   ))
               )}

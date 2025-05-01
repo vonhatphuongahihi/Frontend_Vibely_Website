@@ -8,29 +8,30 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply , likeComment }) {
+function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply, likeComment }) {
   const [showAllReplies, setShowAllReplies] = useState(false); //xem tất cả/2 cái đầu
   const [showReplies, setShowReplies] = useState(false); //mở xem replies
   const [replyText, setReplyText] = useState("");
   const { user } = userStore();
   const replyInputRef = useRef(null);
-  const visibleReplies = showAllReplies
+  const visibleReplies = showAllReplies //số lượng reply hiển thị
     ? comment?.replies
     : comment?.replies?.slice(0, 2);
   const userPlaceholder = user?.username
     ?.split(" ")
     .map((name) => name[0])
     .join(""); // tên người dùng viết tắt
+
+  // đăng reply 
   const handleReplySubmit = async () => {
     if (replyText.trim()) {
-      console.log("PostComment/handleReplySubmit: ", replyText);
       onReply(replyText);
       setReplyText("");
     }
   };
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dropdownReplyOpen, setDropdownReplyOpen] = useState(null);
-  const [popupOpen, setPopupOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);  //dropdown cmt
+  const [dropdownReplyOpen, setDropdownReplyOpen] = useState(null); //dropdown reply
+  const [popupOpen, setPopupOpen] = useState(false);  //popup xóa cmt
   const dropdownRef = useRef(null);
   const popupRef = useRef(null);
   // Đóng dropdown khi click ra ngoài
@@ -56,7 +57,7 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply , likeC
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLikeComment = () =>{
+  const handleLikeComment = () => {
     likeComment()
   }
 
@@ -88,20 +89,19 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply , likeC
               <p className="text-[15px]">{comment?.text}</p>
             </div>
             {comment?.reactions?.length > 0 && (
-            <div className="flex self-end p-1 bg-white drop-shadow-xl rounded-lg gap-2 -translate-x-1/3">
-              <Image src={"/like.png"} alt="haha"  width={16} height={14} unoptimized/>
-              <p className="font-semibold text-[13px]">
-                {comment?.reactions?.length}
-              </p>
-            </div>
-            )}            
+              <div className="flex self-end p-1 bg-white drop-shadow-xl rounded-lg gap-2 -translate-x-1/3">
+                <Image src={"/like.png"} alt="haha" width={16} height={14} unoptimized />
+                <p className="font-semibold text-[13px]">
+                  {comment?.reactions?.length}
+                </p>
+              </div>
+            )}
             <div className="relative">
               <Button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 variant="ghost"
-                className={`hover:bg-gray-100 ${
-                  comment?.user?._id === user?._id ? "flex" : "hidden"
-                }`} //chủ cmt mới có option này
+                className={`hover:bg-gray-100 ${comment?.user?._id === user?._id ? "flex" : "hidden"
+                  }`} //chủ cmt mới có option này
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
@@ -163,8 +163,8 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply , likeC
             <Button
               variant="ghost"
               size="sm"
-              className={`px-2 hover:underline ${comment?.reactions?.find((react=>react?.user.toString() == user?._id))?"text-[#54C8FD]":""}`}
-              onClick={() => {handleLikeComment()}}
+              className={`px-2 hover:underline ${comment?.reactions?.find((react => react?.user.toString() == user?._id)) ? "text-[#54C8FD]" : ""}`}
+              onClick={() => { handleLikeComment() }}
             >
               Thích
             </Button>
@@ -231,9 +231,8 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply , likeC
                         )
                       } //lưu id reply thay vì true/false
                       variant="ghost"
-                      className={`hover:bg-gray-100 ${
-                        reply?.user?._id === user?._id ? "flex" : "hidden"
-                      }`} //chủ reply mới có option này
+                      className={`hover:bg-gray-100 ${reply?.user?._id === user?._id ? "flex" : "hidden"
+                        }`} //chủ reply mới có option này
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
@@ -263,7 +262,7 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply , likeC
                     variant="ghost"
                     size="sm"
                     className="px-2 hover:underline"
-                    onClick={() => {}}
+                    onClick={() => { }}
                   >
                     Phản hồi
                   </Button>

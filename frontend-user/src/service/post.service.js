@@ -7,7 +7,7 @@ export const createPost = async (postData) => {
         const result = await axiosInstance.post('/users/posts', postData)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -18,7 +18,7 @@ export const createStory = async (storyData) => {
         const result = await axiosInstance.post('/users/story', storyData)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -29,7 +29,7 @@ export const getAllPosts = async () => {
         const result = await axiosInstance.get('/users/posts')
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -40,7 +40,7 @@ export const getAllUserPosts = async (userId) => {
         const result = await axiosInstance.get(`/users/posts/user/${userId}`)
         return result?.data?.data;
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error;
     }
 }
@@ -51,7 +51,7 @@ export const getAllStories = async () => {
         const result = await axiosInstance.get('/users/story')
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -62,7 +62,7 @@ export const reactPost = async (postId, reactType) => {
         const result = await axiosInstance.post(`users/posts/reacts/${postId}`, { type: reactType });
         return result?.data;
     } catch (error) {
-        console.error("Lỗi khi react bài viết:", error);
+        //console.error("Lỗi khi react bài viết:", error);
         throw error;
     }
 };
@@ -73,18 +73,17 @@ export const addCommentToPost = async (postId, commentText) => {
         const result = await axiosInstance.post(`/users/posts/comments/${postId}`, commentText)
         return result?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
 
 export const addReplyToPost = async (postId, commentId, replyText) => {
     try {
-        console.log("service:", postId, commentId, replyText)
         const result = await axiosInstance.post(`/users/posts/reply/${postId}`, { commentId, replyText })
         return result?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -95,7 +94,7 @@ export const sharePost = async (postId) => {
         const result = await axiosInstance.post(`/users/posts/share/${postId}`)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -106,7 +105,7 @@ export const getSinglePost = async (postId) => {
         const result = await axiosInstance.get(`/users/posts/${postId}`)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -116,7 +115,7 @@ export const reactStory = async (postId) => {
         const result = await axiosInstance.post(`users/story/reacts/${postId}`);
         return result?.data;
     } catch (error) {
-        console.error("Lỗi khi react bài viết:", error);
+        //console.error("Lỗi khi react bài viết:", error);
         throw error;
     }
 };
@@ -127,7 +126,7 @@ export const deletePost = async (postId) => {
         const result = await axiosInstance.delete(`/users/posts/deletePost/${postId}`)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -137,7 +136,7 @@ export const deleteComment = async (postId, commentId) => {
         const result = await axiosInstance.delete(`/users/posts/deleteComment/${postId}/${commentId}`)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -147,18 +146,17 @@ export const deleteReply = async (postId, commentId, replyId) => {
         const result = await axiosInstance.delete(`/users/posts/deleteReply/${postId}/${commentId}/${replyId}`)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
 
 export const likeComment = async (postId, commentId) => {
     try {
-        console.log("service:",postId,commentId)
         const result = await axiosInstance.post(`/users/posts/reactComment/${postId}`, { commentId })
         return result?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -168,7 +166,7 @@ export const editPost = async (postId, postData) => {
         const result = await axiosInstance.put(`/users/posts/edit/${postId}`, postData)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }
@@ -178,7 +176,7 @@ export const deleteStory = async (storyId) => {
         const result = await axiosInstance.delete(`/users/posts/deleteStory/${storyId}`)
         return result?.data?.data
     } catch (error) {
-        console.error(error)
+        //console.error(error)
         throw error
     }
 }

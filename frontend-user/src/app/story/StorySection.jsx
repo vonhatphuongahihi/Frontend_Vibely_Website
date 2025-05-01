@@ -11,11 +11,12 @@ const StorySection = () => {
   const [scrollPosition, setScrollPosition] = useState(0);
   const [maxScroll, setMaxScroll] = useState(0);
   const containerRef = useRef();
-  const {stories, fetchStories, handleReactStory, handleDeleteStory} = usePostStore()
-  useEffect(()=>{
-    fetchStories()
-  },[fetchStories])
- 
+  const { stories, fetchStories, handleReactStory, handleDeleteStory } = usePostStore()
+  useEffect(() => {
+    fetchStories()  //tải các story
+  }, [fetchStories])
+
+  // các hàm hỗ trợ lướt ngang cho các story
   useEffect(() => {
     const container = containerRef.current;
     if (container) {
@@ -48,9 +49,9 @@ const StorySection = () => {
         ref={containerRef}
         onScroll={handleScroll}
         className='flex space-x-2 overflow-x-hidden py-4 md:py-0'
-        style={{scrollbarWidth: "none", msOverflowStyle: "none"}}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
-       <motion.div
+        <motion.div
           className=" flex space-x-2"
           drag="x"
           dragConstraints={{
@@ -60,20 +61,21 @@ const StorySection = () => {
               containerRef.current?.offsetWidth,
           }}
         >
-          <StoryCard isAddStory={true}/>
+          <StoryCard isAddStory={true} />  {/*Card Thêm tin */}
+          {/*Danh sách các story*/}
           {stories?.map((story) => (
-            <StoryCard story={story} key={story._id} 
-            onReact={async(reactType) => {
-              await handleReactStory(story?._id, reactType) 
-              await fetchStories()// tải lại danh sách
-            }}
-            onDelete={async()=>{
-              await handleDeleteStory(story?._id)
-              await fetchStories()
-            }} />
+            <StoryCard story={story} key={story._id}
+              onReact={async (reactType) => {
+                await handleReactStory(story?._id, reactType)
+                await fetchStories()// tải lại danh sách
+              }}
+              onDelete={async () => {
+                await handleDeleteStory(story?._id)
+                await fetchStories()
+              }} />
           ))}
         </motion.div>
-        {/* left side scrollbutton  */}
+        {/*Nút scroll trái  */}
         {scrollPosition > 0 && (
           <Button
             size="icon"
@@ -85,7 +87,7 @@ const StorySection = () => {
           </Button>
         )}
 
-        {/* right side scrollbutton  */}
+        {/*Nút scroll phải */}
 
         {scrollPosition < maxScroll && (
           <Button

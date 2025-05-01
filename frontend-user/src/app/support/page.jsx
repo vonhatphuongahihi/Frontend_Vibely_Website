@@ -19,8 +19,6 @@ const SupportPage = () => {
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
             setToken(storedToken);
-        } else {
-            console.error("Lỗi: Không tìm thấy token");
         }
     }, []);
 
@@ -45,7 +43,7 @@ const SupportPage = () => {
                 toast.error("Gửi thất bại, vui lòng thử lại.");
             }
         } catch (error) {
-            toast.error(error);
+            toast.error(error.message || "Đã xảy ra lỗi khi gửi thắc mắc.");
         }
 
         setLoading(false);
@@ -54,7 +52,7 @@ const SupportPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center p-2 lg:p-10 pt-14 ">
             <div className="md:hidden">
-            <LeftSideBar/>
+                <LeftSideBar />
             </div>
             <div className="max-w-7xl w-full flex md:gap-20">
                 {/* Hình ảnh bên trái */}

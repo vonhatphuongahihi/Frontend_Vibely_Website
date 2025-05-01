@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
 import Sidebar from '@/app/components/sidebar/Sidebar';
-import toast from "react-hot-toast";
-import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
+import { deleteQuiz, getQuizzes } from '@/service/quizAdmin.service';
 import { Search } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import toast from "react-hot-toast";
 import QuizCard from './quiz-card/page';
-import { getQuizzes, deleteQuiz } from '@/service/quizAdmin.service';
 
 const QuizPage = () => {
     const router = useRouter();
@@ -51,8 +51,6 @@ const QuizPage = () => {
     };
 
     const handleDeleteQuiz = async (quizId) => {
-        if (!window.confirm('Bạn có chắc chắn muốn xóa quiz này?')) return;
-
         try {
             await deleteQuiz(quizId);
             setQuizzes(quizzes.filter(q => q._id !== quizId));

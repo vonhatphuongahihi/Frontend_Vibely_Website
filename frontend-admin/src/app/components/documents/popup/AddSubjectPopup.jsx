@@ -6,7 +6,6 @@ const AddSubjectPopup = ({ levels, addSubject, onClose }) => {
     const [selectedLevelId, setSelectedLevelId] = useState("");
     const [errors, setErrors] = useState({ subjectName: "", level: "" });
 
-    // Khi người dùng nhập dữ liệu, lỗi sẽ biến mất
     const handleChange = (field, value) => {
         if (field === "subjectName") setSubjectName(value);
         if (field === "level") setSelectedLevelId(value);
@@ -19,9 +18,9 @@ const AddSubjectPopup = ({ levels, addSubject, onClose }) => {
         if (!subjectName.trim()) newErrors.subjectName = "Tên môn học không được để trống";
         if (!selectedLevelId) newErrors.level = "Vui lòng chọn cấp học";
         setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
+        return !newErrors.subjectName && !newErrors.level;
     };
-    
+
     const handleSubmit = () => {
         if (validateInputs()) {
             addSubject({ subjectName, levelId: selectedLevelId });
@@ -37,16 +36,16 @@ const AddSubjectPopup = ({ levels, addSubject, onClose }) => {
             <div className="relative bg-white p-6 rounded-xl shadow-lg w-96">
                 <div className="flex justify-between items-center mb-8">
                     <h2 className="text-[22px] font-semibold">Thêm môn học</h2>
-                    <button 
+                    <button
                         onClick={onClose}
                         className="absolute right-4 top-4 hover:text-gray-700 cursor-pointer"
                     >
-                        <IoClose size={28}/>
+                        <IoClose size={28} />
                     </button>
                 </div>
 
                 <label className="block mb-2 font-semibold">Tên môn học</label>
-                <input 
+                <input
                     type="text"
                     value={subjectName}
                     onChange={(e) => handleChange("subjectName", e.target.value)}
@@ -57,17 +56,16 @@ const AddSubjectPopup = ({ levels, addSubject, onClose }) => {
                 {errors.subjectName && <p className="text-red-500 text-sm mb-6">{errors.subjectName}</p>}
 
                 <label className="block mb-2 font-semibold">Cấp học</label>
-                <select 
+                <select
                     value={selectedLevelId}
                     onChange={(e) => handleChange("level", e.target.value)}
-                    className={`border px-2 py-[10px] w-full bg-white rounded-lg focus:outline-none ${
-                        errors.level ? "border-red-500 mb-2" : "border-gray-400 mb-8"
-                    }`}
+                    className={`border px-2 py-[10px] w-full bg-white rounded-lg focus:outline-none ${errors.level ? "border-red-500 mb-2" : "border-gray-400 mb-8"
+                        }`}
                 >
                     <option value="">- Chọn cấp học -</option>
                     {levels.map((level) => (
-                        <option 
-                            key={level._id} 
+                        <option
+                            key={level._id}
                             value={level._id}
                         >
                             {level.name}
@@ -79,7 +77,7 @@ const AddSubjectPopup = ({ levels, addSubject, onClose }) => {
                 <div className="flex justify-center">
                     <button
                         className="px-5 py-[10px] bg-[#086280] text-white rounded-lg hover:bg-[#07556F] cursor-pointer text-[16px] transition-all duration-200"
-                        onClick={handleSubmit}
+                        onClick={() => handleSubmit()}
                     >
                         Thêm môn học
                     </button>

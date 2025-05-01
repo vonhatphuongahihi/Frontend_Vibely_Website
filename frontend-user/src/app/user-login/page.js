@@ -20,6 +20,8 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as yup from "yup";
+import axios from 'axios';
+
 
 const Page = () => {
   const router = useRouter();
@@ -93,29 +95,24 @@ const Page = () => {
 
   const onSubmitRegister = async (data) => {
     try {
-      setIsSubmitting(true);
-      const result = await registerUser(data);
-      if (result) {
-        toast.success("Đăng ký thành công!");
-        resetSignUpForm({
-          username: "",
-          email: "",
-          password: "",
-          dateOfBirth: "",
-          gender: "Nữ",
-        });
-        router.push({
-          pathname: "/user-login",
-          query: { justRegistered: "true" },
-        });
-      }
+      // const result = await registerUser(data)
+      // if (result.status === 'success') {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/send-otp`, { email: data.email });
+      // Lưu email tạm thời vào localStorage
+      // localStorage.setItem('tempEmail', data.email);
+      localStorage.setItem('tempRegisterData', JSON.stringify(data));
+      // Chuyển hướng đến trang xác nhận OTP
+      router.push('/user-login/code-confirm');
+      // }
+      toast.success('Vui lòng kiểm tra email để xác thực tài khoản')
     } catch (error) {
-      console.error("Lỗi khi đăng ký:", error);
-      toast.error(error.message || "Đăng ký thất bại!");
+      console.error(error);
+      toast.error('Email đã tồn tại')
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
-  };
+  }
+
   useEffect(() => {
     resetLoginForm();
     resetSignUpForm()

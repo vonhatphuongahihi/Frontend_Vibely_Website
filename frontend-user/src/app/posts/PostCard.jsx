@@ -22,9 +22,10 @@ import { Textarea } from '@/components/ui/textarea'
 const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const [showComments, setShowComments] = useState(false)
-  const [editPost, setEditPost] = useState(false)
+  const [editPost, setEditPost] = useState(false) // đang edit bài viết hay bài viết hoàn chỉnh
   const [showReactionChooser, setShowReactionChooser] = useState(false)
   const [isChoosing, setIsChoosing] = useState(false)
+  //tổng số lượng react (6 cảm xúc) , cmt (cmt+rep)
   const totalReact = post?.reactionStats?.like + post?.reactionStats?.love + post?.reactionStats?.haha + post?.reactionStats?.wow + post?.reactionStats?.sad + post?.reactionStats?.angry
   const totalComment =
     (post.comments?.length || 0) +
@@ -33,10 +34,10 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const router = useRouter()
 
   const { user } = userStore()
-  const [reaction, setReaction] = useState(null)
+  const [reaction, setReaction] = useState(null)  //reaction hiện tại của người dùng
 
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [popupOpen, setPopupOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);  //dropdown bài viết
+  const [popupOpen, setPopupOpen] = useState(false);  //pop xóa bài
   const dropdownRef = useRef(null);
   const popupRef = useRef(null);
   // Đóng dropdown khi click ra ngoài
@@ -60,15 +61,15 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+  //đi đến trang người đăng bài
   const handleUserProfile = () => {
     router.push(`/user-profile/${post?.user?._id}`)
   }
-
+  //đi đến trang chi tiết bài viết
   const handleSinglePost = () => {
     router.push(`/posts/${post?._id}`)
   }
-
+  //mở xem cmt
   const handleCommentClick = () => {
     setShowComments(!showComments)
     setTimeout(() => {
@@ -81,7 +82,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   //Các biến và hàm cho Lấy top cảm xúc
   const [topReactions, setTopReactions] = useState([]);
   const [reactionUserGroups, setReactionUserGroups] = useState({}); // Lưu danh sách user theo từng reaction
-  const [currentReactionDetail, setCurrentReaction] = useState("like");
+  const [currentReactionDetail, setCurrentReaction] = useState("like"); //reaction hiện tại của bảng chi tiết, mặc định là like
   useEffect(() => {
     setReaction(post?.reactions?.find(react => react?.user?._id == user?._id) ? post?.reactions?.find(react => react?.user?._id == user?._id).type : null)
     //đảm bảo object hợp lệ
@@ -105,11 +106,22 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
     setReactionUserGroups(reactionGroups);
   }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
 
+  //mở bảng chi tiết reaction
+  const [reactDetailOpen, setReactDetailOpen] = useState(false)
+  const handleReactionDetail = () => {
+    setReactDetailOpen(true);
+  }
 
+  //bày tỏ cảm xúc
+  const handleReaction = (reaction) => {
+    setIsChoosing(false)  //đã chọn được 'cảm xúc'
+    onReact(reaction);
+    setShowReactionChooser(false); // Ẩn thanh reaction sau khi chọn
+  };
 
   //Các biến và hàm cho Chia Sẻ Bài Viết
   const generateSharedLink = () => {
-    return `https://vibely-study-social-web-user.vercel.app/posts/${post?._id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
+    return `https://vibely-study-social-web-user.vercel.app/posts/${post?._id}`; //deploy sao thì đổi lại vậy
   };
   const handleShare = (platform) => {
     const url = generateSharedLink();
@@ -137,21 +149,10 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
     setIsShareDialogOpen(false);
   };
 
-
-  //Các hàm nhỏ :))
-  const handleReaction = (reaction) => {
-    setIsChoosing(false)  //đã chọn được 'cảm xúc'
-    onReact(reaction);
-    setShowReactionChooser(false); // Ẩn thanh reaction sau khi chọn
-  };
+  //hàm xóa bài viết
   const handleDeletePost = () => {
     onDelete();
   }
-  const [reactDetailOpen, setReactDetailOpen] = useState(false)
-  const handleReactionDetail = () => {
-    setReactDetailOpen(true);
-  }
-
 
   //Các biến và hàm cho Chỉnh Sửa Bài Viết
   const [postContent, setPostContent] = useState("")
@@ -160,13 +161,14 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [fileType, setFileType] = useState(null)
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null)
+  //chọn file
   const handleFileChange = (event) => {
     const file = event.target.files[0]
     setSelectedFile(file)
     setFileType(file.type)
     setFilePreview(URL.createObjectURL(file))
   }
-
+  // đăng chỉnh sửa
   const handleEditPost = async () => {
     try {
       setLoading(true)
@@ -193,7 +195,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       setLoading(false)
       setEditPost(false);
     } catch (error) {
-      console.log(error)
+      //console.log(error)
       setLoading(false)
     }
   }
@@ -208,6 +210,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
         <CardContent className="p-4">
           <div className="flex items-center justify-between mb-4 relative">
             <div className="flex items-center space-x-3 cursor-pointer">
+              {/*Avt người đăng bài*/}
               <Avatar>
                 {post?.user?.profilePicture ? (
                   <AvatarImage src={post?.user?.profilePicture} alt={post?.user?.username} />
@@ -215,6 +218,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   <AvatarFallback>{userPostPlaceholder}</AvatarFallback>
                 )}
               </Avatar>
+              {/*Tên người đăng, thời gian đăng, khi nhấp vào sẽ chuyển đến trang tương ứng*/}
               <div>
                 <p className="font-semibold" onClick={handleUserProfile}>
                   {post?.user?.username} {/*tên người đăng bài*/}
@@ -224,13 +228,16 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                 </p>
               </div>
             </div>
+            {/*Nút mở dropdown bài viết*/}
             <Button onClick={() => setDropdownOpen(!dropdownOpen)} variant="ghost"
               className={`hover:bg-gray-100 ${post?.user?._id === user?._id ? "flex" : "hidden"}`}  //chủ bài viết mới có option này
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
+            {/*Dropdown bài viết*/}
             {dropdownOpen && (
               <div className="absolute top-10 right-4 w-40 bg-white border border-gray-300 rounded-md shadow-lg" ref={dropdownRef}>
+                {/*Nút chỉnh sửa bài viết*/}
                 <button className="block w-full px-4 py-2 text-left hover:bg-gray-200 flex items-center gap-2"
                   onClick={() => {
                     setDropdownOpen(false)
@@ -243,6 +250,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   <Pencil style={{ width: "20px", height: "20px" }} />
                   Sửa bài viết
                 </button>
+                {/*Nút xóa bài viết*/}
                 <button className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200 flex items-center gap-2"
                   onClick={() => {
                     setDropdownOpen(false)
@@ -255,8 +263,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
               </div>
             )}
           </div>
-
-
+          {/*Popup chỉnh sửa bài viết - giống NewPostForm nhưng điền sẵn nội dung bài viết hiện tại*/}
           {editPost && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
               <div className="flex flex-col justify-center bg-white p-6 rounded-lg shadow-lg w-1/3">
@@ -267,6 +274,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   value={postContent}
                   onChange={(e) => setPostContent(e.target.value)}
                 />
+                {/*Nếu có hình/video thì hiển thị ảnh/video, còn ko thì thay bằng nút thêm*/}
                 {filePreview ? (
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -280,6 +288,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                       ) : (
                         <video src={filePreview} controls className="max-h-[300px] rounded-md " />
                       )) : null}
+                    {/*Nút thay đổi media*/}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -289,6 +298,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                       <Pencil className="h-5 w-5 text-gray-500" />
                       <input type="file" accept="image/*,video/*" className="hidden" onChange={handleFileChange} ref={fileInputRef} />
                     </Button>
+                    {/*Nút xóa media*/}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -300,10 +310,10 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                     >
                       <XIcon className="h-5 w-5 text-gray-500" />
                     </Button>
-
                   </motion.div>
                 ) : (
                   <div>
+                    {/*Nút thêm media nếu hiện tại ko có*/}
                     <Button variant="ghost" className="flex items-center mb-5" onClick={() => { fileInputRef.current.click() }}>
                       <ImageIcon className="h-5 w-5 text-green-500" />
                       <span>Ảnh/Video</span>
@@ -311,6 +321,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                     </Button>
                   </div>
                 )}
+                {/*Nút lưu thay đổi*/}
                 <div className="flex flex-col justify-center items-center w-full space-y-2">
                   <button
                     onClick={() => {
@@ -320,6 +331,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   >
                     {loading ? "Đang lưu..." : "Hoàn Tất"}
                   </button>
+                  {/*Nút hủy chỉnh sửa*/}
                   <button
                     onClick={() => {
                       setEditPost(false);
@@ -337,7 +349,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
             </div>
           )}
 
-
+          {/*Popup xóa bài viết*/}
           {popupOpen && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
               <div className="bg-white p-6 rounded-lg shadow-lg" ref={popupRef}>
@@ -363,6 +375,8 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
               </div>
             </div>
           )}
+
+          {/*Content và media của bài viết*/}
           <p className="mb-4">{post?.content}</p>
           {post?.mediaUrl && post.mediaType === "image" && (
             <img
@@ -377,11 +391,12 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
               Trình duyệt của bạn không hỗ trợ thẻ video.
             </video>
           )}
-          {/*Bảng hiện danh sách các người dùng đã bày tỏ cảm xúc*/}
+
+          {/*Bảng hiện danh sách các người dùng đã bày tỏ cảm xúc - tùy theo cảm xúc mà phân loại và hiển thị*/}
           {reactDetailOpen && currentReactionDetail && (
             <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
               <div className="bg-white p-6 h-96 rounded-lg shadow-lg flex flex-col">
-              <div className='flex items-center justify-between gap-20 md:gap-40 pb-5'>
+                <div className='flex items-center justify-between gap-20 md:gap-40 pb-5'>
                   <div className='flex md:gap-10 h-10 justify-center items-center'>
                     <motion.button whileHover={{ scale: 1.2 }}  //phóng to biểu tượng lên
                       className={`px-2 py-2 ${currentReactionDetail === "like" ? "border-b-2 border-[#086280]" : ""} `}
@@ -426,6 +441,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                       <Image src={"/angry.png"} alt="angry" width={30} height={30} unoptimized />
                     </motion.button>
                   </div>
+                  {/*Nút đóng bảng*/}
                   <Button variant="ghost" className="hover:bg-gray-200" onClick={() => {
                     setReactDetailOpen(false)
                     setCurrentReaction("like")
@@ -433,6 +449,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                     <X style={{ width: "20px", height: "20px" }} />
                   </Button>
                 </div>
+                {/*Danh sách người dùng*/}
                 {reactionUserGroups?.[currentReactionDetail]?.map((user, index) => {
                   return (
                     <div key={index} className="flex items-center space-x-2 cursor-pointer mb-2 " onClick={() => handleNavigation(`/user-profile/${user?._id}`)}>
@@ -471,6 +488,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                     totalReact > 1000 ? totalReact / 1000 + "k" : totalReact  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1k, 2k,...
                 )}
             </span>
+            {/*tính tổng số lượt bình luận/phản hồi*/}
             <div className="flex gap-3">
               <span
                 className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer"
@@ -493,6 +511,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
           </div>
           <Separator className="mb-1 border-b border-gray-300" />
           <div className="flex justify-between mb-1 relative" >
+            {/*Nút mở bảng chọn cảm xúc, hiển thị cảm xúc đang chọn*/}
             <Button
               onMouseEnter={() => setShowReactionChooser(true)} //mở bảng để mukbang cảm xúc :))
               onMouseLeave={() => setTimeout(() => setShowReactionChooser(false), 500)}
@@ -562,6 +581,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                 </motion.button>
               </div>
             )}
+            {/*Nút mở khung bình luận*/}
             <Button
               variant="ghost"
               className={`flex-1 hover:bg-gray-100 text-gray-500 hover:text-gray-500 text-[15px] h-8`}
@@ -569,7 +589,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
             >
               <MessageCircle style={{ width: "20px", height: "20px" }} /> Bình luận
             </Button>
-
+            {/*Trigger mở bảng chia sẻ*/}
             <Dialog
               open={isShareDialogOpen}
               onOpenChange={setIsShareDialogOpen}
@@ -582,6 +602,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   <PiShareFatBold style={{ width: "20px", height: "20px" }} /> Chia sẻ
                 </Button>
               </DialogTrigger>
+              {/*Bảng chọn các chia sẻ bài viết*/}
               <DialogContent>
                 <DialogHeader>
                   <p className="font-bold  text-[20px]">Chia sẻ bài viết này</p>
@@ -629,14 +650,15 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                 </div>
                 <div>
                   <div className='flex justify-center items-center'>
-
                     <QRCodeCanvas value={generateSharedLink()} size={200} />
                   </div>
                 </div>
               </DialogContent>
             </Dialog>
           </div>
+          {/*Thanh ngăn cách*/}
           <Separator className="border-b border-gray-300" />
+          {/*Khung hiển thị cmt bên dưới*/}
           <AnimatePresence>
             {showComments && (
               <motion.div

@@ -42,7 +42,7 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
     }, [isOpen]);
 
     const handleCapture = () => {
-        // Flash effect
+        // Hiệu ứng flash
         if (flashRef.current) {
             flashRef.current.style.opacity = 0.9;
             setTimeout(() => {
@@ -50,7 +50,7 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
             }, 300);
         }
 
-        // Shutter sound effect - using a try-catch to handle errors
+        // Phát âm thanh chụp ảnh
         try {
             const shutterSound = new Audio('/sounds/camera-shutter.mp3');
             shutterSound.play().catch(err => {
@@ -60,7 +60,7 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
             console.log('Lỗi khi tạo âm thanh chụp ảnh:', error);
         }
 
-        // Create confetti for camera
+        // Tạo hiệu ứng confetti cho camera
         const createCameraConfetti = () => {
             const colors = ['#f0f', '#0ff', '#ff0', '#f00', '#0f0', '#00f'];
             const container = confettiContainerRef.current;
@@ -83,10 +83,10 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
 
         createCameraConfetti();
 
-        // Capture the screen using html-to-image
+        // Chụp màn hình sau khi flash và confetti đã hoàn thành
         setTimeout(() => {
             if (achievementRef.current) {
-                // Create a simplified version of the achievement popup for capture
+                // Tạo một div mới để chứa nội dung 
                 const captureContainer = document.createElement('div');
                 captureContainer.style.position = 'fixed';
                 captureContainer.style.top = '0';
@@ -100,16 +100,16 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
                 captureContainer.style.alignItems = 'center';
                 captureContainer.style.padding = '20px';
 
-                // Create a simplified version of the achievement content
+                // Tạo nội dung thành tích
                 const achievementContent = document.createElement('div');
                 achievementContent.style.width = '400px';
-                achievementContent.style.backgroundColor = '#fef3c7'; // Light yellow background
+                achievementContent.style.backgroundColor = '#fef3c7';
                 achievementContent.style.borderRadius = '16px';
                 achievementContent.style.padding = '32px';
                 achievementContent.style.textAlign = 'center';
                 achievementContent.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
 
-                // Add badge
+                // Huy hiệu thành tích
                 const badge = document.createElement('div');
                 badge.style.width = '96px';
                 badge.style.height = '96px';
@@ -129,7 +129,7 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
                 badgeImg.style.objectFit = 'contain';
                 badge.appendChild(badgeImg);
 
-                // Add title
+                // Tiêu đề
                 const title = document.createElement('h1');
                 title.textContent = 'Chúc mừng!';
                 title.style.fontSize = '36px';
@@ -137,14 +137,14 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
                 title.style.color = '#111827';
                 title.style.marginBottom = '8px';
 
-                // Add subtitle
+                // Nội dung phụ
                 const subtitle = document.createElement('p');
                 subtitle.textContent = 'Bạn đã đạt được thành tích mới';
                 subtitle.style.fontSize = '20px';
                 subtitle.style.color = '#374151';
                 subtitle.style.marginBottom = '24px';
 
-                // Add achievement details
+                // Chi tiết thành tích
                 const achievementDetails = document.createElement('div');
                 achievementDetails.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
                 achievementDetails.style.borderRadius = '12px';
@@ -165,7 +165,7 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
                 achievementDetails.appendChild(achievementTitle);
                 achievementDetails.appendChild(achievementDesc);
 
-                // Assemble the elements
+                // Thêm tất cả các phần tử vào nội dung thành tích
                 achievementContent.appendChild(badge);
                 achievementContent.appendChild(title);
                 achievementContent.appendChild(subtitle);
@@ -174,7 +174,7 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
                 captureContainer.appendChild(achievementContent);
                 document.body.appendChild(captureContainer);
 
-                // Capture the simplified version using html-to-image
+                // Chụp ảnh từ nội dung thành tích
                 toPng(captureContainer, {
                     backgroundColor: 'white',
                     quality: 1.0,
@@ -187,7 +187,6 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
                     .then(dataUrl => {
                         setCapturedImage(dataUrl);
                         setShowCameraView(true);
-                        // Remove the capture container
                         document.body.removeChild(captureContainer);
                     })
                     .catch(error => {

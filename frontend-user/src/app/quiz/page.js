@@ -27,7 +27,7 @@ function QuizzesArea() {
   return (
     <div className="poppins mx-12 pt-20">
       <div className="md:hidden">
-      <LeftSideBar/>
+        <LeftSideBar />
       </div>
       {isLoading ? (
         <div>Loading...</div>

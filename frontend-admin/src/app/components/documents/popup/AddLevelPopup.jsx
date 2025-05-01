@@ -5,7 +5,6 @@ const AddLevelPopup = ({ addLevel, onClose }) => {
     const [levelName, setLevelName] = useState("");
     const [error, setError] = useState("");
 
-    // Khi nhập dữ liệu, lỗi sẽ biến mất
     const handleChange = (e) => {
         setLevelName(e.target.value);
         if (error) setError("");
@@ -31,23 +30,22 @@ const AddLevelPopup = ({ addLevel, onClose }) => {
                         onClick={onClose}
                         className="absolute right-4 top-4 hover:text-gray-700 cursor-pointer"
                     >
-                        <IoClose size={28}/>
+                        <IoClose size={28} />
                     </button>
                 </div>
 
                 {/* Nhập tên cấp học */}
                 <label className="block mb-2 font-semibold">Tên cấp học</label>
-                <input 
+                <input
                     type="text"
                     value={levelName}
                     onChange={handleChange}
-                    className={`w-full border p-2 rounded-lg focus:outline-none ${
-                        error ? "border-red-500 mb-2" : "border-gray-400 mb-8"
-                    }`}
-                    placeholder="Nhập tên cấp học" 
+                    className={`w-full border p-2 rounded-lg focus:outline-none ${error ? "border-red-500 mb-2" : "border-gray-400 mb-8"
+                        }`}
+                    placeholder="Nhập tên cấp học"
                 />
                 {error && <p className="text-red-500 text-sm mb-6">{error}</p>}
-                
+
                 {/* Nút thêm cấp học */}
                 <div className="flex justify-center">
                     <button

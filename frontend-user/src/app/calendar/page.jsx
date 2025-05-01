@@ -11,7 +11,6 @@ import "@syncfusion/ej2-react-schedule/styles/material.css";
 import { registerLicense } from '@syncfusion/ej2-base';
 import axios from "axios";
 import './schedule.css';
-import LeftSideBar from '../components/LeftSideBar';
 
 registerLicense('Ngo9BigBOggjHTQxAR8/V1NNaF5cXmBCe0x3WmFZfVtgdl9DZVZURWYuP1ZhSXxWdkFjWH9cdXFQQ2ZZU0x9XUs=');
 
@@ -36,6 +35,7 @@ const Schedule = () => {
                 if (!response.ok) throw new Error("Lỗi lấy dữ liệu");
 
                 const result = await response.json();
+
                 const data = Array.isArray(result.data) ? result.data : [];
                 const formattedData = data.map((item) => ({
                     Id: item._id,
@@ -141,7 +141,6 @@ const Schedule = () => {
     };
     return (
         <main className='pt-14'>
-            <LeftSideBar />
             <ScheduleComponent
                 width="100%"
                 height="650px"

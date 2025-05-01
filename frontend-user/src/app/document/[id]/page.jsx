@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import axios from "axios";
 import { BookMarked, CalendarDays, Copy, GraduationCap } from "lucide-react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { AiOutlineClose } from "react-icons/ai";
@@ -14,7 +14,6 @@ import { IoIosShareAlt } from "react-icons/io";
 
 const DocumentDetail = () => {
     const { id } = useParams();
-    const router = useRouter();
 
     const [document, setDocument] = useState(null);
     const [isSidebarOpen, setSidebarOpen] = useState(false)
@@ -38,8 +37,6 @@ const DocumentDetail = () => {
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
             setToken(storedToken);
-        } else {
-            console.error("Lỗi: Không tìm thấy token");
         }
     }, []);
 
@@ -56,7 +53,7 @@ const DocumentDetail = () => {
 
                     setDocument(result.data.data);
                 } catch (err) {
-                    console.error("Lỗi khi lấy chi tiết tài liệu:", err);
+                    toast.error("Lỗi khi lấy chi tiết tài liệu");
                 }
             };
 
@@ -79,10 +76,8 @@ const DocumentDetail = () => {
             );
 
             toast.success("Lưu tài liệu thành công!");
-            console.log("Lưu tài liệu thành công:", response.data);
         } catch (error) {
             toast.error(error.response?.data?.message || error.message);
-            console.error("Lỗi khi lưu tài liệu:", error.response?.data?.message || error.message);
         }
     };
 
@@ -102,8 +97,8 @@ const DocumentDetail = () => {
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
             {/* Thanh bên */}
             <div className="md:hidden">
-            <LeftSideBar/>
-            </div>  
+                <LeftSideBar />
+            </div>
             {/* Nút mở rộng khi màn hình nhỏ*/}
             <Button
                 variant="bigIcon"
@@ -121,7 +116,6 @@ const DocumentDetail = () => {
                 }
                 lg:translate-x-0 lg:static lg:w-1/5 rounded-xl shadow-lg overflow-auto flex flex-col h-[calc(100vh-3.5rem)]`}
             >
-                {/*Nút đóng sidebar*/}
                 <Button variant="bigIcon" className="lg:hidden absolute top-1 right-0" onClick={() => setSidebarOpen(false)}>
                     <AiOutlineClose style={{ width: 24, height: 24, color: "black" }} />
                 </Button>

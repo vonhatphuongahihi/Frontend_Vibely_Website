@@ -149,7 +149,6 @@ const GoalTreePage = () => {
         const storedToken = localStorage.getItem("token");
         if (storedToken) {
             setToken(storedToken);
-            console.log("Token found:", storedToken);  // Debug log
         } else {
             console.error("Lỗi: Không tìm thấy token");
             router.push('/user-login');
@@ -175,21 +174,10 @@ const GoalTreePage = () => {
     // Theo dõi thay đổi cấp độ
     useEffect(() => {
         if (tree && previousLevel !== null) {
-            console.log('Tree stage changed:', {
-                previous: previousLevel,
-                current: tree.growth_stage
-            }); // Debug log
-
             const currentLevel = getGrowthStageInfo(tree.growth_stage);
             const prevLevel = getGrowthStageInfo(previousLevel);
 
-            console.log('Level comparison:', {
-                previous: prevLevel.name,
-                current: currentLevel.name
-            }); // Debug log
-
             if (currentLevel.name !== prevLevel.name) {
-                console.log('Level up detected in useEffect!'); // Debug log
                 setShowLevelUpPopup(true);
             }
         }
@@ -198,7 +186,6 @@ const GoalTreePage = () => {
     // Cập nhật previous level khi lấy được dữ liệu cây
     useEffect(() => {
         if (tree) {
-            console.log('Setting previous level:', tree.growth_stage); // Debug log
             setPreviousLevel(tree.growth_stage);
         }
     }, []);
@@ -206,7 +193,6 @@ const GoalTreePage = () => {
     const fetchData = async () => {
         try {
             if (!token) {
-                console.log('No token found, redirecting to login');
                 router.push('/user-login');
                 return;
             }
@@ -243,15 +229,9 @@ const GoalTreePage = () => {
 
         try {
             if (!token) {
-                console.log('No token found, redirecting to login');
                 router.push('/user-login');
                 return;
             }
-
-            console.log('Sending request to:', `${API_URL}/learning-goals`);  // Debug log
-            console.log('With token:', token);  // Debug log
-            console.log('With data:', { title: newGoal });  // Debug log
-
             const response = await axios.post(
                 `${API_URL}/learning-goals`,
                 { title: newGoal },
@@ -260,11 +240,10 @@ const GoalTreePage = () => {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
-                    withCredentials: true  // Add this for cookies if needed
+                    withCredentials: true
                 }
             );
 
-            console.log('Response:', response);  // Debug log
             setGoals([response.data, ...goals]);
             setNewGoal("");
         } catch (error) {
@@ -290,13 +269,9 @@ const GoalTreePage = () => {
     const handleToggleGoal = async (id) => {
         try {
             if (!token) {
-                console.log('No token found, redirecting to login');
                 router.push('/user-login');
                 return;
             }
-
-            console.log('Toggling goal with ID:', id); // Debug log
-            console.log('Using token:', token); // Debug log
 
             const response = await axios.patch(`${API_URL}/learning-goals/${id}/toggle`, {}, {
                 headers: {
@@ -306,7 +281,6 @@ const GoalTreePage = () => {
             });
 
             if (response.status === 200) {
-                console.log('Toggle response:', response.data); // Debug log
                 const { goal, tree: updatedTree, newAchievements } = response.data;
 
                 // Update goals list
@@ -339,7 +313,6 @@ const GoalTreePage = () => {
             if (!goal.is_completed) {
                 // Nếu mục tiêu chưa hoàn thành thì xóa khỏi database
                 if (!token) {
-                    console.log('No token found, redirecting to login');
                     router.push('/user-login');
                     return;
                 }
