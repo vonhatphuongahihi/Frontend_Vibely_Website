@@ -4,27 +4,28 @@ import axiosInstance from "./url.service";
 export const registerUser = async (userData) => {
     try {
         const response = await axiosInstance.post('/auth/register', userData);
+
+        if (response.data.status === 'success' && response.data.data.token) {
+            localStorage.setItem("auth_token", response.data.data.token);
+        }
         return response.data;
     } catch (error) {
-        if (error.response) {
-            // Server trả về lỗi
-            throw new Error(error.response.data.message || 'Đăng ký thất bại');
-        } else if (error.request) {
-            // Không nhận được response từ server
-            throw new Error('Không thể kết nối đến server');
-        } else {
-            // Lỗi khi thiết lập request
-            throw new Error('Có lỗi xảy ra khi đăng ký');
-        }
+        console.error("Đăng ký thất bại:", error.response?.data || error.message);
+        throw error;
     }
 }
+
 // Đăng nhập người dùng
 export const loginUser = async (userData) => {
     try {
-        const response = await axiosInstance.post('/auth/login', userData, { withCredentials: true });
+        const response = await axiosInstance.post('/auth/login', userData);
+
+        if (response.data.status === 'success' && response.data.data.token) {
+            localStorage.setItem("auth_token", response.data.data.token);
+        }
         return response.data;
     } catch (error) {
-        console.log(error);
+        console.error("Đăng nhập thất bại:", error.response?.data || error.message);
         throw error;
     }
 }
@@ -32,10 +33,11 @@ export const loginUser = async (userData) => {
 // Đăng xuất người dùng
 export const logout = async () => {
     try {
-        const response = await axiosInstance.post('/auth/logout', {}, { withCredentials: true });
+        const response = await axiosInstance.post('/auth/logout');
+        localStorage.removeItem("auth_token");
         return response.data;
     } catch (error) {
-        console.log(error);
+        console.error("Đăng xuất thất bại:", error.response?.data || error.message);
         throw error;
     }
 }
@@ -43,14 +45,23 @@ export const logout = async () => {
 // Kiểm tra xem người dùng đã đăng nhập chưa
 export const checkUserAuth = async () => {
     try {
-        const response = await axiosInstance.get('/users/check-auth', { withCredentials: true });
+        const token = localStorage.getItem("auth_token");
+
+        if (!token) {
+            console.warn("Không tìm thấy token trong localStorage");
+            return { isAuthenticated: false };
+        }
+
+        const response = await axiosInstance.get('/users/check-auth');
+
         if (response.data.status === 'success') {
-            return { isAuthenticated: true, user: response?.data?.data };
-        } else if (response.data.status === 'error') {
+            return { isAuthenticated: true, user: response.data.data };
+        } else {
+            console.warn("Kiểm tra xác thực thất bại:", response.data.message);
             return { isAuthenticated: false };
         }
     } catch (error) {
-        console.log(error);
+        console.error("Kiểm tra xác thực thất bại:", error.response?.data || error.message);
         return { isAuthenticated: false };
     }
 }
@@ -59,9 +70,10 @@ export const checkUserAuth = async () => {
 export const deleteAccount = async () => {
     try {
         const response = await axiosInstance.delete('/auth/deleteAccount');
-        localStorage.removeItem("token");
-        return response.data
+        localStorage.removeItem("auth_token");
+        return response.data;
     } catch (error) {
-        console.log(error)
+        console.error("Xóa tài khoản thất bại:", error.response?.data || error.message);
+        throw error;
     }
 }

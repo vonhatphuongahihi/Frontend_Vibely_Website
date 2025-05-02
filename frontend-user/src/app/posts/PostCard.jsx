@@ -29,7 +29,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const totalReact = post?.reactionStats?.like + post?.reactionStats?.love + post?.reactionStats?.haha + post?.reactionStats?.wow + post?.reactionStats?.sad + post?.reactionStats?.angry
   const totalComment =
     (post.comments?.length || 0) +
-    post.comments.reduce((total, cmt) => total + (cmt.replies?.length || 0), 0);
+    (post.comments ? post.comments.reduce((total, cmt) => total + (cmt.replies?.length || 0), 0) : 0);
   const commentInputRef = useRef(null)
   const router = useRouter()
 
@@ -91,13 +91,13 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       setReactionUserGroups({});
       return;
     }
-    const reactionGroups = post.reactions.reduce((acc, react) => {
+    const reactionGroups = Array.isArray(post.reactions) ? post.reactions.reduce((acc, react) => {
       if (!acc[react.type]) {
         acc[react.type] = [];
       }
-      acc[react.type].push(react.user);
+      acc[react.type].push(react);
       return acc;
-    }, {});
+    }, {}) : {};
     // cập nhật danh sách top reactions
     const sortedReactions = Object.entries(reactionGroups)
       .sort((a, b) => b[1].length - a[1].length) // Sắp xếp theo số lượng user

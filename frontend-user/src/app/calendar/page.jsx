@@ -18,11 +18,10 @@ const Schedule = () => {
     const [events, setEvents] = useState([]);
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
-
     useEffect(() => {
         const fetchSchedules = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = localStorage.getItem("auth_token");
                 if (!token) {
                     console.error("❌ Không tìm thấy token");
                     return;
@@ -46,19 +45,18 @@ const Schedule = () => {
                     isAllDay: item.isAllDay || false
                 }));
 
-
                 setEvents(formattedData);
             } catch (error) {
                 console.error("❌ Lỗi khi lấy lịch trình:", error);
             }
         };
 
-
         fetchSchedules();
     }, []);
+
     const addEvent = async (event) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("auth_token");
             if (!token) {
                 console.error("❌ Không tìm thấy token");
                 return;
@@ -78,17 +76,28 @@ const Schedule = () => {
                 })
             });
 
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.message);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || "Lỗi khi thêm lịch trình");
+            }
 
-            setEvents([...events, { ...event, Id: result.data._id }]);
+            const result = await response.json();
+            if (result.status === 'success' && result.data) {
+                setEvents([...events, {
+                    ...event,
+                    Id: result.data._id
+                }]);
+            } else {
+                throw new Error(result.message || "Lỗi khi thêm lịch trình");
+            }
         } catch (error) {
             console.error("❌ Lỗi khi thêm lịch trình:", error);
         }
     };
+
     const updateEvent = async (event) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("auth_token");
             if (!token) throw new Error("❌ Không tìm thấy token");
 
             const response = await fetch(`${API_URL}/schedules/${event.Id}`, {
@@ -105,12 +114,9 @@ const Schedule = () => {
                 })
             });
 
-
             if (!response.ok) throw new Error("Lỗi cập nhật lịch trình");
 
             const result = await response.json();
-
-            // Cập nhật dữ liệu trong state
             setEvents(events.map(e => (e.Id === event.Id ? event : e)));
         } catch (error) {
             console.error("❌ Lỗi khi cập nhật lịch trình:", error);
@@ -119,7 +125,7 @@ const Schedule = () => {
 
     const deleteEvent = async (eventId) => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("auth_token");
             if (!token) throw new Error("❌ Không tìm thấy token");
 
             const response = await fetch(`${API_URL}/schedules/${eventId}`, {
@@ -133,12 +139,12 @@ const Schedule = () => {
             if (!response.ok) throw new Error("Lỗi xóa lịch trình");
 
             const result = await response.json();
-
             setEvents(events.filter(e => e.Id !== eventId));
         } catch (error) {
             console.error("❌ Lỗi khi xóa lịch trình:", error);
         }
     };
+
     return (
         <main className='pt-14'>
             <ScheduleComponent
