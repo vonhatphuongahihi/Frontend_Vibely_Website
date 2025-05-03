@@ -3,7 +3,7 @@ import axiosInstance from './url.service';
 const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL + '/schedules' || 'http://localhost:8081/schedules';
 
 // Lấy tất cả lịch trình
-export const getSchedules = async () => {
+export const getSchedule = async () => {
   try {
     const response = await axiosInstance.get(API_URL);
     return response.data.data;
