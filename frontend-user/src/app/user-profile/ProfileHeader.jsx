@@ -37,10 +37,10 @@ const ProfileHeader = ({
 
   const { fetchMutualFriends, mutualFriends } = userFriendStore();
   useEffect(() => {
-      if (id) {
-        fetchMutualFriends(id);
-      }
-    }, [id, fetchMutualFriends]);
+    if (id) {
+      fetchMutualFriends(id);
+    }
+  }, [id, fetchMutualFriends]);
 
   const [profilePictureFile, setProfilePictureFile] = useState(null);
   const [coverPhotoFile, setCoverPhotoFile] = useState(null);
@@ -65,7 +65,6 @@ const ProfileHeader = ({
   const onSubmitProfile = async (data) => {
     try {
       setLoading(true);
-      console.log("Dữ liệu gửi lên API:", data);
 
       const formData = new FormData();
       formData.append("dateOfBirth", data.dateOfBirth);
@@ -94,7 +93,6 @@ const ProfileHeader = ({
         hometown: data.hometown,
       };
       const updatedBio = await createOrUpdateUserBio(id, bioData);
-      console.log("Dữ liệu Bio trả về:", updatedBio);
 
       // Cập nhật dữ liệu mới vào state
       setProfileData({ ...profileData, ...updateProfile, bio: updatedBio });
@@ -119,8 +117,6 @@ const ProfileHeader = ({
       if (coverPhotoFile) {
         formData.append("coverPicture", coverPhotoFile);
       }
-      console.log("📤 Payload gửi lên API:", formData.get("coverPicture"));
-
       const updateProfile = await updateUserCoverPhoto(id, formData);
       setProfileData({ ...profileData, coverPicture: updateProfile.coverPicture });
       setIsEditCoverModel(false);
@@ -213,15 +209,11 @@ const ProfileHeader = ({
           <div className="mt-4 mdLmt-0 text-center md:text-left flex-grow">
             <h1 className="text-3xl font-bold">{profileData?.username}</h1>
             <p className="text-gray-400 font-semibold">
-            {mutualFriends.length} người bạn
+              {mutualFriends.length} người bạn
             </p>
           </div>
           {isOwner && (
             <div className="flex flex-col">
-              <Button className="mt-4 md:mt-0 bg-[#086280] text-white cursor-pointer">
-                <SquarePlus className="w-4 h-4 mr-2" />
-                Thêm tin
-              </Button>
               <Button
                 className="mt-4 md:mt-1 font-semibold cursor-pointer edit-profile"
                 onClick={() => setIsEditProfileModel(true)}

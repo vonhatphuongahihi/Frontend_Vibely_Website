@@ -23,15 +23,13 @@ const Documents = () => {
     const [modalType, setModalType] = useState(null);
     const [selectedDocument, setSelectedDocument] = useState(null);
 
-    const [levels, setLevels] = useState([]); // Danh sách cấp học
-    const [subjects, setSubjects] = useState([]); // Danh sách môn học
-    const [documents, setDocuments] = useState([]); // Danh sách tài liệu
+    const [levels, setLevels] = useState([]);
+    const [subjects, setSubjects] = useState([]);
+    const [documents, setDocuments] = useState([]);
     const [selectedLevelId, setSelectedLevelId] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const [token, setToken] = useState(null);
     const [query, setQuery] = useState("");
-
-    const [subjectsByLevel, setSubjectsByLevel] = useState({});
 
     // Đóng dropdown khi click bên ngoài
     useEffect(() => {
@@ -49,8 +47,6 @@ const Documents = () => {
         const storedToken = localStorage.getItem("adminToken");
         if (storedToken) {
             setToken(storedToken);
-        } else {
-            console.error("Lỗi: Không tìm thấy token");
         }
     }, []);
 
@@ -60,19 +56,19 @@ const Documents = () => {
             if (!token) return;
 
             try {
-                const levelsRes = await axios.get(`${API_URL}/documents/levels`, {
+                const levelsRes = await axios.get(`${API_URL}/admin/documents/levels`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 setLevels(levelsRes.data.data);
 
-                const docsRes = await axios.get(`${API_URL}/documents`, {
+                const docsRes = await axios.get(`${API_URL}/admin/documents`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 setDocuments(docsRes.data.data);
             } catch (err) {
-                console.error("Lỗi khi lấy dữ liệu ban đầu:", err);
+                toast.error("Lỗi khi lấy dữ liệu ban đầu");
             }
         };
 
@@ -88,13 +84,13 @@ const Documents = () => {
             }
 
             try {
-                const res = await axios.get(`${API_URL}/documents/subjects/${selectedLevelId}`, {
+                const res = await axios.get(`${API_URL}/admin/documents/subjects/${selectedLevelId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
                 setSubjects(res.data.data);
             } catch (err) {
-                console.error("Lỗi khi lấy danh sách môn học:", err);
+                toast.error("Lỗi khi lấy danh sách môn học");
             }
         };
 
@@ -106,7 +102,7 @@ const Documents = () => {
         const fetchFilteredDocs = async () => {
             if (!token) return;
 
-            let url = `${API_URL}/documents?`;
+            let url = `${API_URL}/admin/documents?`;
             if (query) url += `query=${query}&`;
             if (selectedLevelId) url += `level=${selectedLevelId}&`;
             if (selectedSubjectId) url += `subject=${selectedSubjectId}`;
@@ -118,14 +114,13 @@ const Documents = () => {
 
                 setDocuments(res.data.data);
             } catch (err) {
-                console.error("Lỗi khi lọc tài liệu:", err);
+                toast.error("Lỗi khi tìm kiếm tài liệu");
             }
         };
 
         fetchFilteredDocs();
     }, [query, selectedLevelId, selectedSubjectId, token]);
 
-    // Mở và đóng modal
     const openModal = (type) => {
         setModalType(type);
         setDropdownOpen(false);
@@ -136,7 +131,7 @@ const Documents = () => {
     // Gọi API thêm cấp học
     const addLevel = async (levelName) => {
         try {
-            const res = await axios.post(`${API_URL}/documents/levels`, { name: levelName }, {
+            const res = await axios.post(`${API_URL}/admin/documents/levels`, { name: levelName }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -145,14 +140,13 @@ const Documents = () => {
             closeModal();
         } catch (err) {
             toast.error("Thêm cấp học thất bại!");
-            console.error("Lỗi khi thêm cấp học:", err);
         }
     }
 
     // Gọi API thêm môn học
     const addSubject = async ({ subjectName, levelId }) => {
         try {
-            const res = await axios.post(`${API_URL}/documents/subjects`, { name: subjectName, levelId }, {
+            const res = await axios.post(`${API_URL}/admin/documents/subjects`, { name: subjectName, levelId }, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -163,20 +157,19 @@ const Documents = () => {
             closeModal();
         } catch (err) {
             toast.error("Thêm môn học thất bại!");
-            console.error("Lỗi khi thêm môn học:", err);
         }
     }
 
     // Gọi API lấy danh sách môn học theo cấp học
     const fetchSubjectsByLevel = async (levelId) => {
         try {
-            const res = await axios.get(`${API_URL}/documents/subjects/${levelId}`, {
+            const res = await axios.get(`${API_URL}/admin/documents/subjects/${levelId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
             return res.data.data;
         } catch (error) {
-            console.error("Lỗi khi tải danh sách môn học:", error);
+            toast.error("Lỗi khi tải danh sách môn học");
             return [];
         }
     };
@@ -184,7 +177,7 @@ const Documents = () => {
     // Gọi API thêm tài liệu
     const addDocument = async (document) => {
         try {
-            const res = await axios.post(`${API_URL}/documents`, {
+            const res = await axios.post(`${API_URL}/admin/documents`, {
                 title: document.title,
                 level: document.levelId,
                 subject: document.subjectId,
@@ -195,20 +188,18 @@ const Documents = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            console.log("New document:", res.data.data);
             setDocuments([res.data.data, ...documents]);
             toast.success("Thêm tài liệu thành công!");
             closeModal();
         } catch (err) {
             toast.error("Thêm tài liệu thất bại!");
-            console.error("Lỗi khi thêm tài liệu:", err);
         }
     }
 
     // Gọi API cập nhật tài liệu
     const updateDocument = async (document) => {
         try {
-            const res = await axios.put(`${API_URL}/documents/${document._id}`, {
+            const res = await axios.put(`${API_URL}/admin/documents/${document._id}`, {
                 title: document.title,
                 level: document.level,
                 subject: document.subject,
@@ -224,14 +215,13 @@ const Documents = () => {
             closeModal();
         } catch (err) {
             toast.error("Cập nhật tài liệu thất bại!");
-            console.error("Lỗi khi cập nhật tài liệu:", err);
         }
     }
 
     // Gọi API xóa tài liệu
     const deleteDocument = async () => {
         try {
-            await axios.delete(`${API_URL}/documents/${selectedDocument._id}`, {
+            await axios.delete(`${API_URL}/admin/documents/${selectedDocument._id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
@@ -240,20 +230,16 @@ const Documents = () => {
             closeModal();
         } catch (err) {
             toast.error("Xóa tài liệu thất bại!");
-            console.error("Lỗi khi xóa tài liệu:", err);
         }
     }
 
 
     return (
         <div className="flex flex-row w-full min-h-screen bg-[#F4F7FE]">
-            {/* Sidebar */}
             <Sidebar />
             {/* Nội dung chính */}
             <div className="w-full md:w-4/5 md:ml-52 py-6 px-6 overflow-y-auto">
-            <h1 className="text-2xl font-semibold text-[#333]">Quản lý tài liệu</h1>
-
-                {/* Tìm kiếm và lọc */}
+                <h1 className="text-2xl font-semibold text-[#333]">Quản lý tài liệu</h1>
                 <SearchBar
                     onSearch={setQuery}
                     initialQuery={query}
@@ -264,9 +250,7 @@ const Documents = () => {
                     selectedSubjectId={selectedSubjectId}
                     setSelectedSubjectId={setSelectedSubjectId}
                 />
-                {/* <SearchBar onSearch={setQuery} initialQuery={query} levels={levels} subjects={subjects}/> */}
 
-                {/* Nút Thêm */}
                 <div className="flex justify-end mt-6">
                     <div className="relative" ref={dropdownRef}>
                         <button
@@ -277,7 +261,6 @@ const Documents = () => {
                             <FaPlus size={16} /> Thêm
                         </button>
 
-                        {/* Dropdown */}
                         {dropdownOpen && (
                             <div className="absolute right-0 mt-1 w-48 bg-white border border-gray-400 rounded-lg shadow-md">
                                 <button
@@ -306,7 +289,6 @@ const Documents = () => {
                     </div>
                 </div>
 
-                {/* Document Table */}
                 <DocumentTable documents={documents} openModal={openModal} setSelectedDoc={setSelectedDocument} />
             </div>
 

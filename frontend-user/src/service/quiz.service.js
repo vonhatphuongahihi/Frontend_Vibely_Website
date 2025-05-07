@@ -4,8 +4,6 @@ import axiosInstance from "./url.service";
 // Tạo quiz mới
 export const createQuiz = async (quizData) => {
     try {
-        console.log("Quiz ID:", quizId); // 🟢 Kiểm tra giá trị quizId
-        if (!quizId) throw new Error("quizId không hợp lệ");
         const result = await axiosInstance.post("/quizzes", quizData);
         return result?.data?.data;
     } catch (error) {
@@ -45,7 +43,6 @@ export const updateQuiz = async (quizId, quizData) => {
         throw error;
     }
 };
-
 
 // Xóa quiz
 export const deleteQuiz = async (quizId) => {

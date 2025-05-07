@@ -1,10 +1,7 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
-import { FiMail, FiPhone } from "react-icons/fi";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-const UserProfile = ({ user }) => {
+const UserProfile = ({ user, friends }) => {
   if (!user) return null;
   const calculateAge = (dob) => {
     if (!dob) return "N/A"; // Tránh lỗi nếu không có dữ liệu
@@ -106,9 +103,9 @@ const UserProfile = ({ user }) => {
         <div className="w-full mb-6">
           <h3 className="text-sm font-medium text-gray-700 mb-2">Bạn bè</h3>
 
-          {user?.followers?.length > 0 ? (
+          {friends?.length > 0 ? (
             <div className="flex -space-x-2">
-              {user.followers.map((friend, i) => (
+              {friends.map((friend, i) => (
                 <div
                   key={friend._id || i}
                   className="h-8 w-8 rounded-full overflow-hidden border-2 border-white"
@@ -120,7 +117,7 @@ const UserProfile = ({ user }) => {
                         alt={friend.username}
                       />
                     ) : (
-                      <AvatarFallback>
+                      <AvatarFallback className="bg-gray-300">
                         {friend.username
                           ?.split(" ")
                           .map((name) => name[0])

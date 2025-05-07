@@ -78,7 +78,6 @@ const SavedDocumentDetail = () => {
             );
 
             toast.success("Bỏ lưu tài liệu thành công!");
-            console.log("Bỏ lưu tài liệu thành công:", response.data);
 
             // Chuyển hướng về trang tài liệu đã lưu
             router.replace("/saved");
@@ -105,8 +104,8 @@ const SavedDocumentDetail = () => {
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
             {/* Thanh bên */}
             <div className="md:hidden">
-            <LeftSideBar/>
-            </div>  
+                <LeftSideBar />
+            </div>
             {/* Nút mở rộng khi màn hình nhỏ*/}
             <Button
                 variant="bigIcon"

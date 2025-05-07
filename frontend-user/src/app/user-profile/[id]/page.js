@@ -40,7 +40,7 @@ const Page = () => {
   return (
     <div>
       <div className="md:hidden">
-        <LeftSideBar/>
+        <LeftSideBar />
       </div>
       <ProfileHeader
         profileData={profileData}

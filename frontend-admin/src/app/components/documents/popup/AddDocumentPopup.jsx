@@ -22,7 +22,7 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
             fetchSubjects(formData.levelId)
                 .then((data) => {
                     setSubjects(data || []);
-                    setFormData((prev) => ({ ...prev, subjectId: "" })); // Reset subject khi đổi level
+                    setFormData((prev) => ({ ...prev, subjectId: "" }));
                 })
                 .finally(() => setLoadingSubjects(false));
         } else {
@@ -34,9 +34,9 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "pages" ? Number(value) : value, // Ép kiểu nếu là pages
+            [name]: name === "pages" ? Number(value) : value,
         }));
-        setErrors((prev) => ({ ...prev, [name]: "" })); // Xóa lỗi khi nhập vào
+        setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     const validate = () => {
@@ -55,7 +55,6 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
 
     const handleSubmit = () => {
         if (validate()) {
-            console.log(formData);
             addDocument(formData);
         }
     };
@@ -72,12 +71,12 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
                 </div>
 
                 {/* Form */}
-                <div 
+                <div
                     className={`grid grid-cols-2 gap-8`}
                 >
                     <div className="col-span-2">
                         <label className="block mb-2 font-semibold">Tiêu đề</label>
-                        <input 
+                        <input
                             type="text"
                             name="title"
                             value={formData.title}
@@ -100,8 +99,8 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
                         >
                             <option value="">Chọn cấp học</option>
                             {levels.map((level) => (
-                                <option 
-                                    key={level._id} 
+                                <option
+                                    key={level._id}
                                     value={level._id}
                                 >
                                     {level.name}
@@ -116,7 +115,7 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
                         <select
                             name="subjectId"
                             value={formData.subjectId}
-                            onChange={handleChange} 
+                            onChange={handleChange}
                             className={`w-full border border-gray-400 p-2 rounded-lg focus:outline-none bg-white
                                 ${errors.subjectId ? "border-red-500 mb-2" : "border-gray-400"}`}
                             disabled={!formData.levelId || loadingSubjects}
@@ -124,7 +123,7 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
                             <option value="">Chọn môn học</option>
 
                             {subjects.map((subject) => (
-                                <option 
+                                <option
                                     key={subject._id}
                                     value={subject._id}
                                 >
@@ -137,7 +136,7 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
 
                     <div>
                         <label className="block mb-2 font-semibold">Số trang</label>
-                        <input 
+                        <input
                             type="number"
                             name="pages"
                             value={formData.pages}
@@ -158,7 +157,7 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
                             onChange={handleChange}
                             className={`w-full border p-2 rounded-lg focus:outline-none
                                 ${errors.format ? "border-red-500 mb-2" : "border-gray-400"}`}
-                            placeholder="Nhập định dạng tài liệu" 
+                            placeholder="Nhập định dạng tài liệu"
                         />
                         {errors.format && <p className="text-red-500 text-sm">{errors.format}</p>}
                     </div>

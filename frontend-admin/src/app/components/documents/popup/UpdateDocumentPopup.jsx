@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 
-const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, onClose}) => {
+const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, onClose }) => {
 
     // State để lưu dữ liệu chỉnh sửa
     const [formData, setFormData] = useState({
@@ -25,7 +25,7 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
             fetchSubjects(formData.level)
                 .then((data) => {
                     setSubjects(data || []);
-    
+
                     // Chỉ reset subject nếu user chọn cấp học mới, không reset khi load lần đầu
                     setFormData((prev) => ({
                         ...prev,
@@ -43,9 +43,9 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
         const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
-            [name]: name === "pages" ? Number(value) : value, // Ép kiểu nếu là pages
+            [name]: name === "pages" ? Number(value) : value,
         }));
-        setErrors((prev) => ({ ...prev, [name]: "" })); // Xóa lỗi khi nhập vào
+        setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
     const validate = () => {
@@ -62,7 +62,6 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
         return Object.keys(newErrors).length === 0;
     };
 
-    // Gửi dữ liệu cập nhật
     const handleSubmit = () => {
         if (validate()) {
             updateDocument(formData);
@@ -107,8 +106,8 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
                         >
                             <option value="">Chọn cấp học</option>
                             {levels.map((level) => (
-                                <option 
-                                    key={level._id} 
+                                <option
+                                    key={level._id}
                                     value={level._id}
                                 >
                                     {level.name}
@@ -130,7 +129,7 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
                         >
                             <option value="">Chọn môn học</option>
                             {subjects.map((subject) => (
-                                <option 
+                                <option
                                     key={subject._id}
                                     value={subject._id}
                                 >
