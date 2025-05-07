@@ -29,7 +29,6 @@ export function ContextProvider({ children }) {
                 setAllQuizzes(quizzes || []);
             } catch (error) {
                 console.error("Lỗi khi lấy danh sách quiz:", error);
-                toast.error("Không thể tải danh sách quiz");
             } finally {
                 setLoading(false);
             }
@@ -69,6 +68,7 @@ export function ContextProvider({ children }) {
         }
     };
 
+    // Cập nhật quiz theo ID
     const updateQuizById = async (quizId, quizData) => {
         try {
             const updatedQuiz = await updateQuiz(quizId, quizData);
@@ -81,6 +81,7 @@ export function ContextProvider({ children }) {
         }
     };
 
+    // Xóa quiz theo ID
     const removeQuiz = async (quizId) => {
         try {
             await deleteQuiz(quizId);

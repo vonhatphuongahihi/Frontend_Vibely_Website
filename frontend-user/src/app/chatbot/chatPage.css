@@ -16,35 +16,25 @@
 
         &::-webkit-scrollbar {
             width: 5px;
-            /* Adjust the width as needed */
         }
 
-        /* Track styling */
         &::-webkit-scrollbar-track {
             background: transparent;
-            /* Light background for track */
             border-radius: 10px;
         }
 
-        /* Thumb (the draggable part) styling */
         &::-webkit-scrollbar-thumb {
             background: #888;
-            /* Color for the thumb */
             border-radius: 10px;
             transition: background 0.3s ease;
-            /* Smooth transition on hover */
         }
 
-        /* Thumb hover effect */
         &::-webkit-scrollbar-thumb:hover {
             background: #555;
-            /* Darker color on hover */
         }
 
-        /* Scroll bar styling for other browsers */
         .scroll-container {
             scrollbar-width: thin;
-            /* Firefox */
             scrollbar-color: #888 #f1f1f1;
         }
 
@@ -82,11 +72,8 @@
                     max-width: 70%;
                     align-self: flex-end;
                     word-wrap: break-word;
-                    /* IE 5.5-7 */
                     white-space: -moz-pre-wrap;
-                    /* Firefox 1.0-2.0 */
                     white-space: pre-wrap;
-                    /* current browsers */
                 }
 
                 &.bot {

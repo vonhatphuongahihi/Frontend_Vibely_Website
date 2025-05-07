@@ -31,4 +31,15 @@ export const searchUsers = async (query) => {
         console.error("Lỗi khi tìm kiếm users:", error);
         throw error;
     }
-}; 
+};
+
+// Lấy danh sách bạn bè của user
+export const getAllFriends = async (userId) => {
+    try {
+        const result = await axiosInstance.get(`/admin/users/friends/${userId}`);
+        return result?.data?.data;
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách bạn bè:", error);
+        throw error;
+    }
+};

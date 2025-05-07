@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useRef } from 'react'
-import Image from 'next/image'
 import { uploadProfilePicture } from '@/service/accountAdmin.service'
+import Image from 'next/image'
+import { useRef } from 'react'
 
 const ProfilePictureSection = ({ userData, onPictureUpdate }) => {
     const fileInputRef = useRef(null);
@@ -16,11 +16,13 @@ const ProfilePictureSection = ({ userData, onPictureUpdate }) => {
         if (!file) return;
 
         try {
-            const data = await uploadProfilePicture(file);
-            console.log("Dữ liệu trả về từ API:", data);
+            const res = await uploadProfilePicture(file);
 
-            if (data && data.profilePicture) {
-                onPictureUpdate(data.profilePicture);
+            // Nếu response là object chứa data.profilePicture
+            const imageUrl = res?.data?.profilePicture || res?.profilePicture;
+
+            if (imageUrl) {
+                onPictureUpdate(imageUrl);
             } else {
                 alert("API không trả về URL ảnh hợp lệ!");
             }
@@ -28,6 +30,7 @@ const ProfilePictureSection = ({ userData, onPictureUpdate }) => {
             alert("Có lỗi khi tải ảnh lên!");
         }
     };
+
 
 
 

@@ -8,29 +8,32 @@ import { AiOutlineDelete } from "react-icons/ai";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 
-function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeComment }) {
+function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeComment }) {
   const [showAllReplies, setShowAllReplies] = useState(false); //xem tất cả/2 cái đầu
+
   const [showReplies, setShowReplies] = useState(false); //mở xem replies
   const [replyText, setReplyText] = useState("");
   const { user } = userStore();
   const replyInputRef = useRef(null);
-  const visibleReplies = showAllReplies
+  const visibleReplies = showAllReplies //số lượng reply hiển thị
     ? comment?.replies
     : comment?.replies?.slice(0, 2);
   const userPlaceholder = user?.username
     ?.split(" ")
     .map((name) => name[0])
     .join(""); // tên người dùng viết tắt
+
+  // đăng reply 
   const handleReplySubmit = async () => {
     if (replyText.trim()) {
-      console.log("PostComment/handleReplySubmit: ", replyText);
       onReply(replyText);
       setReplyText("");
     }
   };
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [dropdownReplyOpen, setDropdownReplyOpen] = useState(null);
-  const [popupOpen, setPopupOpen] = useState(false);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);  //dropdown cmt
+  const [dropdownReplyOpen, setDropdownReplyOpen] = useState(null); //dropdown reply
+  const [popupOpen, setPopupOpen] = useState(false);  //popup xóa cmt
   const dropdownRef = useRef(null);
   const popupRef = useRef(null);
   // Đóng dropdown khi click ra ngoài
@@ -56,7 +59,8 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleLikeComment = () =>{
+  //like cmt
+  const handleLikeComment = () => {
     likeComment()
   }
 
@@ -64,6 +68,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
     <div className="flex flex-col w-full">
       {/*Nội dung bình luận */}
       <div className="flex items-start space-x-2 mb-2 w-full">
+        {/*Avt người đăng bình luận*/}
         <Avatar className="h-8 w-8">
           {comment?.user?.profilePicture ? (
             <AvatarImage
@@ -79,6 +84,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
             </AvatarFallback>
           )}
         </Avatar>
+        {/*Tên người đăng, nội dung, số lượng like, nút tùy chọn (nếu là người đăng) */}
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <div className="bg-[#F0F2F5] rounded-lg px-3 py-2">
@@ -88,23 +94,24 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
               <p className="text-[15px]">{comment?.text}</p>
             </div>
             {comment?.reactions?.length > 0 && (
-            <div className="flex self-end p-1 bg-white drop-shadow-xl rounded-lg gap-2 -translate-x-1/3">
-              <Image src={"/like.png"} alt="haha"  width={16} height={14} unoptimized/>
-              <p className="font-semibold text-[13px]">
-                {comment?.reactions?.length}
-              </p>
-            </div>
-            )}            
+              <div className="flex self-end p-1 bg-white drop-shadow-xl rounded-lg gap-2 -translate-x-1/3">
+                <Image src={"/like.png"} alt="haha" width={16} height={14} unoptimized />
+                <p className="font-semibold text-[13px]">
+                  {comment?.reactions?.length}
+                </p>
+              </div>
+            )}
+            {/*Nút mở dropdown*/}
             <div className="relative">
               <Button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 variant="ghost"
-                className={`hover:bg-gray-100 ${
-                  comment?.user?._id === user?._id ? "flex" : "hidden"
-                }`} //chủ cmt mới có option này
+                className={`hover:bg-gray-100 ${comment?.user?._id === user?._id ? "flex" : "hidden"
+                  }`} //chủ cmt mới có option này
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
+              {/*Dropdown cmt*/}
               {dropdownOpen && (
                 <div
                   className="absolute top-10 right-10 translate-x-full w-40 bg-white border border-gray-300 rounded-md shadow-lg"
@@ -125,6 +132,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
                 </div>
               )}
             </div>
+            {/*PopUp xóa cmt*/}
             {popupOpen && (
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
                 <div
@@ -135,8 +143,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
                     Bạn có chắc chắn muốn xóa?
                   </h2>
                   <p className="text-md mb-4">
-                    Hành động này không thể hoàn tác và toàn bộ phản hồi của
-                    bình luận cũng sẽ bị xóa bỏ.
+                    Hành động này không thể hoàn tác và toàn bộ phản hồi của bình luận cũng sẽ bị xóa bỏ.
                   </p>
                   <div className="flex justify-end space-x-4">
                     <button
@@ -159,12 +166,13 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
               </div>
             )}
           </div>
+          {/*Nút like cmt, mở phản hồi, thời gian đăng bình luận*/}
           <div className="flex items-center text-xs text-gray-500">
             <Button
               variant="ghost"
               size="sm"
-              className={`px-2 hover:underline ${comment?.reactions?.find((react=>react?.user.toString() == user?._id))?"text-[#54C8FD]":""}`}
-              onClick={() => {handleLikeComment()}}
+              className={`px-2 hover:underline ${comment?.reactions?.find((react => react?.user.toString() == user?._id)) ? "text-[#54C8FD]" : ""}`}
+              onClick={() => { handleLikeComment() }}
             >
               Thích
             </Button>
@@ -200,6 +208,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
               key={index}
               className="flex items-start space-x-2 mt-2 ml-10 w-3/4"
             >
+              {/*Avt người đăng phản hồi*/}
               <Avatar className="h-8 w-8">
                 {reply.user?.profilePicture ? (
                   <AvatarImage
@@ -215,6 +224,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
                   </AvatarFallback>
                 )}
               </Avatar>
+              {/*Tên người đăng, nội dung, nút tùy chọn (nếu là người đăng) */}
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <div className="bg-[#F0F2F5] rounded-lg px-3 py-2">
@@ -231,12 +241,12 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
                         )
                       } //lưu id reply thay vì true/false
                       variant="ghost"
-                      className={`hover:bg-gray-100 ${
-                        reply?.user?._id === user?._id ? "flex" : "hidden"
-                      }`} //chủ reply mới có option này
+                      className={`hover:bg-gray-100 ${reply?.user?._id === user?._id ? "flex" : "hidden"
+                        }`} //chủ reply mới có option này
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
+                    {/*Dropdown xóa reply*/}
                     {dropdownReplyOpen === reply?._id && (
                       <div
                         className="absolute top-10 right-10 translate-x-full w-40 bg-white border border-gray-300 rounded-md shadow-lg"
@@ -258,12 +268,13 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
                     )}
                   </div>
                 </div>
+                {/*Nút reply, thời gian đăng*/}
                 <div className="flex items-center text-xs text-gray-500">
                   <Button
                     variant="ghost"
                     size="sm"
                     className="px-2 hover:underline"
-                    onClick={() => {}}
+                    onClick={() => { }}
                   >
                     Phản hồi
                   </Button>
@@ -274,6 +285,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply , likeCo
               </div>
             </div>
           ))}
+          {/*Tùy chọn hiển thị số lượng reply*/}
           {comment?.replies?.length > 2 && (
             <p
               className="font-semibold text-[13px] text-gray-500 px-2 hover:underline cursor-pointer ml-10"

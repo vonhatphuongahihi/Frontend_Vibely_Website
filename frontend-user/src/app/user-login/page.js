@@ -20,23 +20,18 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as yup from "yup";
+import axios from 'axios';
+
 
 const Page = () => {
   const router = useRouter();
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
     const checkLoginStatus = async () => {
-      // Kiểm tra token trong localStorage trước
-      const token = localStorage.getItem("token");
-      if (token) {
-        router.replace("/");
-        return;
-      }
-
-      // Nếu không có token, kiểm tra với API
       try {
         const { isAuthenticated } = await checkUserAuth();
         if (isAuthenticated) {
@@ -100,11 +95,16 @@ const Page = () => {
 
   const onSubmitRegister = async (data) => {
     try {
-      const result = await registerUser(data)
-      if (result.status === 'success') {
-        router.push('/')
-      }
-      toast.success('Đăng ký tài khoản thành công')
+      // const result = await registerUser(data)
+      // if (result.status === 'success') {
+      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/send-otp`, { email: data.email });
+      // Lưu email tạm thời vào localStorage
+      // localStorage.setItem('tempEmail', data.email);
+      localStorage.setItem('tempRegisterData', JSON.stringify(data));
+      // Chuyển hướng đến trang xác nhận OTP
+      router.push('/user-login/code-confirm');
+      // }
+      toast.success('Vui lòng kiểm tra email để xác thực tài khoản')
     } catch (error) {
       console.error(error);
       toast.error('Email đã tồn tại')
@@ -120,21 +120,19 @@ const Page = () => {
 
   const onSubmitLogin = async (data) => {
     try {
-      const result = await loginUser(data)
+      setIsSubmitting(true);
+      const result = await loginUser(data);
       if (result.status === 'success') {
-        if (rememberMe) {
-          localStorage.setItem('token', result.data.token);
-        }
-        router.push('/')
+        toast.success('Đăng nhập tài khoản thành công');
+        router.push('/');
       }
-      toast.success('Đăng nhập tài khoản thành công')
     } catch (error) {
       console.error(error);
-      toast.error('Email hoặc mật khẩu không chính xác')
+      toast.error('Email hoặc mật khẩu không chính xác');
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
-  }
+  };
 
   const handleGoogleLogin = () => {
     window.location.href = `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`
@@ -244,8 +242,18 @@ const Page = () => {
                     <Button
                       className="w-full bg-[#23CAF1] text-white"
                       type="submit"
+                      disabled={isSubmitting}
                     >
-                      <LogIn className="mr-2 w-4 h-4" />Đăng nhập
+                      {isSubmitting ? (
+                        <div className="flex items-center justify-center">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Đang xử lý...
+                        </div>
+                      ) : (
+                        <>
+                          <LogIn className="mr-2 w-4 h-4" />Đăng nhập
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>
@@ -403,8 +411,21 @@ const Page = () => {
                       )}
                     </div>
 
-                    <Button className="w-full bg-[#23CAF1] text-white" type="submit">
-                      <LogIn className="mr-2 w-4 h-4" /> Đăng ký
+                    <Button
+                      className="w-full bg-[#23CAF1] text-white"
+                      type="submit"
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center justify-center">
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                          Đang xử lý...
+                        </div>
+                      ) : (
+                        <>
+                          <LogIn className="mr-2 w-4 h-4" /> Đăng ký
+                        </>
+                      )}
                     </Button>
                   </div>
                 </form>

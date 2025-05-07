@@ -71,7 +71,7 @@
     }
 }
 
-/* Camera flash effect */
+/* Hiệu ứng camera effect */
 .camera-flash {
     position: fixed;
     top: 0;
@@ -85,7 +85,7 @@
     transition: opacity 0.3s;
 }
 
-/* Confetti animation for camera */
+/* Hiệu ứng confetti cho camera */
 @keyframes confetti-fall {
     0% {
         transform: translateY(0) rotate(0deg);
@@ -105,7 +105,7 @@
     animation: confetti-fall linear forwards;
 }
 
-/* Polaroid effect */
+/* Polaroid hiệu ứng*/
 .polaroid {
     background: white;
     padding: 8px 8px 40px 8px;

@@ -7,17 +7,14 @@ import { useEffect, useState } from "react";
 const SearchDocument = ({ onSearch, initialQuery = "" }) => {
     const [query, setQuery] = useState(initialQuery);
 
-    // Khi initialQuery thay đổi, cập nhật state
     useEffect(() => {
         setQuery(initialQuery);
     }, [initialQuery]);
 
-    // Xử lý khi người dùng nhập hoặc xóa nội dung
     const handleChange = (e) => {
         const value = e.target.value;
         setQuery(value);
 
-        // Nếu xóa hết nội dung trong ô tìm kiếm, gửi query rỗng
         if (value.trim() === "") {
             onSearch("");
         }

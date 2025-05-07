@@ -38,23 +38,23 @@ const Homepage = () => {
             </div>
 
             <div className='mt-6 space-y-6'>
-              {posts.map(post => (
-                <PostCard key={post._id}
+              {posts.map((post, index) => (
+                <PostCard
+                  key={post._id || index}  // Dùng _id nếu có, nếu không dùng index để tránh cảnh báo
                   post={post}
                   onReact={async (reactType) => {
                     await handleReactPost(post?._id, reactType)
-                    await fetchPosts()// tải lại danh sách
-                  }}  // chức năng react
-                  onComment={async (commentText) => {  //chức năng comment
-                    //console.log("onComment: ",commentText)
+                    await fetchPosts() // tải lại danh sách
+                  }}
+                  onComment={async (commentText) => {  // chức năng comment
                     await handleCommentPost(post?._id, commentText)
                     await fetchPosts()
                   }}
-                  onShare={async () => {  //chức năng share
+                  onShare={async () => {  // chức năng share
                     await handleSharePost(post?._id)
                     await fetchPosts()
                   }}
-                  onDelete={async () => {  //chức năng xóa
+                  onDelete={async () => {  // chức năng xóa
                     await handleDeletePost(post?._id)
                     await fetchPosts()
                   }}
@@ -64,6 +64,7 @@ const Homepage = () => {
                   }}
                 />
               ))}
+
             </div>
           </div>
         </div>
@@ -73,7 +74,7 @@ const Homepage = () => {
       </main>
       <button
         onClick={() => handleNavigation("/chatbot")}
-        className="fixed bottom-6 right-6 w-12 h-12 bg-white rounded-full shadow-lg hover:scale-110 transition duration-300"
+        className="fixed bottom-6 right-6 w-16 h-16 bg-white rounded-full shadow-lg hover:scale-110 transition duration-300"
       >
         <img
           src="/images/chatbot.png"

@@ -5,6 +5,7 @@ import { useGesture } from "@use-gesture/react";
 
 useGLTF.preload("/models/robot_playground.glb");
 
+// Model robot trang chủ
 export default function Model() {
     const group = useRef(null);
     const { scene, animations } = useGLTF("/models/robot_playground.glb");
@@ -20,7 +21,6 @@ export default function Model() {
         }
     }, [actions, animations]);
 
-    // Gesture handling: zoom & drag
     useGesture(
         {
             onWheel: ({ delta }) => {

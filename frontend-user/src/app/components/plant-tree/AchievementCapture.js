@@ -5,18 +5,6 @@ import { toast } from 'react-hot-toast';
 
 const AchievementCapture = ({ capturedImage, onRetake, onClose, onShare }) => {
 
-    // const handleShare = () => {
-    //     if (navigator.share) {
-    //         navigator.share({
-    //             title: 'Thành tích của tôi',
-    //             text: 'Xem thành tích tôi vừa đạt được!',
-    //             url: capturedImage
-    //         }).catch(console.error);
-    //     } else {
-    //         toast.success('Đã chụp ảnh thành tích!');
-    //     }
-    // };
-
     const handleDownload = () => {
         if (capturedImage) {
             const link = document.createElement('a');

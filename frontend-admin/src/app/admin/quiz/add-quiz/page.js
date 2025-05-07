@@ -16,6 +16,7 @@ const CreateQuizPage = () => {
         correctAnswer: 0
     }]);
 
+    // Hàm xử lý lưu quiz
     const handleSave = async () => {
         try {
             // Kiểm tra dữ liệu
@@ -53,6 +54,7 @@ const CreateQuizPage = () => {
         }
     };
 
+    // Hàm thêm câu hỏi mới
     const handleAddQuestion = () => {
         setQuestions([...questions, {
             mainQuestion: '',
@@ -61,6 +63,8 @@ const CreateQuizPage = () => {
         }]);
     };
 
+
+    // Hàm xử lý thay đổi câu hỏi
     const handleQuestionChange = (index, field, value) => {
         const newQuestions = [...questions];
         if (field.startsWith('choice')) {
