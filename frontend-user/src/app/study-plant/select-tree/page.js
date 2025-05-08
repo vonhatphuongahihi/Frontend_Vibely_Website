@@ -68,7 +68,6 @@ const Page = () => {
             );
 
             if (response.data) {
-                toast.success("Tạo cây thành công!");
                 router.push('/study-plant/goal-tree');
             }
         } catch (error) {
@@ -101,7 +100,6 @@ const Page = () => {
             )}
 
             <div className="max-w-4xl w-full text-center font-[Inter]">
-                {/* Logo and Title */}
                 <div className="mb-9">
                     <img
                         src="/study-plant/tree-page-1.png"
