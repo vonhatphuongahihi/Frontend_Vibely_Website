@@ -30,7 +30,7 @@ const Schedule = () => {
             try {
                 const data = await getSchedule();
                 const formattedData = data.map(item => ({
-                    Id: item._id,
+                    Id: item.id,
                     Subject: item.subject,
                     StartTime: new Date(item.startTime + 'Z'),
                     EndTime: new Date(item.endTime + 'Z'),

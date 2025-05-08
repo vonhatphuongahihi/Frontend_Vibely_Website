@@ -144,19 +144,20 @@ const GoalTreePage = () => {
     const [postDefaultContent, setPostDefaultContent] = useState('');
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
-    // Lấy token từ localStorage
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
+        console.log("Token in goal-tree:", storedToken); // Debug log
         if (storedToken) {
             setToken(storedToken);
         } else {
-            console.error("Lỗi: Không tìm thấy token");
+            console.error("Lỗi: Không tìm thấy token trong goal-tree");
             router.push('/user-login');
         }
     }, []);
 
     useEffect(() => {
         if (token) {
+            console.log("Fetching data with token:", token); // Debug log
             fetchData();
         }
     }, [token]);
@@ -193,6 +194,7 @@ const GoalTreePage = () => {
     const fetchData = async () => {
         try {
             if (!token) {
+                console.error("No token available for fetchData");
                 router.push('/user-login');
                 return;
             }
@@ -202,9 +204,12 @@ const GoalTreePage = () => {
                     'Authorization': `Bearer ${token}`
                 }
             };
+            console.log("Request config:", config); // Debug log
 
             // Lấy thông tin cây
             const treeResponse = await axios.get(`${API_URL}/learning-trees`, config);
+            console.log("Tree response:", treeResponse.data); // Debug log
+
             if (!treeResponse.data) {
                 router.push('/study-plant/select-tree');
                 return;
@@ -213,9 +218,14 @@ const GoalTreePage = () => {
 
             // Lấy danh sách mục tiêu
             const goalsResponse = await axios.get(`${API_URL}/learning-goals`, config);
+            console.log("Goals response:", goalsResponse.data); // Debug log
             setGoals(goalsResponse.data || []);
         } catch (error) {
             console.error('Error fetching data:', error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+            }
         } finally {
             setLoading(false);
         }

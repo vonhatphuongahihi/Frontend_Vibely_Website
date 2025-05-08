@@ -1,58 +1,32 @@
 'use client'
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
 const Page = () => {
     const router = useRouter();
-    const [token, setToken] = useState(null);
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
-
-    // Lấy token từ localStorage
-    useEffect(() => {
-        const storedToken = localStorage.getItem("token");
-        if (storedToken) {
-            setToken(storedToken);
-        } else {
-            console.error("Lỗi: Không tìm thấy token");
-            router.push('/user-login');
-        }
-    }, []);
 
     const handleClick = async () => {
         try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-                router.push('/user-login');
-                return;
-            }
-
-            // Kiểm tra xem người dùng đã có cây chưa
-            try {
-                const response = await axios.get(`${API_URL}/learning-trees`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                // Nếu có cây thì chuyển đến trang goal-tree
-                if (response.data) {
-                    router.push('/study-plant/goal-tree');
+            const token = localStorage.getItem("auth_token");
+            const response = await axios.get(`${API_URL}/learning-trees`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
                 }
-            } catch (error) {
-                // Nếu lỗi 404 (chưa có cây) thì chuyển đến trang select-tree
-                if (error.response?.status === 404) {
-                    router.push('/study-plant/select-tree');
-                } else {
-                    // Nếu lỗi khác thì mới hiển thị thông báo
-                    console.error('Error checking tree:', error);
-                    toast.error("Có lỗi xảy ra khi kiểm tra cây");
-                }
+            });
+
+            if (response.data) {
+                router.push('/study-plant/goal-tree');
             }
         } catch (error) {
-            console.error('Error:', error);
-            toast.error("Có lỗi xảy ra");
+            if (error.response?.status === 404) {
+                router.push('/study-plant/select-tree');
+            } else {
+                console.error('Error checking tree:', error);
+                toast.error("Có lỗi xảy ra khi kiểm tra cây");
+            }
         }
     };
 
