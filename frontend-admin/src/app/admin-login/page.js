@@ -122,7 +122,7 @@ const Page = () => {
                                     {errors.password && <p className="text-red-500">{errors.password.message}</p>}
                                 </div>
                                 <Button
-                                    className="w-full bg-[#23CAF1] text-white mt-5"
+                                    className="w-full bg-[#23CAF1] text-white mt-5 cursor-pointer"
                                     type="submit"
                                     disabled={loading}
                                 >
