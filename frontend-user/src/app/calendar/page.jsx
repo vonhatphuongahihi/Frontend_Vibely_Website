@@ -30,7 +30,7 @@ const Schedule = () => {
             try {
                 const data = await getSchedule();
                 const formattedData = data.map(item => ({
-                    Id: item._id,
+                    Id: item.id,
                     Subject: item.subject,
                     StartTime: new Date(item.startTime + 'Z'),
                     EndTime: new Date(item.endTime + 'Z'),
@@ -59,7 +59,7 @@ const Schedule = () => {
                 categoryColor: event.CategoryColor || "#0000FF"
             });
 
-            setEvents([...events, { ...event, Id: result.data._id }]);
+            setEvents([...events, { ...event, Id: result.data.id }]);
         } catch (error) {
             console.error("❌ Lỗi khi thêm lịch trình:", error);
         }

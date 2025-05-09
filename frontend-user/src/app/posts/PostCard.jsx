@@ -18,6 +18,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import userStore from '@/store/userStore'
 import { Textarea } from '@/components/ui/textarea'
+import { toast } from 'react-hot-toast'
 
 const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
@@ -63,11 +64,11 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   }, []);
   //đi đến trang người đăng bài
   const handleUserProfile = () => {
-    router.push(`/user-profile/${post?.user?._id}`)
+    router.push(`/user-profile/${post?.user?.id}`)
   }
   //đi đến trang chi tiết bài viết
   const handleSinglePost = () => {
-    router.push(`/posts/${post?._id}`)
+    router.push(`/posts/${post?.id}`)
   }
   //mở xem cmt
   const handleCommentClick = () => {
@@ -84,27 +85,44 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [reactionUserGroups, setReactionUserGroups] = useState({}); // Lưu danh sách user theo từng reaction
   const [currentReactionDetail, setCurrentReaction] = useState("like"); //reaction hiện tại của bảng chi tiết, mặc định là like
   useEffect(() => {
-    setReaction(post?.reactions?.find(react => react?.user?._id == user?._id) ? post?.reactions?.find(react => react?.user?._id == user?._id).type : null)
-    //đảm bảo object hợp lệ
-    if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
+    // Kiểm tra post và user trước khi set reaction
+    if (!post || !user || !post.reactions) {
+      setReaction(null);
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
-    const reactionGroups = Array.isArray(post.reactions) ? post.reactions.reduce((acc, react) => {
+
+    // Set current user's reaction
+    const userReaction = post.reactions.find(react => react?.user?.id === user.id);
+    setReaction(userReaction ? userReaction.type : null);
+
+    // Process reaction stats
+    if (!post.reactionStats || typeof post.reactionStats !== "object") {
+      setTopReactions([]);
+      setReactionUserGroups({});
+      return;
+    }
+
+    // Group reactions by type
+    const reactionGroups = post.reactions.reduce((acc, react) => {
       if (!acc[react.type]) {
         acc[react.type] = [];
       }
-      acc[react.type].push(react);
+      if (react.user) {
+        acc[react.type].push(react.user);
+      }
       return acc;
-    }, {}) : {};
-    // cập nhật danh sách top reactions
+    }, {});
+
+    // Get top 3 reactions
     const sortedReactions = Object.entries(reactionGroups)
-      .sort((a, b) => b[1].length - a[1].length) // Sắp xếp theo số lượng user
-      .slice(0, 3); // Lấy top 3 reactions
+      .sort((a, b) => b[1].length - a[1].length)
+      .slice(0, 3);
+    
     setTopReactions(sortedReactions.map(([reaction]) => reaction));
     setReactionUserGroups(reactionGroups);
-  }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
+  }, [post, user, post?.reactionStats]); // Dependencies updated
 
   //mở bảng chi tiết reaction
   const [reactDetailOpen, setReactDetailOpen] = useState(false)
@@ -114,14 +132,27 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
 
   //bày tỏ cảm xúc
   const handleReaction = (reaction) => {
-    setIsChoosing(false)  //đã chọn được 'cảm xúc'
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+        toast.error("Vui lòng đăng nhập để thực hiện chức năng này");
+        return;
+    }
+    console.log("post", post);
+    if (!post?.id) {
+        console.error("Invalid post ID", { post });
+        toast.error("Không thể thực hiện. Bài viết không tồn tại.");
+        return;
+    }
+    
+    console.log("Reacting to post:", post.id, "with reaction:", reaction);
+    setIsChoosing(false);
     onReact(reaction);
-    setShowReactionChooser(false); // Ẩn thanh reaction sau khi chọn
+    setShowReactionChooser(false);
   };
 
   //Các biến và hàm cho Chia Sẻ Bài Viết
   const generateSharedLink = () => {
-    return `https://vibely-study-social-web-user.vercel.app/posts/${post?._id}`; //deploy sao thì đổi lại vậy
+    return `https://vibely-study-social-web-user.vercel.app/posts/${post?.id}`; //deploy sao thì đổi lại vậy
   };
   const handleShare = (platform) => {
     const url = generateSharedLink();
@@ -175,18 +206,18 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       const formData = new FormData()
       formData.append('content', postContent)
       if (selectedFile) {
-        formData.append('media', selectedFile)
+        formData.append('file', selectedFile)
       }
       //Không thay đổi thì selectedFile = null, filePreview là url
       //Có thay đổi ảnh thì selectedFile = file
       //Xóa ảnh thì selectedFile = filePreview = null
-      if (selectedFile) {
-        formData.append('flag', 1)
-      } else if (!selectedFile && filePreview) {
-        formData.append('flag', 0)
-      } else {
-        formData.append('flag', -1)
-      }
+      // if (selectedFile) {
+      //   formData.append('flag', 1)
+      // } else if (!selectedFile && filePreview) {
+      //   formData.append('flag', 0)
+      // } else {
+      //   formData.append('flag', -1)
+      // }
       await onEdit(formData)
       setPostContent('')
       setSelectedFile(null)
@@ -201,7 +232,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   }
   return (
     <motion.div
-      key={post?._id}
+      key={post.id || index}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -230,7 +261,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
             </div>
             {/*Nút mở dropdown bài viết*/}
             <Button onClick={() => setDropdownOpen(!dropdownOpen)} variant="ghost"
-              className={`hover:bg-gray-100 ${post?.user?._id === user?._id ? "flex" : "hidden"}`}  //chủ bài viết mới có option này
+              className={`hover:bg-gray-100 ${post?.user?.id === user?.id ? "flex" : "hidden"}`}  //chủ bài viết mới có option này
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>
@@ -452,7 +483,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                 {/*Danh sách người dùng*/}
                 {reactionUserGroups?.[currentReactionDetail]?.map((user, index) => {
                   return (
-                    <div key={index} className="flex items-center space-x-2 cursor-pointer mb-2 " onClick={() => handleNavigation(`/user-profile/${user?._id}`)}>
+                    <div key={index} className="flex items-center space-x-2 cursor-pointer mb-2 " onClick={() => handleNavigation(`/user-profile/${user?.id}`)}>
                       <Avatar className="h-10 w-10 ml-2">
                         {user?.profilePicture ? (
                           <AvatarImage

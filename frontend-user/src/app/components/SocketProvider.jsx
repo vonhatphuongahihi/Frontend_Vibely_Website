@@ -33,12 +33,12 @@ export const SocketProvider = ({ children }) => {
     }, [API_URL]);
 
     useEffect(() => {
-        if (user?._id && !socket) {
+        if (user?.id && !socket) {
             const newSocket = io(API_URL);
             setSocket(newSocket);
             window.socket = newSocket;
 
-            newSocket.emit("addUser", user._id);
+            newSocket.emit("addUser", user.id);
 
             return () => {
                 newSocket.disconnect();

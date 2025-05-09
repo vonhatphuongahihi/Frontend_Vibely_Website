@@ -102,7 +102,7 @@ export const MutualFriends = ({ id, isOwner }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredFriends.map((friend) => (
               <div
-                key={friend._id}
+                key={friend.id}
                 className="flex items-center justify-between bg-white shadow-md rounded-lg border border-gray-200 p-3"
               >
                 {/* Avatar + Tên */}
@@ -143,7 +143,7 @@ export const MutualFriends = ({ id, isOwner }) => {
                     <DropdownMenuContent
                       align="end"
                       onClick={async () => {
-                        await handleUnfollow(friend?._id);
+                        await handleUnfollow(friend?.id);
                         await fetchMutualFriends(id);
                       }}
                     >

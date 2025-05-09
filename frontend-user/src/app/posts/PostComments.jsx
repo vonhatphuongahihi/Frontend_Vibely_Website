@@ -31,19 +31,19 @@ const PostComments = ({ post, onComment, commentInputRef }) => {
 
                     <PostComment key={index} comment={comment}
                         onReply={async (replyText) => {
-                            await handleReplyComment(post?._id, comment?._id, replyText)
+                            await handleReplyComment(post?.id, comment?.id, replyText)
                             await fetchPosts()
                         }}
                         onDeleteComment={async () => {
-                            await handleDeleteComment(post?._id, comment?._id)
+                            await handleDeleteComment(post?.id, comment?.id)
                             await fetchPosts()
                         }}
                         onDeleteReply={async (replyId) => {
-                            await handleDeleteReply(post?._id, comment?._id, replyId)
+                            await handleDeleteReply(post?.id, comment?.id, replyId)
                             await fetchPosts()
                         }}
                         likeComment={async () => {
-                            await handleLikeComment(post?._id, comment?._id)
+                            await handleLikeComment(post?.id, comment?.id)
                             await fetchPosts()
                         }}
                     />

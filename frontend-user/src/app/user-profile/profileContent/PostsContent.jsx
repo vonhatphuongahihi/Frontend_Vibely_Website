@@ -57,11 +57,11 @@ useEffect(() => {
 }, []);
 
 const handleUserProfile = ()  => {
-  router.push(`/user-profile/${post?.user?._id}`)
+  router.push(`/user-profile/${post?.user?.id}`)
 }
 
 const handleSinglePost = ()  => {
-  router.push(`/posts/${post?._id}`)
+  router.push(`/posts/${post?.id}`)
 }
 
   const handleCommentClick = () =>{
@@ -73,7 +73,7 @@ const handleSinglePost = ()  => {
   const userPostPlaceholder = post?.user?.username?.split(" ").map((name) => name[0]).join(""); // tên người đăng bài viết tắt
   const [topReactions, setTopReactions] = useState([]);
   useEffect(() => {
-    setReaction(post?.reactions?.find(react=>react?.user == user?._id)?post?.reactions?.find(react=>react?.user == user?._id).type:null)
+    setReaction(post?.reactions?.find(react=>react?.user == user?.id)?post?.reactions?.find(react=>react?.user == user?.id).type:null)
     //đảm bảo object hợp lệ
       if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
       setTopReactions([]);
@@ -89,7 +89,7 @@ const handleSinglePost = ()  => {
 }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
 
   const generateSharedLink = () => {
-    return `http://localhost:3000/posts/${post?._id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
+    return `http://localhost:3000/posts/${post?.id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
   };
   const handleShare = (platform) => {
     const url = generateSharedLink();
@@ -117,7 +117,7 @@ const handleSinglePost = ()  => {
     setIsShareDialogOpen(false);
   };
   const handleReaction = (reaction) => {
-    console.log("(PostCard.jsx/handleReaction) Reaction in post that has id", post?._id,":", reaction)
+    console.log("(PostCard.jsx/handleReaction) Reaction in post that has id", post?.id,":", reaction)
     setIsChoosing(false)  //đã chọn được 'cảm xúc'
     onReact(reaction);
     setShowReactionChooser(false); // Ẩn thanh reaction sau khi chọn
@@ -128,7 +128,7 @@ const handleSinglePost = ()  => {
 
   return (
     <motion.div
-      key={post?._id}
+      key={post?.id}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -154,7 +154,7 @@ const handleSinglePost = ()  => {
               </div>
             </div>
             <Button onClick={() => setDropdownOpen(!dropdownOpen)} variant="ghost" 
-            className={`hover:bg-gray-100 ${post?.user?._id===user?._id?"flex":"hidden"}`}  //chủ bài viết mới có option này
+            className={`hover:bg-gray-100 ${post?.user?.id===user?.id?"flex":"hidden"}`}  //chủ bài viết mới có option này
             >
               <MoreHorizontal className="h-4 w-4" />
             </Button>

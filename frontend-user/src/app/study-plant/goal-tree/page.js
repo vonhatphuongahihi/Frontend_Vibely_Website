@@ -284,7 +284,7 @@ const GoalTreePage = () => {
                 const { goal, tree: updatedTree, newAchievements } = response.data;
 
                 // Update goals list
-                setGoals(goals.map(g => g._id === goal._id ? goal : g));
+                setGoals(goals.map(g => g.id === goal.id ? goal : g));
 
                 // Update tree if it exists
                 if (updatedTree) {
@@ -309,7 +309,7 @@ const GoalTreePage = () => {
 
     const handleDeleteGoal = async (id) => {
         try {
-            const goal = goals.find(g => g._id === id);
+            const goal = goals.find(g => g.id === id);
             if (!goal.is_completed) {
                 // Nếu mục tiêu chưa hoàn thành thì xóa khỏi database
                 if (!token) {
@@ -322,7 +322,7 @@ const GoalTreePage = () => {
                         'Authorization': `Bearer ${token}`
                     }
                 });
-                setGoals(goals.filter(goal => goal._id !== id));
+                setGoals(goals.filter(goal => goal.id !== id));
                 toast.success("Đã xóa mục tiêu");
             } else {
                 // Nếu mục tiêu đã hoàn thành thì ẩn đi
@@ -338,7 +338,7 @@ const GoalTreePage = () => {
                     );
 
                     // Cập nhật state với goal đã được cập nhật
-                    setGoals(goals.map(g => g._id === id ? response.data : g));
+                    setGoals(goals.map(g => g.id === id ? response.data : g));
                 } catch (error) {
                     console.error('Error toggling goal visibility:', error);
                     toast.error("Có lỗi xảy ra khi ẩn mục tiêu");
@@ -445,10 +445,10 @@ const GoalTreePage = () => {
 
                         <div className="space-y-3">
                             {visibleGoals.map((goal) => (
-                                <div key={goal._id} className="flex items-center text-[15px] justify-between p-2 bg-[#F8FDFF] border border-gray-300 rounded-lg">
+                                <div key={goal.id} className="flex items-center text-[15px] justify-between p-2 bg-[#F8FDFF] border border-gray-300 rounded-lg">
                                     <div className="flex items-center space-x-3">
                                         <button
-                                            onClick={() => handleToggleGoal(goal._id)}
+                                            onClick={() => handleToggleGoal(goal.id)}
                                             className={`w-6 h-6 rounded-full border-2 ${goal.is_completed ? 'border-green-500 bg-green-500' : 'border-gray-300'} relative flex items-center justify-center`}
                                         >
                                             {goal.is_completed && (
@@ -462,7 +462,7 @@ const GoalTreePage = () => {
                                         </span>
                                     </div>
                                     <button
-                                        onClick={() => handleDeleteGoal(goal._id)}
+                                        onClick={() => handleDeleteGoal(goal.id)}
                                         className="text-gray-500 hover:text-red-500"
                                         title={goal.is_completed ? "Ẩn mục tiêu" : "Xóa mục tiêu"}
                                     >

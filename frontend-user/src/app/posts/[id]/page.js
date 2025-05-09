@@ -33,19 +33,19 @@ function Page() {
         <PostCard
           post={post}
           onReact={async (reactType) => {
-            await handleReactPost(post?._id, reactType)
+            await handleReactPost(post?.id, reactType)
             await fetchPost()
           }}  // chức năng react
           onComment={async (commentText) => {  //chức năng comment
-            await handleCommentPost(post?._id, commentText)
+            await handleCommentPost(post?.id, commentText)
             await fetchPost()
           }}
           onShare={async () => {  //chức năng share
-            await handleSharePost(post?._id)
+            await handleSharePost(post?.id)
             await fetchPost()
           }}
           onDelete={async () => {  //chức năng xóa
-            await handleDeletePost(post?._id)
+            await handleDeletePost(post?.id)
             await fetchPost()
           }}
         />

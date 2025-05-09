@@ -84,7 +84,7 @@ function QuizStartQuestions({ quizData, onUpdateTime }) {
 
     async function saveDataIntoDB() {
         try {
-            const id = quizData._id;
+            const id = quizData.id;
             const res = await updateQuiz(id, {
                 updateQuizQuestions: currentQuiz.quizQuestions,
             });

@@ -56,7 +56,7 @@ export default function AuthWrapper({ children }) {
                 if (result.isAuthenticated) {
                     setUser(result.user);
                     setIsAuthenticated(true);
-                    connectSocket(result.user._id);
+                    // connectSocket(result.user.id);
                 } else {
                     throw new Error("Không xác thực được");
                 }
@@ -96,8 +96,8 @@ export default function AuthWrapper({ children }) {
     }, [isPublicPage, router, setUser, clearUser]);
 
     useEffect(() => {
-        if (user?._id && !socketRef.current) {
-            connectSocket(user._id);
+        if (user?.id && !socketRef.current) {
+            // connectSocket(user.id);
         }
     }, [user]);
 

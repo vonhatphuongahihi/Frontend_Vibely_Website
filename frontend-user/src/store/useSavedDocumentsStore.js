@@ -25,7 +25,7 @@ export const useSavedDocumentsStore = create((set) => ({
             set({ loading: false })
             toast.success("Đã bỏ lưu tài liệu thành công.")
             set((state) =>
-            ({ savedDocuments: state.savedDocuments.filter(doc => doc._id !== id) }
+            ({ savedDocuments: state.savedDocuments.filter(doc => doc.id !== id) }
             ))
         } catch (error) {
             set({ error, loading: false })

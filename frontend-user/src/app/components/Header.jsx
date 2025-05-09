@@ -62,6 +62,7 @@ const Header = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
+        console.log("fetchUsers");
         const result = await getAllUsers();
         setUserList(result);
       } catch (error) {
@@ -167,10 +168,10 @@ const Header = () => {
   // Lấy số tin nhắn chưa đọc
   useEffect(() => {
     const fetchUnreadMessages = async () => {
-      if (!user?._id) return;
+      if (!user?.id) return;
 
       try {
-        const response = await axios.get(`${API_URL}/message/unread/${user._id}`);
+        const response = await axios.get(`${API_URL}/message/unread/${user.id}`);
         setUnreadCount(response.data.total);
       } catch (error) {
         console.error("Lỗi khi lấy số tin nhắn chưa đọc:", error);
@@ -182,7 +183,7 @@ const Header = () => {
     // Lắng nghe tin nhắn mới từ socket
     if (window.socket) {
       window.socket.on("getMessage", (data) => {
-        if (data.senderId !== user?._id) {
+        if (data.senderId !== user?.id) {
           setUnreadCount(prev => prev + 1);
           setLastMessage(data);
           setShowMessagePreview(true);
@@ -238,8 +239,8 @@ const Header = () => {
                       filterUsers.map((user) => (
                         <div
                           className="flex items-center space-x-8 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer"
-                          key={user._id}
-                          onClick={() => handleUserClick(user?._id)}
+                          key={user.id}
+                          onClick={() => handleUserClick(user?.id)}
                         >
                           <Search className="absolute text-sm text-gray-400" />
                           <div className="flex items-center gap-2">
@@ -352,7 +353,7 @@ const Header = () => {
                 <>
                   <DropdownMenuItem
                     className="font-normal cursor-pointer"
-                    onClick={() => handleNavigation(`/user-profile/${user?._id}`)}
+                    onClick={() => handleNavigation(`/user-profile/${user?.id}`)}
                   >
                     <div className="flex flex-col space-y-1">
                       <div className="flex items-center">
