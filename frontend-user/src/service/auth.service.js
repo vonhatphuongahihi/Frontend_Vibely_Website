@@ -75,3 +75,40 @@ export const deleteAccount = async () => {
         throw error;
     }
 }
+
+// Xử lý callback từ social login
+export const handleSocialCallback = async (token, userId, email, username) => {
+    try {
+        if (token) {
+            localStorage.setItem("auth_token", token);
+            return {
+                status: 'success',
+                data: {
+                    userId,
+                    email,
+                    username,
+                    token
+                }
+            };
+        }
+        throw new Error('Token không hợp lệ');
+    } catch (error) {
+        console.error("Xử lý social callback thất bại:", error);
+        throw error;
+    }
+}
+
+// Lấy URL đăng nhập Google
+export const getGoogleLoginUrl = () => {
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth2/authorize/google`;
+}
+
+// Lấy URL đăng nhập Facebook
+export const getFacebookLoginUrl = () => {
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth2/authorize/facebook`;
+}
+
+// Lấy URL đăng nhập GitHub
+export const getGithubLoginUrl = () => {
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth2/authorize/github`;
+}

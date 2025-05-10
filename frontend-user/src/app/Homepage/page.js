@@ -7,9 +7,11 @@ import RightSideBar from '../components/RightSideBar'
 import NewPostForm from '../posts/NewPostForm'
 import PostCard from '../posts/PostCard'
 import { usePostStore } from '@/store/usePostStore'
+import Chatbot from "../components/chatbot/page";
 
 const Homepage = () => {
   const [isPostFormOpen, setIsPostFormOpen] = useState(false)
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   //lấy các bài viết, story, phương thức từ usePostStore
   const { posts, fetchPosts, handleEditPost, handleReactPost, handleCommentPost, handleSharePost, handleDeletePost } = usePostStore();
   const router = useRouter()
@@ -38,23 +40,23 @@ const Homepage = () => {
             </div>
 
             <div className='mt-6 space-y-6'>
-              {posts.map((post, index) => (
-                <PostCard
-                  key={post._id || index}  // Dùng _id nếu có, nếu không dùng index để tránh cảnh báo
+              {posts.map(post => (
+                <PostCard key={post._id}
                   post={post}
                   onReact={async (reactType) => {
                     await handleReactPost(post?._id, reactType)
-                    await fetchPosts() // tải lại danh sách
-                  }}
-                  onComment={async (commentText) => {  // chức năng comment
+                    await fetchPosts()// tải lại danh sách
+                  }}  // chức năng react
+                  onComment={async (commentText) => {  //chức năng comment
+                    //console.log("onComment: ",commentText)
                     await handleCommentPost(post?._id, commentText)
                     await fetchPosts()
                   }}
-                  onShare={async () => {  // chức năng share
+                  onShare={async () => {  //chức năng share
                     await handleSharePost(post?._id)
                     await fetchPosts()
                   }}
-                  onDelete={async () => {  // chức năng xóa
+                  onDelete={async () => {  //chức năng xóa
                     await handleDeletePost(post?._id)
                     await fetchPosts()
                   }}
@@ -64,7 +66,6 @@ const Homepage = () => {
                   }}
                 />
               ))}
-
             </div>
           </div>
         </div>
@@ -73,7 +74,7 @@ const Homepage = () => {
         </div>
       </main>
       <button
-        onClick={() => handleNavigation("/chatbot")}
+        onClick={() => setIsChatbotOpen(true)}
         className="fixed bottom-6 right-6 w-16 h-16 bg-white rounded-full shadow-lg hover:scale-110 transition duration-300"
       >
         <img
@@ -82,6 +83,11 @@ const Homepage = () => {
           className="w-full h-full object-cover rounded-full"
         />
       </button>
+
+      <Chatbot
+        isOpen={isChatbotOpen}
+        onClose={() => setIsChatbotOpen(false)}
+      />
     </div>
   )
 }
