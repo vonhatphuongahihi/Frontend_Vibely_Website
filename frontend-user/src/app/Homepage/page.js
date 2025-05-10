@@ -7,9 +7,11 @@ import RightSideBar from '../components/RightSideBar'
 import NewPostForm from '../posts/NewPostForm'
 import PostCard from '../posts/PostCard'
 import { usePostStore } from '@/store/usePostStore'
+import Chatbot from "../components/chatbot/page";
 
 const Homepage = () => {
   const [isPostFormOpen, setIsPostFormOpen] = useState(false)
+  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   //lấy các bài viết, story, phương thức từ usePostStore
   const { posts, fetchPosts, handleEditPost, handleReactPost, handleCommentPost, handleSharePost, handleDeletePost } = usePostStore();
   const router = useRouter()
@@ -69,7 +71,6 @@ const Homepage = () => {
                   }}
                 />
               ))}
-
             </div>
           </div>
         </div>
@@ -78,7 +79,7 @@ const Homepage = () => {
         </div>
       </main>
       <button
-        onClick={() => handleNavigation("/chatbot")}
+        onClick={() => setIsChatbotOpen(true)}
         className="fixed bottom-6 right-6 w-16 h-16 bg-white rounded-full shadow-lg hover:scale-110 transition duration-300"
       >
         <img
@@ -87,6 +88,11 @@ const Homepage = () => {
           className="w-full h-full object-cover rounded-full"
         />
       </button>
+
+      <Chatbot
+        isOpen={isChatbotOpen}
+        onClose={() => setIsChatbotOpen(false)}
+      />
     </div>
   )
 }
