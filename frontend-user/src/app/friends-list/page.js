@@ -49,7 +49,7 @@ const Page = () => {
           ) : (
             friendRequest.map((friend) => (
               <FriendRequest
-                key={friend._id}
+                key={friend.id}
                 friend={friend}
                 loading={loading}
                 onAction={handleAction}
@@ -70,7 +70,7 @@ const Page = () => {
           ) : (
             friendSuggestion.map((friend) => (
               <FriendsSuggestion
-                key={friend._id}
+                key={friend.id}
                 friend={friend}
                 loading={loading}
                 onAction={handleAction}

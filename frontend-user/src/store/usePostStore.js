@@ -50,7 +50,7 @@ export const usePostStore = create((set) => ({
     },
 
     handleCreatePost: async (postData) => {
-        set({ loading: true })
+
         try {
             const newPost = await createPost(postData)
             set((state) => ({
@@ -70,7 +70,7 @@ export const usePostStore = create((set) => ({
             const editedPost = await editPost(postId, postData)
             set((state) => ({
                 posts: state.posts.map((post) =>
-                    post?._id === postId
+                    post?.id === postId
                         ? editedPost
                         : post
                 ),
@@ -110,12 +110,13 @@ export const usePostStore = create((set) => ({
     },
 
     handleReactPost: async (postId, reactType) => {
+        console.log("postId", postId);
         set({ loading: true });
         try {
             const updatedStats = await reactPost(postId, reactType);
             set((state) => ({
                 posts: state.posts.map(post =>
-                    post._id === postId ? { ...post, reactionStats: updatedStats.reactionStats } : post
+                    post.id === postId ? { ...post, reactionStats: updatedStats.reactionStats } : post
                 ),
                 loading: false
             }));
@@ -130,7 +131,7 @@ export const usePostStore = create((set) => ({
             const updatedStats = await reactStory(storyId);
             set((state) => ({
                 stories: state.stories.map(story =>
-                    story._id === storyId ? { ...story, reactionStats: updatedStats.reactionStats } : story
+                    story.id === storyId ? { ...story, reactionStats: updatedStats.reactionStats } : story
                 ),
                 loading: false
             }));
@@ -146,9 +147,9 @@ export const usePostStore = create((set) => ({
             const newComment = await addCommentToPost(postId, commentText)
             set((state) => ({
                 posts: state.posts.map((post) =>
-                    post?._id === postId
+                    post?.id === postId
                         ? newComment?.data   //object trả về là nguyên cái bài viết chứ ko phải mỗi cmt :))
-                        //thêm 1 comment vào phẩn cuối danh sách comments của 1 bài viết với _id là postId
+                        //thêm 1 comment vào phẩn cuối danh sách comments của 1 bài viết với id là postId
                         : post
                 ),
                 loading: false
@@ -166,7 +167,7 @@ export const usePostStore = create((set) => ({
             const newReply = await addReplyToPost(postId, commentId, replyText)
             set((state) => ({
                 posts: state.posts.map((post) =>
-                    post?._id === postId
+                    post?.id === postId
                         ? newReply?.data
                         : post
                 ),
@@ -229,7 +230,7 @@ export const usePostStore = create((set) => ({
             const newReply = await likeComment(postId, commentId)
             set((state) => ({
                 posts: state.posts.map((post) =>
-                    post?._id === postId
+                    post?.id === postId
                         ? newReply?.data
                         : post
                 ),

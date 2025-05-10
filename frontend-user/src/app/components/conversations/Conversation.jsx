@@ -1,14 +1,14 @@
 import "./conversation.css";
 
 export default function Conversation({ friend, currentChat }) {
-  const isActive = currentChat?.members?.includes(friend._id);
+  const isActive = currentChat?.members?.includes(friend.id);
 
   // Đoạn hội thoại
   return (
     <div>
       <div
         className={`conversation ${isActive ? "bg-[#CDE8FF]" : "hover:bg-[#E8F4FF]"}`}
-        key={friend?._id}>
+        key={friend?.id}>
         <img
           className="conversationImg"
           src={friend?.profilePicture || "/images/user_default.jpg"}

@@ -40,7 +40,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       setLoading(true)
       const formData = new FormData()
       if (selectedFile) {
-        formData.append('media', selectedFile)
+        formData.append('file', selectedFile)
       }
       await handleCreateStory(formData)
       resetStoryState()
@@ -69,6 +69,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
     setIsNewStory(false)
   }
 
+  console.log({ isNewStory, user, story })
 
   return (
     <>
@@ -148,7 +149,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
           avatar={isNewStory ? user?.profilePicture : story?.user?.profilePicture}
           isLoading={loading}
           reactions={story?.reactions}
-          reaction={story?.reactions?.find(react => react?.user?._id.toString() == user?._id) ? "tym" : null}
+          reaction={story?.reactions?.find(react => react?.user?.id.toString() == user?.id) ? "tym" : null}
           onReact={(reactType) => onReact(reactType)}  // chức năng react
           onDelete={() => onDelete()}
         />

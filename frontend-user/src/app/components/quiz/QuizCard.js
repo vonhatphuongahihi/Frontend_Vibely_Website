@@ -52,7 +52,7 @@ function QuizCard({ singleQuiz }) {
                 </div>
 
                 <Link
-                    href={`/quiz/${singleQuiz._id}`}
+                    href={`/quiz/${singleQuiz.id}`}
                     className="bg-blue-400 hover:bg-blue-600 text-white py-2 px-4 rounded-full transition-colors duration-300 flex items-center justify-center w-9 h-9"
                 >
                     <FontAwesomeIcon

@@ -59,7 +59,7 @@ const Schedule = () => {
                 categoryColor: event.CategoryColor || "#0000FF"
             });
 
-            setEvents([...events, { ...event, Id: result.data._id }]);
+            setEvents([...events, { ...event, Id: result.data.id }]);
         } catch (error) {
             console.error("❌ Lỗi khi thêm lịch trình:", error);
         }

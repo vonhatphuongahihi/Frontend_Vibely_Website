@@ -35,11 +35,11 @@ const FriendRequest = ({ friend, onAction }) => {
           <Button
             className="bg-blue-500 text-white"
             size="lg"
-            onClick={() => onAction("confirm", friend?._id)}
+            onClick={() => onAction("confirm", friend?.id)}
           >
             <UserPlus className="mr-2 h-4 w-4" /> Xác nhận
           </Button>
-          <Button className="bg-gray-200 mt-2" size="lg" onClick={() => onAction("delete", friend?._id)}>
+          <Button className="bg-gray-200 mt-2" size="lg" onClick={() => onAction("delete", friend?.id)}>
             <UserMinus className="mr-2 h-4 w-4" /> Xóa
           </Button>
         </div>

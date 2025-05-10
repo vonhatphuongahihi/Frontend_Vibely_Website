@@ -287,6 +287,7 @@ const GoalTreePage = () => {
             if (response.status === 200) {
                 const { goal, tree: updatedTree, newAchievements } = response.data;
 
+                // Update goals list
                 setGoals(goals.map(g => g.id === goal.id ? goal : g));
 
                 if (updatedTree) {
@@ -311,6 +312,7 @@ const GoalTreePage = () => {
     const handleDeleteGoal = async (id) => {
         try {
             const goal = goals.find(g => g.id === id);
+            if (!goal.is_completed) {
             if (!goal.completed) {
                 // Nếu mục tiêu chưa hoàn thành thì xóa khỏi database
                 if (!token) {
@@ -449,6 +451,7 @@ const GoalTreePage = () => {
                                     <div className="flex items-center space-x-3">
                                         <button
                                             onClick={() => handleToggleGoal(goal.id)}
+                                            className={`w-6 h-6 rounded-full border-2 ${goal.is_completed ? 'border-green-500 bg-green-500' : 'border-gray-300'} relative flex items-center justify-center`}
                                             className={`w-6 h-6 rounded-full border-2 ${goal.completed ? 'border-green-500 bg-green-500' : 'border-gray-300'} relative flex items-center justify-center`}
                                         >
                                             {goal.completed && (

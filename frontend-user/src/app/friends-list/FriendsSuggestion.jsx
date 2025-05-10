@@ -35,7 +35,7 @@ const FriendsSuggestion = ({ friend, onAction }) => {
           <Button
             className="bg-blue-500 text-white"
             size="lg"
-            onClick={() => onAction("makeFriend", friend?._id)}
+            onClick={() => onAction("makeFriend", friend?.id)}
           >
             <UserPlus className="mr-2 h-4 w-4" /> Kết bạn
           </Button>

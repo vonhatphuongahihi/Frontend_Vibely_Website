@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import userStore from '@/store/userStore'
 
 const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userStory, avatar, isLoading, onReact, reaction, reactions, onDelete }) => {
+    console.log({ userStory })
     const userPlaceholder = userStory?.username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
     //xóa tin (dành cho người đăng tin)
     const handleDeleteStory = () => {
@@ -14,6 +15,7 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
         onClose();
     }
     const { user } = userStore()
+    console.log({ id: user?.id, userStoryId: userStory?.id })
     return (
         <div className='fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50'>
             <div className='relative w-full max-w-md h-[70vh] flex flex-col bg-white rounded-lg overflow-hidden'>
@@ -64,10 +66,10 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                     </div>
                 )}
                 {/*tym*/}
-                {!isNewStory && (
+                {!isNewStory && user && userStory && (
                     <div>
                         {/*Chỉ người đăng tin mới xem được số lượt tim và có thể xóa story*/}
-                        {user._id === userStory._id && (
+                        {user?.id === userStory?.id && (
                             <div>
                                 <div className='absolute bottom-20 left-5 transform flex gap-5'>
                                     <Image src={"/love.png"} alt="loved" width={24} height={24} />

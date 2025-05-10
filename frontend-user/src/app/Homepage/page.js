@@ -20,8 +20,13 @@ const Homepage = () => {
     window.open(path, "_blank")
   }
   useEffect(() => {
-    fetchPosts()  //tải các bài viết
-  }, [fetchPosts])
+    const token = localStorage.getItem("auth_token");
+    if (!token) {
+      router.replace("/user-login");
+      return;
+    }
+    fetchPosts(); //tải các bài viết
+  }, [fetchPosts, router]);
 
   return (
     <div className="flex flex-col min-h-screen text-foreground">
@@ -40,28 +45,28 @@ const Homepage = () => {
             </div>
 
             <div className='mt-6 space-y-6'>
-              {posts.map(post => (
-                <PostCard key={post._id}
+              {posts.map((post, index) => (
+                <PostCard
+                  key={post.id || index}  // Dùng id nếu có, nếu không dùng index để tránh cảnh báo
                   post={post}
                   onReact={async (reactType) => {
-                    await handleReactPost(post?._id, reactType)
-                    await fetchPosts()// tải lại danh sách
-                  }}  // chức năng react
-                  onComment={async (commentText) => {  //chức năng comment
-                    //console.log("onComment: ",commentText)
-                    await handleCommentPost(post?._id, commentText)
+                    await handleReactPost(post?.id, reactType)
+                    await fetchPosts() // tải lại danh sách
+                  }}
+                  onComment={async (commentText) => {  // chức năng comment
+                    await handleCommentPost(post?.id, commentText)
                     await fetchPosts()
                   }}
-                  onShare={async () => {  //chức năng share
-                    await handleSharePost(post?._id)
+                  onShare={async () => {  // chức năng share
+                    await handleSharePost(post?.id)
                     await fetchPosts()
                   }}
-                  onDelete={async () => {  //chức năng xóa
-                    await handleDeletePost(post?._id)
+                  onDelete={async () => {  // chức năng xóa
+                    await handleDeletePost(post?.id)
                     await fetchPosts()
                   }}
                   onEdit={async (postData) => {
-                    await handleEditPost(post?._id, postData)
+                    await handleEditPost(post?.id, postData)
                     await fetchPosts()
                   }}
                 />

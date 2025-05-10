@@ -106,7 +106,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
               <Button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 variant="ghost"
-                className={`hover:bg-gray-100 ${comment?.user?._id === user?._id ? "flex" : "hidden"
+                className={`hover:bg-gray-100 ${comment?.user?.id === user?.id ? "flex" : "hidden"
                   }`} //chủ cmt mới có option này
               >
                 <MoreHorizontal className="h-4 w-4" />
@@ -171,7 +171,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
             <Button
               variant="ghost"
               size="sm"
-              className={`px-2 hover:underline ${comment?.reactions?.find((react => react?.user.toString() == user?._id)) ? "text-[#54C8FD]" : ""}`}
+              className={`px-2 hover:underline ${comment?.reactions?.find((react => react?.user.toString() == user?.id)) ? "text-[#54C8FD]" : ""}`}
               onClick={() => { handleLikeComment() }}
             >
               Thích
@@ -192,9 +192,9 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
             className="font-semibold text-[13px] text-gray-500 px-2 hover:underline cursor-pointer"
             onClick={() => setShowReplies(!showReplies)}
           >
-            {comment.replies.length > 0
+            {comment?.replies?.length > 0
               ? !showReplies
-                ? "Hiện tất cả " + comment.replies.length + " phản hồi"
+                ? "Hiện tất cả " + comment?.replies?.length + " phản hồi"
                 : "Ẩn phản hồi"
               : null}
           </div>
@@ -210,9 +210,9 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
             >
               {/*Avt người đăng phản hồi*/}
               <Avatar className="h-8 w-8">
-                {reply.user?.profilePicture ? (
+                {reply?.user?.profilePicture ? (
                   <AvatarImage
-                    src={reply.user?.profilePicture}
+                    src={reply?.user?.profilePicture}
                     alt={reply?.user?.username}
                   />
                 ) : (
@@ -237,17 +237,17 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
                     <Button
                       onClick={() =>
                         setDropdownReplyOpen(
-                          dropdownReplyOpen === reply?._id ? null : reply?._id
+                          dropdownReplyOpen === reply?.id ? null : reply?.id
                         )
                       } //lưu id reply thay vì true/false
                       variant="ghost"
-                      className={`hover:bg-gray-100 ${reply?.user?._id === user?._id ? "flex" : "hidden"
+                      className={`hover:bg-gray-100 ${reply?.user?.id === user?.id ? "flex" : "hidden"
                         }`} //chủ reply mới có option này
                     >
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
                     {/*Dropdown xóa reply*/}
-                    {dropdownReplyOpen === reply?._id && (
+                    {dropdownReplyOpen === reply?.id && (
                       <div
                         className="absolute top-10 right-10 translate-x-full w-40 bg-white border border-gray-300 rounded-md shadow-lg"
                         ref={dropdownRef}
@@ -256,7 +256,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
                           className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200 flex items-center gap-2"
                           onClick={() => {
                             setDropdownReplyOpen(null);
-                            onDeleteReply(reply?._id);
+                            onDeleteReply(reply?.id);
                           }}
                         >
                           <AiOutlineDelete

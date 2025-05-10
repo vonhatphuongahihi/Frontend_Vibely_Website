@@ -149,8 +149,8 @@ const DocumentDetail = () => {
                         variant="default"
                         size="lg"
                         className="w-full bg-[#086280] hover:bg-[#07556F] text-white rounded-lg flex items-center justify-center text-[16px]"
-                        onClick={() => document?._id && saveDocument(document._id)}
-                        disabled={!document?._id}
+                        onClick={() => document?.id && saveDocument(document.id)}
+                        disabled={!document?.id}
                     >
                         <FaBookmark /> Lưu tài liệu
                     </Button>

@@ -43,10 +43,10 @@ export const SavedDocuments = () => {
                     <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
                         {savedDocuments.map((doc) => (
                             <div
-                                key={doc._id}
+                                key={doc.id}
                                 className="relative flex flex-col p-4 border border-gray-200 rounded-lg shadow-md bg-white
                                     cursor-pointer hover:shadow-xl transition-all duration-200 ease-in hover:bg-[#086280]/15"
-                                onClick={() => handleNavigation(`/saved/${doc._id}`)}
+                                onClick={() => handleNavigation(`/saved/${doc.id}`)}
                             >
                                 {/* Icon File */}
                                 <div className="flex justify-center mb-3">
@@ -72,7 +72,7 @@ export const SavedDocuments = () => {
                                         hover:bg-[#086280] hover:text-white transition-all duration-200 ease-in"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        handleUnsaveDocument(doc._id);
+                                        handleUnsaveDocument(doc.id);
                                     }}
                                 >
                                     <GoBookmarkSlashFill/>
