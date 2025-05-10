@@ -1,16 +1,18 @@
 'use client'
 import Loader from "@/lib/Loader";
-import { checkUserAuth, logout } from "@/service/auth.service";
+import { checkUserAuth, logout, handleSocialCallback } from "@/service/auth.service";
 import userStore from "@/store/userStore";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import Header from "./components/Header";
 import { io } from "socket.io-client";
+import toast from "react-hot-toast";
 
 export default function AuthWrapper({ children }) {
     const { setUser, clearUser, user } = userStore();
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const socketRef = useRef(null);
@@ -18,6 +20,32 @@ export default function AuthWrapper({ children }) {
 
     const publicPages = ["/user-login", "/forgot-password", "/reset-password"];
     const isPublicPage = publicPages.some((publicPath) => pathname.startsWith(publicPath));
+
+    // Xử lý callback từ social login
+    useEffect(() => {
+        const token = searchParams.get('token');
+        const userId = searchParams.get('userId');
+        const email = searchParams.get('email');
+        const username = searchParams.get('username');
+        const error = searchParams.get('error');
+
+        if (token && userId && email && username) {
+            handleSocialCallback(token, userId, email, username)
+                .then(() => {
+                    toast.success('Đăng nhập thành công');
+                    router.push('/');
+                })
+                .catch((error) => {
+                    console.error('Lỗi xử lý callback:', error);
+                    toast.error('Đăng nhập thất bại: ' + (error.message || 'Lỗi không xác định'));
+                    router.push('/user-login');
+                });
+        } else if (error) {
+            console.error('Lỗi đăng nhập:', error);
+            toast.error('Đăng nhập thất bại: ' + error);
+            router.push('/user-login');
+        }
+    }, [searchParams, router]);
 
     const connectSocket = (userId) => {
         if (userId && !socketRef.current) {
