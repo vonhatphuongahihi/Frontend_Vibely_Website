@@ -62,7 +62,7 @@ const Chatbot = () => {
                 }
 
                 const data = await response.json();
-                setChatId(data._id);
+                setChatId(data.id);
             } else {
                 // Nếu đã có chatId, thêm câu hỏi vào cuộc hội thoại hiện tại
                 const response = await fetch(`${API_URL}/chatbot/${chatId}`, {

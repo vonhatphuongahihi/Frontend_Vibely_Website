@@ -157,11 +157,11 @@ const DocumentPage = () => {
                     </div>
                     {levels.map((level) => (
                         <div
-                            key={level._id}
+                            key={level.id}
                             className={`w-full px-4 py-2 rounded-lg cursor-pointer 
-                                ${selectedLevelId === level._id ? "bg-[#086280] text-white" : "bg-white hover:bg-gray-200"}`}
+                                ${selectedLevelId === level.id ? "bg-[#086280] text-white" : "bg-white hover:bg-gray-200"}`}
                             onClick={() => {
-                                setSelectedLevelId(level._id);
+                                setSelectedLevelId(level.id);
                                 setSelectedSubjectId(null);
                             }}
                         >
@@ -185,10 +185,10 @@ const DocumentPage = () => {
                         </div>
                         {subjects.map((subject) => (
                             <div
-                                key={subject._id}
+                                key={subject.id}
                                 className={`w-full px-4 py-2 rounded-lg cursor-pointer 
-                                    ${selectedSubjectId === subject._id ? "bg-[#086280] text-white" : "bg-white hover:bg-gray-200"}`}
-                                onClick={() => setSelectedSubjectId(subject._id)}
+                                    ${selectedSubjectId === subject.id ? "bg-[#086280] text-white" : "bg-white hover:bg-gray-200"}`}
+                                onClick={() => setSelectedSubjectId(subject.id)}
                             >
                                 {subject.name}
                             </div>
@@ -202,10 +202,10 @@ const DocumentPage = () => {
                 <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mt-4">
                     {documents.map((doc) => (
                         <div
-                            key={doc._id}
+                            key={doc.id}
                             className="border border-gray-300 p-4 rounded-lg shadow-md bg-white cursor-pointer 
                                 hover:shadow-xl transition-all duration-200 ease-in hover:bg-[#086280]/15"
-                            onClick={() => router.push(`/document/${doc._id}`)}
+                            onClick={() => router.push(`/document/${doc.id}`)}
                         >
                             <div className="flex justify-center mb-3">
                                 <img

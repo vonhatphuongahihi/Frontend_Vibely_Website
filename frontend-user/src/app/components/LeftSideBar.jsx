@@ -34,7 +34,7 @@ const LeftSideBar = () => {
         {/* navigation menu yaha pr */}
 
         <nav className="space-y-6 flex-grow">
-          <div className="flex items-center space-x-2 cursor-pointer pb-2 " onClick={() => handleNavigation(`/user-profile/${user?._id}`)}>
+          <div className="flex items-center space-x-2 cursor-pointer pb-2 " onClick={() => handleNavigation(`/user-profile/${user?.id}`)}>
             <Avatar className="h-9 w-9 ml-4 mt-2">
 
               {user?.profilePicture ? (

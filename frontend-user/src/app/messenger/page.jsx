@@ -53,7 +53,7 @@ const Messenger = () => {
             socket.current.on("messageRead", ({ messageId, userId }) => {
                 setMessages(prevMessages =>
                     prevMessages.map(msg =>
-                        msg._id === messageId
+                        msg.id === messageId
                             ? {
                                 ...msg,
                                 readBy: [...(msg.readBy || []), userId],
@@ -75,7 +75,7 @@ const Messenger = () => {
 
     // Thêm user vào danh sách online
     useEffect(() => {
-        if (user?._id && socket.current) {
+        if (user?.id && socket.current) {
             // Lắng nghe sự kiện getUsers để cập nhật danh sách online users
             socket.current.on("getUsers", (users) => {
                 console.log("Messenger received online users:", users);
@@ -111,12 +111,12 @@ const Messenger = () => {
 
     // Lấy danh sách bạn bè của user
     useEffect(() => {
-        if (!user || !user._id) return;
+        if (!user || !user.id) return;
 
         const getFriends = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await axios.get(`${API_URL}/users/mutual-friends/${user._id}`, {
+                const res = await axios.get(`${API_URL}/users/mutual-friends/${user.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setFriends(res.data.data);
@@ -129,11 +129,11 @@ const Messenger = () => {
 
     // Lấy tin nhắn khi currentChat thay đổi
     useEffect(() => {
-        if (!currentChat || !currentChat._id) return;
+        if (!currentChat || !currentChat.id) return;
 
         const getMessages = async () => {
             try {
-                const res = await axios.get(`${API_URL}/message/${currentChat._id}`);
+                const res = await axios.get(`${API_URL}/message/${currentChat.id}`);
                 setMessages(res.data);
             } catch (err) {
                 console.error("❌ Lỗi khi lấy tin nhắn:", err);
@@ -148,9 +148,9 @@ const Messenger = () => {
         e.preventDefault();
 
         const message = {
-            sender: user._id,
+            sender: user.id,
             text: newMessage,
-            conversationId: currentChat._id,
+            conversationId: currentChat.id,
         };
 
         try {
@@ -160,10 +160,10 @@ const Messenger = () => {
 
             // Gửi tin nhắn qua socket với đầy đủ thông tin
             socket.current.emit("sendMessage", {
-                senderId: user._id,
-                receiverId: currentChat.members.find(member => member !== user._id),
+                senderId: user.id,
+                receiverId: currentChat.members.find(member => member !== user.id),
                 text: newMessage,
-                messageId: res.data._id // Gửi kèm ID tin nhắn
+                messageId: res.data.id // Gửi kèm ID tin nhắn
             });
         } catch (err) {
             console.error("❌ Lỗi khi gửi tin nhắn:", err);
@@ -214,15 +214,15 @@ const Messenger = () => {
     // Lấy biệt danh khi conversation hoặc selectedFriend thay đổi
     useEffect(() => {
         const getNicknames = async () => {
-            if (!currentChat || !currentChat._id || !selectedFriend || !user) return;
+            if (!currentChat || !currentChat.id || !selectedFriend || !user) return;
 
             try {
                 // Lấy biệt danh của người bạn đang chat
-                const friendNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat._id}/${selectedFriend._id}`);
+                const friendNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${selectedFriend.id}`);
                 setFriendNickname(friendNicknameRes.data.nickname);
 
                 // Lấy biệt danh của bạn
-                const myNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat._id}/${user._id}`);
+                const myNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${user.id}`);
                 setMyNickname(myNicknameRes.data.nickname);
             } catch (err) {
                 console.error("Lỗi khi lấy biệt danh:", err);
@@ -237,13 +237,13 @@ const Messenger = () => {
         if (newNickname !== null) { // Người dùng không nhấn cancel
             try {
                 await axios.put(`${API_URL}/conversation/nickname`, {
-                    conversationId: currentChat._id,
+                    conversationId: currentChat.id,
                     userId: userId,
                     nickname: newNickname,
                 });
 
                 // Cập nhật state
-                if (userId === user._id) {
+                if (userId === user.id) {
                     setMyNickname(newNickname);
                 } else {
                     setFriendNickname(newNickname);
@@ -256,7 +256,7 @@ const Messenger = () => {
 
     const handleDeleteChat = async () => {
         try {
-            await axios.delete(`${API_URL}/conversation/${currentChat._id}`);
+            await axios.delete(`${API_URL}/conversation/${currentChat.id}`);
             setCurrentChat(null);
             setShowDeleteModal(false);
         } catch (err) {
@@ -281,7 +281,7 @@ const Messenger = () => {
     const changeColor = async (newColor) => {
         try {
             await axios.put(`${API_URL}/conversation/color`, {
-                conversationId: currentChat._id,
+                conversationId: currentChat.id,
                 color: newColor
             });
 
@@ -298,30 +298,30 @@ const Messenger = () => {
 
         try {
             const unreadMessages = messages.filter(msg =>
-                msg.sender !== user._id && // Tin nhắn của người khác gửi
-                !msg.readBy?.includes(user._id) // Chưa được đánh dấu là đã đọc
+                msg.sender !== user.id && // Tin nhắn của người khác gửi
+                !msg.readBy?.includes(user.id) // Chưa được đánh dấu là đã đọc
             );
 
             // Gọi API markMessageAsRead cho từng tin nhắn chưa đọc
             for (const msg of unreadMessages) {
                 try {
                     await axios.post(`${API_URL}/message/read`, {
-                        messageId: msg._id,
-                        userId: user._id
+                        messageId: msg.id,
+                        userId: user.id
                     });
 
                     // Cập nhật state messages ngay lập tức
                     setMessages(prev => prev.map(m =>
-                        m._id === msg._id
+                        m.id === msg.id
                             ? {
                                 ...m,
-                                readBy: [...(m.readBy || []), user._id],
+                                readBy: [...(m.readBy || []), user.id],
                                 isRead: true
                             }
                             : m
                     ));
                 } catch (err) {
-                    console.error(`Lỗi khi đánh dấu tin nhắn ${msg._id} đã đọc:`, err);
+                    console.error(`Lỗi khi đánh dấu tin nhắn ${msg.id} đã đọc:`, err);
                 }
             }
         } catch (err) {
@@ -374,19 +374,19 @@ const Messenger = () => {
                     </div>
                     <div className="md:hidden w-screen">
                         <div className="p-2 h-[100%]">
-                            {user && <ChatOnline onlineUsers={onlineUsers} currentId={user._id} setCurrentChat={setCurrentChat} setSelectedFriend={setSelectedFriend} mode={"mobile"} />}
+                            {user && <ChatOnline onlineUsers={onlineUsers} currentId={user.id} setCurrentChat={setCurrentChat} setSelectedFriend={setSelectedFriend} mode={"mobile"} />}
                         </div>
                     </div>
                     {/* Danh sách hội thoại */}
                     {displayedFriends.length > 0 ? (
                         displayedFriends.map((friend) => (
                             <button
-                                key={friend._id}
+                                key={friend.id}
                                 onClick={async () => {
                                     try {
                                         const res = await axios.post(`${API_URL}/conversation`, {
-                                            senderId: user._id,
-                                            receiverId: friend._id,
+                                            senderId: user.id,
+                                            receiverId: friend.id,
                                         });
                                         setCurrentChat(res.data);
                                         setSelectedFriend(friend);
@@ -465,8 +465,8 @@ const Messenger = () => {
                             <div className="chatBoxTop">
                                 {messages.length > 0 ? (
                                     messages.map((msg) => (
-                                        <div key={msg._id} ref={scrollRef} data-message-id={msg._id}>
-                                            <Message message={msg} own={msg.sender === user._id} />
+                                        <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
+                                            <Message message={msg} own={msg.sender === user.id} />
                                         </div>
                                     ))
                                 ) : (
@@ -565,8 +565,8 @@ const Messenger = () => {
                         <div className="chatBoxTop">
                             {messages.length > 0 ? (
                                 messages.map((msg) => (
-                                    <div key={msg._id} ref={scrollRef}>
-                                        <Message message={msg} own={msg.sender === user._id} />
+                                    <div key={msg.id} ref={scrollRef}>
+                                        <Message message={msg} own={msg.sender === user.id} />
                                     </div>
                                 ))
                             ) : (
@@ -597,7 +597,7 @@ const Messenger = () => {
             {/* Danh sách bạn bè online */}
             <div className="hidden md:block chatOnline">
                 <div className="chatOnlineWrapper">
-                    {user && <ChatOnline onlineUsers={onlineUsers} currentId={user._id} setCurrentChat={setCurrentChat} setSelectedFriend={setSelectedFriend} />}
+                    {user && <ChatOnline onlineUsers={onlineUsers} currentId={user.id} setCurrentChat={setCurrentChat} setSelectedFriend={setSelectedFriend} />}
                 </div>
             </div>
 
@@ -636,7 +636,7 @@ const Messenger = () => {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => setUserNickname(user?._id, user?.username, myNickname)}
+                                    onClick={() => setUserNickname(user?.id, user?.username, myNickname)}
                                     className="text-gray-600 hover:text-gray-800"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -661,7 +661,7 @@ const Messenger = () => {
                                     </div>
                                 </div>
                                 <button
-                                    onClick={() => setUserNickname(selectedFriend?._id, selectedFriend?.username, friendNickname)}
+                                    onClick={() => setUserNickname(selectedFriend?.id, selectedFriend?.username, friendNickname)}
                                     className="text-gray-600 hover:text-gray-800"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

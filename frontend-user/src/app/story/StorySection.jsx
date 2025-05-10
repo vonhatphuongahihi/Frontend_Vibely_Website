@@ -64,13 +64,13 @@ const StorySection = () => {
           <StoryCard isAddStory={true} />  {/*Card Thêm tin */}
           {/*Danh sách các story*/}
           {stories?.map((story) => (
-            <StoryCard story={story} key={story._id}
+            <StoryCard story={story} key={story.id}
               onReact={async (reactType) => {
-                await handleReactStory(story?._id, reactType)
+                await handleReactStory(story?.id, reactType)
                 await fetchStories()// tải lại danh sách
               }}
               onDelete={async () => {
-                await handleDeleteStory(story?._id)
+                await handleDeleteStory(story?.id)
                 await fetchStories()
               }} />
           ))}

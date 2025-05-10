@@ -31,31 +31,44 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
   const [fileType, setFileType] = useState("")
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null)
+  
   const handleFileChange = (event) => {
-    const file = event.target.files[0]
-    setSelectedFile(file)
-    setFileType(file.type)
-    setFilePreview(URL.createObjectURL(file))
-  }
+    const file = event.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      setFileType(file.type);
+      setFilePreview(URL.createObjectURL(file));
+    }
+  };
+
+  
   // đăng bài
   const handlePost = async () => {
     try {
-      setLoading(true)
-      const formData = new FormData()
-      formData.append('content', postContent)
-      if (selectedFile) {
-        formData.append('media', selectedFile)
+      setLoading(true);
+  
+      const formData = new FormData();
+      formData.append("content", postContent);
+  
+      if (selectedFile instanceof File) {
+        formData.append("file", selectedFile, selectedFile.name);
+      } else {
+        console.warn("selectedFile is not a valid File instance:", selectedFile);
       }
-      await handleCreatePost(formData)
-      setPostContent('')
-      setSelectedFile(null)
-      setFilePreview(null)
-      setIsPostFormOpen(false)
+  
+      await handleCreatePost(formData);
+      
+      // Reset state
+      setPostContent("");
+      setSelectedFile(null);
+      setFilePreview(null);
+      setIsPostFormOpen(false);
     } catch (error) {
-      //console.log(error)
-      setLoading(false)
+      console.error("Error posting:", error);
+      setLoading(false);
     }
-  }
+  };
+  
 
   useEffect(() => {
     if (defaultImage) {

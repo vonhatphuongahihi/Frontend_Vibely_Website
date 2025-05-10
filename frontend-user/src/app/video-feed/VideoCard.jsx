@@ -39,7 +39,7 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [reactionUserGroups, setReactionUserGroups] = useState({}); // Lưu danh sách user theo từng reaction
   const [currentReactionDetail, setCurrentReaction] = useState("like");
   useEffect(() => {
-    setReaction(post?.reactions?.find(react => react?.user?._id == user?._id) ? post?.reactions?.find(react => react?.user?._id == user?._id).type : null)
+    setReaction(post?.reactions?.find(react => react?.user?.id == user?.id) ? post?.reactions?.find(react => react?.user?.id == user?.id).type : null)
     //đảm bảo object hợp lệ
     if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
       setTopReactions([]);
@@ -62,11 +62,11 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
 
   const handleUserProfile = () => {
-    router.push(`/user-profile/${post?.user?._id}`)
+    router.push(`/user-profile/${post?.user?.id}`)
   }
   //Các biến và hàm cho Chia Sẻ Bài Viết
   const generateSharedLink = () => {
-    return `http://localhost:3000/posts/${post?._id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
+    return `http://localhost:3000/posts/${post?.id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
   };
   const handleShare = (platform) => {
     const url = generateSharedLink();
@@ -256,7 +256,7 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
           </div>
           {reactionUserGroups?.[currentReactionDetail]?.map((user, index) => {
             return (
-              <div key={index} className="flex items-center space-x-2 cursor-pointer mb-2 " onClick={() => router.push(`/user-profile/${user?._id}`)}>
+              <div key={index} className="flex items-center space-x-2 cursor-pointer mb-2 " onClick={() => router.push(`/user-profile/${user?.id}`)}>
                 <Avatar className="h-10 w-10 ml-2">
                   {user?.profilePicture ? (
                     <AvatarImage
@@ -385,7 +385,7 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   }
   return (
     <motion.div
-      key={post?._id}
+      key={post?.id}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}

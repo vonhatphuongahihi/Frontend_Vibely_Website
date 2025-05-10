@@ -33,7 +33,7 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
   // Lọc danh sách bạn bè đang online
   useEffect(() => {
     if (friends.length > 0 && onlineUsers.length > 0) {
-      const onlineOnly = friends.filter((friend) => onlineUsers.includes(friend._id));
+      const onlineOnly = friends.filter((friend) => onlineUsers.includes(friend.id));
       setOnlineFriends(onlineOnly);
     } else {
       setOnlineFriends([]);
@@ -45,7 +45,7 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
     try {
       const res = await axios.post(`${API_URL}/conversation`, {
         senderId: currentId,
-        receiverId: user._id,
+        receiverId: user.id,
       });
       setCurrentChat(res.data);
       setSelectedFriend(user);
@@ -103,7 +103,7 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
             {onlineFriends.length > 0 ? (
               <>
                 {onlineFriends.map((online) => (
-                  <div className="flex flex-col items-center flex-shrink-0 cursor-pointer w-[84px]" key={online._id} onClick={() => { handleClick(online) }}>
+                  <div className="flex flex-col items-center flex-shrink-0 cursor-pointer w-[84px]" key={online.id} onClick={() => { handleClick(online) }}>
                     <div className="relative flex items-center w-[72px]">
                       <img className="object-contain rounded-full w-16 h-16" src={online.profilePicture || "images/user_default.jpg"} alt={online.username} />
                       <div className="bg-[#4CAF50] rounded-full w-4 h-4 absolute bottom-1 right-1 border-white border"></div>
@@ -126,7 +126,7 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
           {onlineFriends.length > 0 ? (
             <>
               {onlineFriends.map((online) => (
-                <div className="chatOnlineFriend" key={online._id} onClick={() => { handleClick(online) }}>
+                <div className="chatOnlineFriend" key={online.id} onClick={() => { handleClick(online) }}>
                   <div className="chatOnlineImgContainer">
                     <img className="chatOnlineImg" src={online.profilePicture || "images/user_default.jpg"} alt={online.username} />
                     <div className="chatOnlineBadge"></div>

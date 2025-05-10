@@ -103,36 +103,36 @@ export const ProfileDetails = ({
 
   const userVideos = [
     {
-      _id: 1,
+      id: 1,
       thumbnail: "https://i.ytimg.com/vi/3aNuJnzVjhE/maxresdefault.jpg",
     },
     {
-      _id: 2,
+      id: 2,
       thumbnail:
         "https://i.ytimg.com/vi/GEqCju1U0kA/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCwi90iiJnBNbFKhUdZHQbXwIDpqw",
     },
     {
-      _id: 3,
+      id: 3,
       thumbnail:
         "https://i.ytimg.com/vi/UzOlPj-I0bM/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEXyhSNC1A8CM0dElDYCRpoTIerg",
     },
     {
-      _id: 4,
+      id: 4,
       thumbnail:
         "https://i.ytimg.com/vi/CkPHIVrTwzI/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLB4Pbkea19pib3VfNRycRdg_YqKfw",
     },
     {
-      _id: 5,
+      id: 5,
       thumbnail:
         "https://img.vietcetera.com/uploads/images/02-nov-2021/real-time-study-with-me-with-music-3-00-19-14-1613640165.jpg",
     },
     {
-      _id: 6,
+      id: 6,
       thumbnail:
         "https://i.ytimg.com/vi/1ex_bNIFR1A/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCnyWx4Qein0GIzXqaRHNDpUQ8prg",
     },
     {
-      _id: 7,
+      id: 7,
       thumbnail:
         "https://static.ybox.vn/2021/4/6/1619279350970-ezgif.com-resize.jpg",
     },
@@ -249,18 +249,18 @@ export const ProfileDetails = ({
           {userPosts?.length > 0 ? (
             userPosts.map((post) => (
               <PostsContent
-                key={post?._id}
+                key={post?.id}
                 post={post}
-                reaction={reactPosts[post?._id] || null} // Loại react
-                onReact={(reactType) => handleReact(post?._id, reactType)} // Chức năng react
+                reaction={reactPosts[post?.id] || null} // Loại react
+                onReact={(reactType) => handleReact(post?.id, reactType)} // Chức năng react
                 onComment={async (commentText) => {
                   // Chức năng comment
-                  await handleCommentPost(post?._id, commentText);
+                  await handleCommentPost(post?.id, commentText);
                   await fetchUserPost(id);
                 }}
                 onShare={async () => {
                   // Chức năng share
-                  await handleSharePost(post?._id);
+                  await handleSharePost(post?.id);
                   await fetchUserPost(id);
                 }}
               />
@@ -303,7 +303,7 @@ export const ProfileDetails = ({
                     (post) => post?.mediaType === "video" && post?.mediaUrl
                   )
                   .map((post) => (
-                    <div key={post?._id} onClick={() => router.push(`/posts/${post?._id}`)} className="w-[220px] h-[180px]">
+                    <div key={post?.id} onClick={() => router.push(`/posts/${post?.id}`)} className="w-[220px] h-[180px]">
                       <video
                         //controls
                         className="w-full h-full object-cover rounded-lg"
@@ -366,11 +366,11 @@ export const ProfileDetails = ({
                   )
                   .map((post) => (
                     <img
-                      key={post?._id}
+                      key={post?.id}
                       src={post?.mediaUrl}
                       alt="user_all_photos"
                       className="w-[200px] h-[150px] object-cover rounded-lg"
-                      onClick={() => router.push(`/posts/${post?._id}`)}
+                      onClick={() => router.push(`/posts/${post?.id}`)}
                     />
                   ))
               )}
