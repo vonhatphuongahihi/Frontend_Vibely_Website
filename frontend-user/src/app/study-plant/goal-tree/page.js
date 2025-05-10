@@ -144,13 +144,12 @@ const GoalTreePage = () => {
     const [postDefaultContent, setPostDefaultContent] = useState('');
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
-    // Lấy token từ localStorage
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
             setToken(storedToken);
         } else {
-            console.error("Lỗi: Không tìm thấy token");
+            console.error("Lỗi: Không tìm thấy token trong goal-tree");
             router.push('/user-login');
         }
     }, []);
@@ -162,7 +161,7 @@ const GoalTreePage = () => {
     }, [token]);
 
     useEffect(() => {
-        if (tree && tree.growth_stage === 0) {
+        if (tree && tree.growthStage === 0) {
             // Hiển thị hạt giống trong 3 giây
             const timer = setTimeout(() => {
                 setShowSeed(false);
@@ -174,25 +173,26 @@ const GoalTreePage = () => {
     // Theo dõi thay đổi cấp độ
     useEffect(() => {
         if (tree && previousLevel !== null) {
-            const currentLevel = getGrowthStageInfo(tree.growth_stage);
+            const currentLevel = getGrowthStageInfo(tree.growthStage);
             const prevLevel = getGrowthStageInfo(previousLevel);
 
             if (currentLevel.name !== prevLevel.name) {
                 setShowLevelUpPopup(true);
             }
         }
-    }, [tree?.growth_stage]);
+    }, [tree?.growthStage]);
 
     // Cập nhật previous level khi lấy được dữ liệu cây
     useEffect(() => {
         if (tree) {
-            setPreviousLevel(tree.growth_stage);
+            setPreviousLevel(tree.growthStage);
         }
     }, []);
 
     const fetchData = async () => {
         try {
             if (!token) {
+                console.error("Không tìm thấy token trong goal-tree");
                 router.push('/user-login');
                 return;
             }
@@ -205,6 +205,7 @@ const GoalTreePage = () => {
 
             // Lấy thông tin cây
             const treeResponse = await axios.get(`${API_URL}/learning-trees`, config);
+
             if (!treeResponse.data) {
                 router.push('/study-plant/select-tree');
                 return;
@@ -216,6 +217,10 @@ const GoalTreePage = () => {
             setGoals(goalsResponse.data || []);
         } catch (error) {
             console.error('Error fetching data:', error);
+            if (error.response) {
+                console.error('Response data:', error.response.data);
+                console.error('Response status:', error.response.status);
+            }
         } finally {
             setLoading(false);
         }
@@ -239,28 +244,27 @@ const GoalTreePage = () => {
                     headers: {
                         'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    },
-                    withCredentials: true
+                    }
                 }
             );
 
             setGoals([response.data, ...goals]);
             setNewGoal("");
+            toast.success("Đã thêm mục tiêu mới");
         } catch (error) {
-            console.error('Error adding goal:', error);
+            console.error('Lỗi khi thêm mục tiêu:', error);
             if (error.response) {
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
+                console.error('Dữ liệu response:', error.response.data);
+                console.error('Mã trạng thái response:', error.response.status);
                 if (error.response.data.message) {
                     toast.error(error.response.data.message);
                 } else {
                     toast.error("Có lỗi xảy ra khi thêm mục tiêu");
                 }
             } else if (error.request) {
-                console.error('No response received:', error.request);
                 toast.error("Không thể kết nối đến server");
             } else {
-                console.error('Error setting up request:', error.message);
+                console.error('Lỗi khi thiết lập yêu cầu:', error.message);
                 toast.error("Có lỗi xảy ra khi thêm mục tiêu");
             }
         }
@@ -286,24 +290,22 @@ const GoalTreePage = () => {
                 // Update goals list
                 setGoals(goals.map(g => g.id === goal.id ? goal : g));
 
-                // Update tree if it exists
                 if (updatedTree) {
                     setTree(updatedTree);
                 }
 
-                // Show achievement popup if there are new achievements
+                // Hiển thị popup thành tích mới nếu có
                 if (newAchievements && newAchievements.length > 0) {
                     setNewAchievements(newAchievements);
                     setIsAchievementPopupOpen(true);
                 }
             }
         } catch (error) {
-            console.error('Error toggling goal:', error);
+            console.error('Lỗi khi cập nhật mục tiêu:', error);
             if (error.response) {
-                console.error('Error response:', error.response.data);
+                console.error('Dữ liệu response:', error.response.data);
             }
-            // Show error message to user
-            alert('Có lỗi xảy ra khi cập nhật mục tiêu. Vui lòng thử lại.');
+            toast.error(error.response?.data?.message || "Có lỗi xảy ra khi cập nhật mục tiêu");
         }
     };
 
@@ -311,6 +313,7 @@ const GoalTreePage = () => {
         try {
             const goal = goals.find(g => g.id === id);
             if (!goal.is_completed) {
+            if (!goal.completed) {
                 // Nếu mục tiêu chưa hoàn thành thì xóa khỏi database
                 if (!token) {
                     router.push('/user-login');
@@ -340,26 +343,25 @@ const GoalTreePage = () => {
                     // Cập nhật state với goal đã được cập nhật
                     setGoals(goals.map(g => g.id === id ? response.data : g));
                 } catch (error) {
-                    console.error('Error toggling goal visibility:', error);
                     toast.error("Có lỗi xảy ra khi ẩn mục tiêu");
                 }
             }
         } catch (error) {
-            toast.error("Có lỗi xảy ra");
+            toast.error(error.response?.data?.message || "Có lỗi xảy ra");
         }
     };
 
     // Lọc goals để chỉ hiển thị các mục tiêu visible
-    const visibleGoals = goals.filter(goal => goal.is_visible);
+    const visibleGoals = goals.filter(goal => goal.visible);
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
-    const completedGoalsCount = goals.filter(goal => goal.is_completed).length;
-    const progressPercentage = (tree?.growth_stage || 0) * 20; // Each stage is 20% (5 stages total)
+    const completedGoalsCount = goals.filter(goal => goal.completed).length;
+    const progressPercentage = (tree?.growthStage || 0) * 20; // Mỗi cấp độ là 20% (5 cấp độ tổng cộng)
 
-    // Get the stage name and icon based on growth stage
+    // Lấy thông tin cấp độ và icon dựa trên cấp độ tăng trưởng
     const getGrowthStageInfo = (stage) => {
         switch (stage) {
             case 0: return { name: "Tân Binh", icon: "🌱" };
@@ -383,7 +385,7 @@ const GoalTreePage = () => {
             <LevelUpPopup
                 isOpen={showLevelUpPopup}
                 onClose={() => setShowLevelUpPopup(false)}
-                level={tree ? getGrowthStageInfo(tree.growth_stage) : null}
+                level={tree ? getGrowthStageInfo(tree.growthStage) : null}
             />
             <AchievementPopup
                 isOpen={isAchievementPopupOpen}
@@ -411,12 +413,12 @@ const GoalTreePage = () => {
 
                             <div className="flex justify-between items-center mb-2">
                                 <span className="text-[16px] font-medium">Mức độ tăng trưởng của cây</span>
-                                <span className="text-[16px] font-medium">{tree?.growth_stage || 0}/5</span>
+                                <span className="text-[16px] font-medium">{tree?.growthStage || 0}/5</span>
                             </div>
                             <div className="text-[14px] text-gray-600 mb-2 text-center">
                                 <span>Cấp độ hiện tại: </span>
                                 <span className="text-[15px] font-medium">
-                                    {getGrowthStageInfo(tree?.growth_stage || 0).icon} {getGrowthStageInfo(tree?.growth_stage || 0).name}
+                                    {getGrowthStageInfo(tree?.growthStage || 0).icon} {getGrowthStageInfo(tree?.growthStage || 0).name}
                                 </span>
                             </div>
                             <div className="w-full h-2 bg-gray-200 rounded-full mb-8">
@@ -450,21 +452,22 @@ const GoalTreePage = () => {
                                         <button
                                             onClick={() => handleToggleGoal(goal.id)}
                                             className={`w-6 h-6 rounded-full border-2 ${goal.is_completed ? 'border-green-500 bg-green-500' : 'border-gray-300'} relative flex items-center justify-center`}
+                                            className={`w-6 h-6 rounded-full border-2 ${goal.completed ? 'border-green-500 bg-green-500' : 'border-gray-300'} relative flex items-center justify-center`}
                                         >
-                                            {goal.is_completed && (
+                                            {goal.completed && (
                                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                                                 </svg>
                                             )}
                                         </button>
-                                        <span className={goal.is_completed ? 'line-through text-gray-500' : ''}>
+                                        <span className={goal.completed ? 'line-through text-gray-500' : ''}>
                                             {goal.title}
                                         </span>
                                     </div>
                                     <button
                                         onClick={() => handleDeleteGoal(goal.id)}
                                         className="text-gray-500 hover:text-red-500"
-                                        title={goal.is_completed ? "Ẩn mục tiêu" : "Xóa mục tiêu"}
+                                        title={goal.completed ? "Ẩn mục tiêu" : "Xóa mục tiêu"}
                                     >
                                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -485,30 +488,30 @@ const GoalTreePage = () => {
                     </div>
                 </div>
 
-                {/* Right Panel - Tree Display */}
+                {/* Right Panel - Hiển thị cây */}
                 <div className="flex-1 relative overflow-visible">
                     <div
                         className="absolute inset-0 bg-cover bg-center"
                         style={{ backgroundImage: "url('/study-plant/background-plant-tree.gif')" }}
                     />
 
-                    {/* Sun */}
+                    {/* Mặt trời */}
                     <div className="absolute top-4 right-4">
-                        <img src="/study-plant/sun.gif" alt="Sun" className="w-28 h-28" />
+                        <img src="/study-plant/sun.gif" alt="Mặt trời" className="w-28 h-28" />
                     </div>
 
-                    {/* Watering Can */}
+                    {/* Bình tưới */}
                     <div className="absolute bottom-24 left-8">
                         <img src="/study-plant/watering-can.png" alt="Watering Can" className="w-36 h-30" />
                     </div>
 
-                    {/* Tree based on type and growth stage */}
+                    {/* Cây dựa trên loại và cấp độ tăng trưởng */}
                     <div className="absolute inset-x-0 bottom-[80px] flex justify-center items-end overflow-visible">
-                        {tree && tree.growth_stage > 0 ? (
+                        {tree && tree.growthStage > 0 ? (
                             <div className="relative flex flex-col items-center overflow-visible">
                                 <div className="relative w-[500px]">
                                     <img
-                                        src={`/study-plant/green-tree/${tree.tree_type}-${tree.growth_stage}.png`}
+                                        src={`/study-plant/green-tree/${tree.treeType}-${tree.growthStage}.png`}
                                         alt="Tree"
                                         className="w-full h-auto absolute bottom-[30px]"
                                         style={{ maxWidth: 'none' }}
@@ -529,9 +532,9 @@ const GoalTreePage = () => {
                         )}
                     </div>
 
-                    {/* Falling Seed Animation - Only show when tree is at stage 0 */}
+                    {/* Falling Seed Animation - Chỉ hiển thị khi cây ở cấp độ 0 */}
                     <AnimatePresence>
-                        {tree?.growth_stage === 0 && (
+                        {tree?.growthStage === 0 && (
                             <motion.div
                                 initial={{ y: -100 }}
                                 animate={{
@@ -618,13 +621,13 @@ const GoalTreePage = () => {
                         )}
                     </AnimatePresence>
 
-                    {/* Floating Clouds */}
+                    {/* Mây */}
                     <Cloud delay={0} position="top-10 left-10" />
                     <Cloud delay={2} position="top-20 right-20" />
                     <Cloud delay={4} position="top-5 left-1/3" />
                     <Cloud delay={6} position="top-15 right-1/3" />
 
-                    {/* Butterflies */}
+                    {/* Bướm */}
                     <Butterfly delay={0} position="left" image="butterfly-1.gif" />
                     <Butterfly delay={2} position="right" image="butterfly-2.gif" />
                 </div>

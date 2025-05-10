@@ -55,7 +55,6 @@ export const checkUserAuth = async () => {
     try {
         const token = localStorage.getItem("auth_token");
         if (!token) {
-            console.warn("Không tìm thấy token trong localStorage");
             return { isAuthenticated: false };
         }
 

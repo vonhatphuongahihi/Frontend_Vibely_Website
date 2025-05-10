@@ -11,7 +11,7 @@ const Page = () => {
 
     // Lấy token từ localStorage
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
             setToken(storedToken);
         } else {
@@ -22,7 +22,7 @@ const Page = () => {
 
     const handleClick = async () => {
         try {
-            const token = localStorage.getItem("token");
+            const token = localStorage.getItem("auth_token");
             if (!token) {
                 router.push('/user-login');
                 return;
@@ -61,7 +61,6 @@ const Page = () => {
             backgroundImage: 'radial-gradient(circle at 10% 20%, rgba(200, 230, 255, 0.5) 0%, rgba(200, 230, 255, 0.3) 90%)'
         }}>
             <div className="max-w-4xl w-full text-center font-[Inter]">
-                {/* Logo and Title */}
                 <div className="mb-12">
                     <img
                         src="/study-plant/tree-page-1.png"

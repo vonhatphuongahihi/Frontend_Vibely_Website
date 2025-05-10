@@ -2,9 +2,12 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import userStore from '@/store/userStore';
 
 const Page = () => {
     const router = useRouter();
+    const { user } = userStore();
     const [selectedTree, setSelectedTree] = useState(null);
     const [token, setToken] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
@@ -12,7 +15,7 @@ const Page = () => {
 
     // Lấy token từ localStorage
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
             setToken(storedToken);
             checkExistingTree(storedToken);
@@ -33,32 +36,44 @@ const Page = () => {
                 setShowPopup(true);
             }
         } catch (error) {
-            console.error('Error checking tree:', error);
+            if (error.response && error.response.status === 401) {
+                console.error("Token hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.");
+                router.push('/user-login');
+            } else {
+                console.error('Error checking tree:', error);
+            }
         }
     };
 
     const handleSelectTree = async (treeType) => {
         try {
-            if (!token) {
-                console.log('No token found, redirecting to login');
-                router.push('/user-login');
-                return;
-            }
+            setSelectedTree(treeType);
+            const token = localStorage.getItem("auth_token");
 
-            // Lưu loại cây vào CSDL
-            await axios.post(`${API_URL}/learning-trees`, {
-                tree_type: treeType
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
+            const requestData = {
+                treeType: treeType
+            };
+
+            console.log('Request data:', requestData);
+
+            const response = await axios.post(
+                `${API_URL}/learning-trees`,
+                requestData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-            });
+            );
 
-            // Chuyển đến trang goal-tree
-            router.push('/study-plant/goal-tree');
+            if (response.data) {
+                router.push('/study-plant/goal-tree');
+            }
         } catch (error) {
             console.error('Error creating tree:', error);
-            // Có thể thêm thông báo lỗi ở đây
+            console.error('Error response:', error.response?.data);
+            toast.error(error.response?.data?.message || "Có lỗi xảy ra khi tạo cây");
         }
     };
 
@@ -85,7 +100,6 @@ const Page = () => {
             )}
 
             <div className="max-w-4xl w-full text-center font-[Inter]">
-                {/* Logo and Title */}
                 <div className="mb-9">
                     <img
                         src="/study-plant/tree-page-1.png"
