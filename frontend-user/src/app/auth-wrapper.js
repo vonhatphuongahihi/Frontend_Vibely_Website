@@ -32,7 +32,6 @@ export default function AuthWrapper({ children }) {
         if (token && userId && email && username) {
             handleSocialCallback(token, userId, email, username)
                 .then(() => {
-                    toast.success('Đăng nhập thành công');
                     router.push('/');
                 })
                 .catch((error) => {
