@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import axios from 'axios';
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import axios from 'axios';
+import { useState } from "react";
 
 export default function ForgotPassword() {
     const [email, setEmail] = useState("");
@@ -44,7 +44,7 @@ export default function ForgotPassword() {
                         placeholder="Nhập email của bạn"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-3 py-2 border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] mb-4 text-[#C6C6C8]"
+                        className="w-full px-3 py-2 border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] mb-4 text-gray-700"
                         required
                     />
                 </div>
@@ -58,10 +58,10 @@ export default function ForgotPassword() {
                 </button>
 
                 <div className="flex justify-end text-gray-500 text-sm">
-                    <a className="hover:underline mr-2" style={{ color: '#B0C4DE' }}>
+                    <a onClick={() => window.history.back()} className="hover:underline mr-2 cursor-pointer" style={{ color: '#81a1ca' }}>
                         Quay trở lại
                     </a>
-                    <a href="/user-login" className="font-bold" style={{ color: '#086280' }}>
+                    <a href="/user-login" className="font-bold text-[#086280] hover:text-[#1AA3C8] transition duration-200">
                         Đăng nhập
                     </a>
                 </div>

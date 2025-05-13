@@ -34,7 +34,7 @@ const DocumentDetail = () => {
 
     // Lấy token từ localStorage trên client
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
             setToken(storedToken);
         }
@@ -50,6 +50,7 @@ const DocumentDetail = () => {
                     const result = await axios.get(`${API_URL}/documents/${id}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
+                    console.log(result.data.data);
 
                     setDocument(result.data.data);
                 } catch (err) {
@@ -127,13 +128,13 @@ const DocumentDetail = () => {
                             <span className="mr-3"><BookMarked size={20} /></span>
                             <span>Môn học</span>
                         </p>
-                        <p className="font-bold ml-8">{document.subject.name}</p>
+                        <p className="font-bold ml-8">{document.subjectName}</p>
 
                         <p className="flex items-center">
                             <span className="mr-3"><GraduationCap size={20} /></span>
                             <span>Cấp bậc</span>
                         </p>
-                        <p className="font-bold ml-8">{document.level.name}</p>
+                        <p className="font-bold ml-8">{document.levelName}</p>
 
                         <p className="flex items-center">
                             <span className="mr-3"><CalendarDays size={20} /></span>

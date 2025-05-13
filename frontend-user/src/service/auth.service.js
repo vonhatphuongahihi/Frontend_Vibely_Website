@@ -1,5 +1,5 @@
-import axiosInstance from "./url.service";
 import { toast } from 'react-hot-toast';
+import axiosInstance from "./url.service";
 
 // Đăng ký người dùng
 export const registerUser = async (userData) => {

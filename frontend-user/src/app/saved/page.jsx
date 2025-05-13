@@ -31,7 +31,7 @@ const SavedPage = () => {
 
     // Lấy token từ localStorage trên client
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
             setToken(storedToken);
         }

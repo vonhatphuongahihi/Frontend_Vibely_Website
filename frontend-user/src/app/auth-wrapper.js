@@ -1,12 +1,12 @@
 'use client'
 import Loader from "@/lib/Loader";
-import { checkUserAuth, logout, handleSocialCallback } from "@/service/auth.service";
+import { checkUserAuth, handleSocialCallback, logout } from "@/service/auth.service";
 import userStore from "@/store/userStore";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useRef } from "react";
-import Header from "./components/Header";
-import { io } from "socket.io-client";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
+import { io } from "socket.io-client";
+import Header from "./components/Header";
 
 export default function AuthWrapper({ children }) {
     const { setUser, clearUser, user } = userStore();

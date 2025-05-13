@@ -16,7 +16,7 @@ const SupportPage = () => {
 
     // Lấy token từ localStorage trên client
     useEffect(() => {
-        const storedToken = localStorage.getItem("token");
+        const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
             setToken(storedToken);
         }
@@ -36,7 +36,7 @@ const SupportPage = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            if (response.status === 201) {
+            if (response.data.status === 'success') {
                 setMessage("");
                 toast.success("Thắc mắc đã được gửi thành công!");
             } else {
