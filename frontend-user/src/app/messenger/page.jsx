@@ -11,6 +11,8 @@ import Conversation from "../components/conversations/Conversation";
 import LeftSideBar from "../components/LeftSideBar";
 import Message from "../components/message/Message";
 import "./messenger.css";
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
 
 const Messenger = () => {
@@ -26,7 +28,7 @@ const Messenger = () => {
     const [newMessage, setNewMessage] = useState("");
     const [onlineUsers, setOnlineUsers] = useState([]);
     const scrollRef = useRef();
-    const socket = useRef();
+    const stompClient = useRef(null);
     const [showOptions, setShowOptions] = useState(false);
     const [showNicknameOptions, setShowNicknameOptions] = useState(false);
     const [myNickname, setMyNickname] = useState(null);
@@ -39,64 +41,63 @@ const Messenger = () => {
     const [isViewingChat, setIsViewingChat] = useState(false);
     const [openChat, setOpenChat] = useState(false);
 
-    // Kết nối socket
+    // Khởi tạo STOMP khi user đã có
     useEffect(() => {
-        if (window.socket) {
-            socket.current = window.socket;
-
-            // Lắng nghe tin nhắn mới
-            socket.current.on("getMessage", (data) => {
-                setMessages(prev => [...prev, data]); // Cập nhật messages trực tiếp
-            });
-
-            // Lắng nghe sự kiện đã đọc
-            socket.current.on("messageRead", ({ messageId, userId }) => {
-                setMessages(prevMessages =>
-                    prevMessages.map(msg =>
-                        msg.id === messageId
-                            ? {
-                                ...msg,
-                                readBy: [...(msg.readBy || []), userId],
-                                isRead: true
-                            }
-                            : msg
-                    )
-                );
-            });
-        }
-
-        return () => {
-            if (socket.current) {
-                socket.current.off("getMessage");
-                socket.current.off("messageRead");
-            }
-        };
-    }, []);
-
-    // Thêm user vào danh sách online
-    useEffect(() => {
-        if (user?.id && socket.current) {
-            // Lắng nghe sự kiện getUsers để cập nhật danh sách online users
-            socket.current.on("getUsers", (users) => {
-                console.log("Messenger received online users:", users);
-                if (user.followings && Array.isArray(user.followings)) {
-                    setOnlineUsers(user.followings.filter((f) => users.some((u) => u.userId === f)));
-                } else {
-                    setOnlineUsers([]);
+        if (!user) return;
+        const socketUrl = `${API_URL.replace(/\/$/, '')}/ws`;
+        stompClient.current = new Client({
+            webSocketFactory: () => new SockJS(socketUrl),
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log('STOMP connected');
+                if (user?.id) {
+                    stompClient.current.publish({
+                        destination: '/app/chat.addUser',
+                        body: JSON.stringify({ userId: user.id })
+                    });
                 }
-            });
-
-            // Yêu cầu cập nhật danh sách online users
-            socket.current.emit("requestOnlineUsers");
-        }
-
-        // Cleanup function
+                // Lắng nghe tin nhắn mới
+                stompClient.current.subscribe(`/user/${user.id}/queue/messages`, (message) => {
+                    const data = JSON.parse(message.body);
+                    setMessages(prev => [...prev, data]);
+                });
+                // Lắng nghe sự kiện đã đọc
+                stompClient.current.subscribe(`/user/${user.id}/queue/read`, (message) => {
+                    const { messageId, userId } = JSON.parse(message.body);
+                    setMessages(prevMessages =>
+                        prevMessages.map(msg =>
+                            msg.id === messageId
+                                ? {
+                                    ...msg,
+                                    readBy: [...(msg.readBy || []), userId],
+                                    isRead: true
+                                }
+                                : msg
+                        )
+                    );
+                });
+                // Thông báo user online (nếu cần)
+                stompClient.current.subscribe(`/user/${user.id}/queue/users`, (message) => {
+                    const users = JSON.parse(message.body);
+                    console.log("Messenger received online users:", users);
+                    if (user.followings && Array.isArray(user.followings)) {
+                        setOnlineUsers(user.followings.filter((f) => users.some((u) => u.userId === f)));
+                    } else {
+                        setOnlineUsers([]);
+                    }
+                });
+            },
+            onStompError: (frame) => {
+                console.error('STOMP error:', frame.headers['message'], frame.body);
+            },
+        });
+        stompClient.current.activate();
         return () => {
-            if (socket.current) {
-                socket.current.off("getUsers");
-            }
+            if (stompClient.current) stompClient.current.deactivate();
         };
-    }, [user]);
+    }, [user, API_URL]);
+
+   
 
     // Kiểm tra xác thực người dùng
     useEffect(() => {
@@ -133,7 +134,11 @@ const Messenger = () => {
 
         const getMessages = async () => {
             try {
-                const res = await axios.get(`${API_URL}/message/${currentChat.id}`);
+                const res = await axios.get(`${API_URL}/messages/conversation/${currentChat.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
                 setMessages(res.data);
             } catch (err) {
                 console.error("❌ Lỗi khi lấy tin nhắn:", err);
@@ -146,25 +151,32 @@ const Messenger = () => {
     // Gửi tin nhắn
     const handleSubmit = async (e) => {
         e.preventDefault();
-
         const message = {
-            sender: user.id,
-            text: newMessage,
+            senderId: user.id,
+            content: newMessage,
             conversationId: currentChat.id,
         };
-
         try {
-            const res = await axios.post(`${API_URL}/message`, message);
-            setMessages(prev => [...prev, res.data]); // Cập nhật messages với response từ server
+            const res = await axios.post(`${API_URL}/messages`, message, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                }
+            });
+            setMessages(prev => [...prev, res.data]);
             setNewMessage("");
-
-            // Gửi tin nhắn qua socket với đầy đủ thông tin
-            socket.current.emit("sendMessage", {
+            // Gửi realtime qua STOMP
+            if (stompClient.current && stompClient.current.connected) {
+                stompClient.current.publish({
+                    destination: '/app/chat.sendMessage',
+                    body: JSON.stringify({
                 senderId: user.id,
                 receiverId: currentChat.members.find(member => member !== user.id),
-                text: newMessage,
-                messageId: res.data.id // Gửi kèm ID tin nhắn
+                        ...res.data
+                    })
             });
+            } else {
+                console.error("STOMP not connected - message sent but real-time update failed");
+            }
         } catch (err) {
             console.error("❌ Lỗi khi gửi tin nhắn:", err);
         }
@@ -217,12 +229,18 @@ const Messenger = () => {
             if (!currentChat || !currentChat.id || !selectedFriend || !user) return;
 
             try {
-                // Lấy biệt danh của người bạn đang chat
-                const friendNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${selectedFriend.id}`);
+                const friendNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${selectedFriend.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
                 setFriendNickname(friendNicknameRes.data.nickname);
 
-                // Lấy biệt danh của bạn
-                const myNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${user.id}`);
+                const myNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${user.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
                 setMyNickname(myNicknameRes.data.nickname);
             } catch (err) {
                 console.error("Lỗi khi lấy biệt danh:", err);
@@ -234,15 +252,18 @@ const Messenger = () => {
 
     const setUserNickname = async (userId, username, currentNickname) => {
         const newNickname = prompt(`Đặt biệt danh cho ${username}:`, currentNickname || "");
-        if (newNickname !== null) { // Người dùng không nhấn cancel
+        if (newNickname !== null) {
             try {
-                await axios.put(`${API_URL}/conversation/nickname`, {
+                await axios.put(`${API_URL}/conversations/nickname`, {
                     conversationId: currentChat.id,
                     userId: userId,
                     nickname: newNickname,
+                }, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                    }
                 });
 
-                // Cập nhật state
                 if (userId === user.id) {
                     setMyNickname(newNickname);
                 } else {
@@ -256,7 +277,11 @@ const Messenger = () => {
 
     const handleDeleteChat = async () => {
         try {
-            await axios.delete(`${API_URL}/conversation/${currentChat.id}`);
+            await axios.delete(`${API_URL}/conversations/${currentChat.id}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                }
+            });
             setCurrentChat(null);
             setShowDeleteModal(false);
         } catch (err) {
@@ -280,9 +305,13 @@ const Messenger = () => {
     // Thêm hàm đổi màu
     const changeColor = async (newColor) => {
         try {
-            await axios.put(`${API_URL}/conversation/color`, {
+            await axios.put(`${API_URL}/conversations/color`, {
                 conversationId: currentChat.id,
                 color: newColor
+            }, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                }
             });
 
             setChatColor(newColor);
@@ -298,19 +327,20 @@ const Messenger = () => {
 
         try {
             const unreadMessages = messages.filter(msg =>
-                msg.sender !== user.id && // Tin nhắn của người khác gửi
-                !msg.readBy?.includes(user.id) // Chưa được đánh dấu là đã đọc
+                msg.senderId !== user.id && !msg.readBy?.includes(user.id)
             );
 
-            // Gọi API markMessageAsRead cho từng tin nhắn chưa đọc
             for (const msg of unreadMessages) {
                 try {
-                    await axios.post(`${API_URL}/message/read`, {
+                    await axios.post(`${API_URL}/messages/read`, {
                         messageId: msg.id,
                         userId: user.id
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                        }
                     });
 
-                    // Cập nhật state messages ngay lập tức
                     setMessages(prev => prev.map(m =>
                         m.id === msg.id
                             ? {
@@ -384,9 +414,13 @@ const Messenger = () => {
                                 key={friend.id}
                                 onClick={async () => {
                                     try {
-                                        const res = await axios.post(`${API_URL}/conversation`, {
+                                        const res = await axios.post(`${API_URL}/conversations`, {
                                             senderId: user.id,
                                             receiverId: friend.id,
+                                        }, {
+                                            headers: {
+                                                Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                                            }
                                         });
                                         setCurrentChat(res.data);
                                         setSelectedFriend(friend);
@@ -466,7 +500,7 @@ const Messenger = () => {
                                 {messages.length > 0 ? (
                                     messages.map((msg) => (
                                         <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
-                                            <Message message={msg} own={msg.sender === user.id} />
+                                            <Message message={msg} own={msg.senderId === user.id} />
                                         </div>
                                     ))
                                 ) : (
@@ -566,7 +600,7 @@ const Messenger = () => {
                             {messages.length > 0 ? (
                                 messages.map((msg) => (
                                     <div key={msg.id} ref={scrollRef}>
-                                        <Message message={msg} own={msg.sender === user.id} />
+                                        <Message message={msg} own={msg.senderId === user.id} />
                                     </div>
                                 ))
                             ) : (

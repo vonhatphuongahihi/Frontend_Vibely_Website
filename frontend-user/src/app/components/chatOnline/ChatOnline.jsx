@@ -11,7 +11,7 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
   useEffect(() => {
     const getFriends = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("auth_token");
         if (!token) {
           console.error("Lỗi: Không tìm thấy token");
           return;
