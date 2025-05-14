@@ -31,35 +31,6 @@ const Page = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [user, setUser] = useState(null);
 
-  // Xử lý callback từ Google
-  useEffect(() => {
-    const token = searchParams.get('token');
-    const error = searchParams.get('error');
-
-    if (token) {
-      // Lưu token
-      localStorage.setItem('auth_token', token);
-
-      // Lưu thông tin user
-      const userId = searchParams.get('userId');
-      const email = searchParams.get('email');
-      const username = searchParams.get('username');
-
-      // Cập nhật state user
-      setUser({
-        _id: userId,
-        email,
-        username
-      });
-
-      toast.success('Đăng nhập Google thành công');
-      router.push('/');
-    } else if (error) {
-      console.error('Google login error:', error);
-      toast.error('Đăng nhập Google thất bại: ' + error);
-      router.push('/user-login');
-    }
-  }, [searchParams, router, setUser]);
 
   // Kiểm tra trạng thái đăng nhập khi component mount
   useEffect(() => {
@@ -67,7 +38,7 @@ const Page = () => {
       try {
         const { isAuthenticated } = await checkUserAuth();
         if (isAuthenticated) {
-          router.replace("/"); // Chuyển hướng về trang chủ nếu đã đăng nhập
+          router.replace("/");
         }
       } catch (error) {
         console.log('Chưa đăng nhập');
@@ -459,7 +430,7 @@ const Page = () => {
                           <RadioGroup
                             className="flex justify-between"
                             value={field.value}
-                            onValueChange={field.onChange}  // Bắt sự kiện thay đổi giá trị
+                            onValueChange={field.onChange}
                           >
                             <div className="flex items-center space-x-2">
                               <RadioGroupItem value="Nam" id="male" />

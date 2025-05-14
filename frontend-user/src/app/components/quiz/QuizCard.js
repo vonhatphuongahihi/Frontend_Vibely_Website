@@ -1,10 +1,9 @@
 'use client';
-import React from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Image from 'next/image';
 import Link from 'next/link';
 import convertToFaIcons from './convertToFaIcons';
-import Image from 'next/image';
 
 function QuizCard({ singleQuiz }) {
     if (!singleQuiz) return <p>Không có dữ liệu quiz.</p>;

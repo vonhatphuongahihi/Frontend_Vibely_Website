@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import axios from 'axios';
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import { toast } from 'react-hot-toast';
 
 export default function CodeConfirm() {
     const [code, setCode] = useState("");
@@ -27,7 +28,7 @@ export default function CodeConfirm() {
         setError("");
         try {
             await axios.post(`${API_URL}/forgot-password/send-code`, { email });
-            alert('Đã gửi lại mã xác thực');
+            toast.success('Đã gửi lại mã xác thực');
         } catch (error) {
             setError(error.response?.data?.message || 'Có lỗi xảy ra');
         } finally {
@@ -60,7 +61,7 @@ export default function CodeConfirm() {
                 <div className="mb-6 flex justify-center">
                     <Image src="/images/vibely_full_logo.png" alt="Vibely Logo" width={80} height={30} />
                 </div>
-                <p className="text-sm mb-4 text-left text-[#C6C6C8]">
+                <p className="text-sm mb-4 text-left text-[#5d86bb]">
                     <strong>Vui lòng kiểm tra email và nhập mã xác nhận để hoàn thành quá
                         trình thiết lập lại mật khẩu</strong>
                 </p>
@@ -73,7 +74,7 @@ export default function CodeConfirm() {
                         placeholder="Nhập mã xác nhận"
                         value={code}
                         onChange={(e) => setCode(e.target.value)}
-                        className="w-full px-3 py-2 text-sm border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] text-[#C6C6C8] mb-4"
+                        className="w-full px-3 py-2 text-sm border border-[#0E42D2] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0E42D2] text-gray-700 mb-4"
                         required
                     />
                 </div>
@@ -90,7 +91,7 @@ export default function CodeConfirm() {
                         type="button"
                         onClick={handleResendCode}
                         disabled={loading}
-                        className="mr-2 text-[#B0C4DE] hover:underline"
+                        className="mr-2 text-[#81a1ca] hover:underline"
                     >
                         Chưa nhận được mã?
                     </button>
@@ -98,17 +99,17 @@ export default function CodeConfirm() {
                         type="button"
                         onClick={handleResendCode}
                         disabled={loading}
-                        className="font-bold text-[#086280]"
+                        className="font-bold text-[#086280] hover:text-[#1AA3C8] transition duration-200"
                     >
                         Gửi lại
                     </button>
                 </div>
 
                 <div className="flex justify-end text-gray-500 text-sm">
-                    <a href="/forgot-password" className="hover:underline mr-2" style={{ color: '#B0C4DE' }}>
+                    <a href="/forgot-password" className="hover:underline mr-2" style={{ color: '#81a1ca' }}>
                         Quay trở lại
                     </a>
-                    <a href="/user-login" className="font-bold" style={{ color: '#086280' }}>
+                    <a href="/user-login" className="font-bold text-[#086280] hover:text-[#1AA3C8] transition duration-200">
                         Đăng nhập
                     </a>
                 </div>

@@ -1,8 +1,9 @@
 "use client";
-import { useState, useEffect } from "react";
+import axios from 'axios';
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import axios from 'axios';
+import { useEffect, useState } from "react";
+import { toast } from 'react-hot-toast';
 
 export default function ResetPassword() {
     const [password, setPassword] = useState("");
@@ -43,7 +44,7 @@ export default function ResetPassword() {
             // Xóa dữ liệu đã lưu
             localStorage.removeItem('resetPasswordEmail');
             localStorage.removeItem('resetPasswordCode');
-            alert('Đặt lại mật khẩu thành công!');
+            toast.success('Đặt lại mật khẩu thành công!');
             router.push("/user-login");
         } catch (error) {
             setError(error.response?.data?.message || 'Có lỗi xảy ra');

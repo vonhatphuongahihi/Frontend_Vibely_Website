@@ -4,13 +4,13 @@ import { checkUserAuth } from "@/service/auth.service";
 import axios from "axios";
 import { ChevronLeft, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { IoSend } from "react-icons/io5";
+import { PiDotsThreeVerticalBold } from "react-icons/pi";
 import ChatOnline from "../components/chatOnline/ChatOnline";
 import Conversation from "../components/conversations/Conversation";
+import LeftSideBar from "../components/LeftSideBar";
 import Message from "../components/message/Message";
 import "./messenger.css";
-import { PiDotsThreeVerticalBold } from "react-icons/pi";
-import { IoSend } from "react-icons/io5";
-import LeftSideBar from "../components/LeftSideBar";
 
 
 const Messenger = () => {
@@ -115,7 +115,7 @@ const Messenger = () => {
 
         const getFriends = async () => {
             try {
-                const token = localStorage.getItem("token");
+                const token = localStorage.getItem("auth_token");
                 const res = await axios.get(`${API_URL}/users/mutual-friends/${user.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });

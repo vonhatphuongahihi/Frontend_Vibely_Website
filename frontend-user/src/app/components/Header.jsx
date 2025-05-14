@@ -23,11 +23,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import NotificationIcon from "./Notification/NotificationIcon";
 import { SettingsMenu } from './SettingsMenu';
-import axios from "axios";
 
 const Header = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -165,43 +164,43 @@ const Header = () => {
     }
   }, [isDropdownOpen, isSettingsOpen]);
 
-  // Lấy số tin nhắn chưa đọc
-  useEffect(() => {
-    const fetchUnreadMessages = async () => {
-      if (!user?.id) return;
+  // // Lấy số tin nhắn chưa đọc
+  // useEffect(() => {
+  //   const fetchUnreadMessages = async () => {
+  //     if (!user?.id) return;
 
-      try {
-        const response = await axios.get(`${API_URL}/message/unread/${user.id}`);
-        setUnreadCount(response.data.total);
-      } catch (error) {
-        console.error("Lỗi khi lấy số tin nhắn chưa đọc:", error);
-      }
-    };
+  //     try {
+  //       const response = await axios.get(`${API_URL}/message/unread/${user.id}`);
+  //       setUnreadCount(response.data.total);
+  //     } catch (error) {
+  //       console.error("Lỗi khi lấy số tin nhắn chưa đọc:", error);
+  //     }
+  //   };
 
-    fetchUnreadMessages();
+  //   fetchUnreadMessages();
 
-    // Lắng nghe tin nhắn mới từ socket
-    if (window.socket) {
-      window.socket.on("getMessage", (data) => {
-        if (data.senderId !== user?.id) {
-          setUnreadCount(prev => prev + 1);
-          setLastMessage(data);
-          setShowMessagePreview(true);
+  //   // Lắng nghe tin nhắn mới từ socket
+  //   if (window.socket) {
+  //     window.socket.on("getMessage", (data) => {
+  //       if (data.senderId !== user?.id) {
+  //         setUnreadCount(prev => prev + 1);
+  //         setLastMessage(data);
+  //         setShowMessagePreview(true);
 
-          // Tự động ẩn preview sau 5 giây
-          setTimeout(() => {
-            setShowMessagePreview(false);
-          }, 5000);
-        }
-      });
-    }
+  //         // Tự động ẩn preview sau 5 giây
+  //         setTimeout(() => {
+  //           setShowMessagePreview(false);
+  //         }, 5000);
+  //       }
+  //     });
+  //   }
 
-    return () => {
-      if (window.socket) {
-        window.socket.off("getMessage");
-      }
-    };
-  }, [user]);
+  //   return () => {
+  //     if (window.socket) {
+  //       window.socket.off("getMessage");
+  //     }
+  //   };
+  // }, [user]);
 
   return (
     <header className="bg-background_header text-foreground shadow-md h-14 fixed top-0 left-0 z-50 w-full">

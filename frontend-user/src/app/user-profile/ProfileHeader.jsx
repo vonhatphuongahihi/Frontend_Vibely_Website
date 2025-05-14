@@ -14,7 +14,7 @@ import { createOrUpdateUserBio, updateUserCoverPhoto, updateUserProfile } from "
 import { userFriendStore } from "@/store/userFriendsStore";
 import userStore from "@/store/userStore";
 import { AnimatePresence, motion } from "framer-motion";
-import { Camera, Check, Pencil, PenLine, Save, SquarePlus, Upload, X } from "lucide-react";
+import { Camera, Check, Pencil, PenLine, Save, Upload, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -174,7 +174,7 @@ const ProfileHeader = ({
       {/* Ảnh bìa trang cá nhân */}
       <div className="relative h-64 md:h-80 bg-gray-300 overflow-hidden ">
         <img
-          src={profileData?.coverPicture}
+          src={profileData?.coverPicture || null}
           alt="cover"
           className="w-full h-full object-cover"
         />

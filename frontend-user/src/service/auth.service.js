@@ -1,5 +1,5 @@
-import axiosInstance from "./url.service";
 import { toast } from 'react-hot-toast';
+import axiosInstance from "./url.service";
 
 // Đăng ký người dùng
 export const registerUser = async (userData) => {
@@ -22,7 +22,6 @@ export const loginUser = async (userData) => {
         const response = await axiosInstance.post('/auth/login', userData);
         if (response.data.status === 'success' && response.data.data.token) {
             localStorage.setItem("auth_token", response.data.data.token);
-            toast.success("Đăng nhập thành công");
         }
         return response.data;
     } catch (error) {
@@ -41,7 +40,6 @@ export const logout = async () => {
         }
         const response = await axiosInstance.post('/auth/logout');
         localStorage.removeItem("auth_token");
-        toast.success("Đăng xuất thành công");
         return response.data;
     } catch (error) {
         console.error("Đăng xuất thất bại:", error.response?.data || error.message);
@@ -113,17 +111,15 @@ export const handleSocialCallback = async (token, userId, email, username) => {
     }
 }
 
-// Lấy URL đăng nhập Google
+// Các hàm lấy URL đăng nhập
 export const getGoogleLoginUrl = () => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth2/authorize/google`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/google`;
 }
 
-// Lấy URL đăng nhập Facebook
 export const getFacebookLoginUrl = () => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth2/authorize/facebook`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/facebook`;
 }
 
-// Lấy URL đăng nhập GitHub
 export const getGithubLoginUrl = () => {
-    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/oauth2/authorize/github`;
+    return `${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/github`;
 }

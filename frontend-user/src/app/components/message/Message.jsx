@@ -14,7 +14,7 @@ export default function Message({ message, own }) {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("auth_token");
         const res = await axios.post(
           `${API_URL}/users/get-users`,
           { userIds: [message.sender] },
