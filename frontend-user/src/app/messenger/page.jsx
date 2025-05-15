@@ -229,7 +229,7 @@ const Messenger = () => {
             if (!currentChat || !currentChat.id || !selectedFriend || !user) return;
 
             try {
-                const friendNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${selectedFriend.id}`, {
+                const friendNicknameRes = await axios.get(`${API_URL}/conversations/nickname/${currentChat.id}/${selectedFriend.id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('auth_token')}`
                     }
