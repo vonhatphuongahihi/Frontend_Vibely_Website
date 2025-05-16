@@ -5,11 +5,7 @@ import { ContextProvider } from "./context/QuizContext";
 import { SocketProvider } from "./components/SocketProvider";
 import "./globals.css";
 
-const robotoCondensed = Roboto_Condensed({
-  variable: "--font-roboto-condensed",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
+const robotoCondensed = Roboto_Condensed({ subsets: ['latin'], variable: '--font-roboto-condensed' });
 
 export const metadata = {
   title: "Vibely",
@@ -21,8 +17,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className={`${robotoCondensed.variable} antialiased`}>
+    <html lang="en" className={robotoCondensed.variable}>
+      <body className="antialiased">
         <Toaster />
         <AuthWrapper>
           <ContextProvider>

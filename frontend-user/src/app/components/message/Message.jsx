@@ -42,7 +42,7 @@ export default function Message({ message, own }) {
             className="messageImg"
           />
         }
-        <p className="messageText">{message.text}</p>
+        <p className="messageText">{message.content}</p>
       </div>
       <div className={`messageBottom ${!own ? "ml-11" : ""}`}>{format(message.createdAt, "vi")}</div>
     </div>

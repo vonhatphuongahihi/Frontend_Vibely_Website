@@ -7,11 +7,13 @@ import "./loader.css";
 const Loader = ({ onLoad }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
-      onLoad();
+      if (typeof onLoad === 'function') {
+        onLoad();
+      }
     }, 10000);
 
     return () => clearTimeout(timer);
-  }, [onLoad]);
+  }, []);
 
   const sentence1 = "MẠNG XÃ HỘI HỌC TẬP KẾT NỐI CÁC BẠN TRẺ CHUNG ĐAM MÊ".split("");
 
