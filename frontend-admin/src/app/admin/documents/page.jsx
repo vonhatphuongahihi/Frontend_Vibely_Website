@@ -179,8 +179,8 @@ const Documents = () => {
         try {
             const res = await axios.post(`${API_URL}/admin/documents`, {
                 title: document.title,
-                level: document.levelId,
-                subject: document.subjectId,
+                levelId: document.levelId,
+                subjectId: document.subjectId,
                 pages: document.pages,
                 fileType: document.format,
                 fileUrl: document.url
@@ -199,10 +199,10 @@ const Documents = () => {
     // Gọi API cập nhật tài liệu
     const updateDocument = async (document) => {
         try {
-            const res = await axios.put(`${API_URL}/admin/documents/${document._id}`, {
+            const res = await axios.put(`${API_URL}/admin/documents/${document.id}`, {
                 title: document.title,
-                level: document.level,
-                subject: document.subject,
+                levelId: document.level,
+                subjectId: document.subject,
                 pages: document.pages,
                 fileType: document.fileType,
                 fileUrl: document.fileUrl
@@ -210,10 +210,11 @@ const Documents = () => {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            setDocuments(documents.map((doc) => (doc._id === res.data.data._id ? res.data.data : doc)));
+            setDocuments(documents.map((doc) => (doc.id === res.data.data.id ? res.data.data : doc)));
             toast.success("Cập nhật tài liệu thành công!");
             closeModal();
         } catch (err) {
+            console.error(err);
             toast.error("Cập nhật tài liệu thất bại!");
         }
     }
@@ -221,11 +222,11 @@ const Documents = () => {
     // Gọi API xóa tài liệu
     const deleteDocument = async () => {
         try {
-            await axios.delete(`${API_URL}/admin/documents/${selectedDocument._id}`, {
+            await axios.delete(`${API_URL}/admin/documents/${selectedDocument.id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
 
-            setDocuments(documents.filter((doc) => doc._id !== selectedDocument._id));
+            setDocuments(documents.filter((doc) => doc.id !== selectedDocument.id));
             toast.success("Xóa tài liệu thành công!");
             closeModal();
         } catch (err) {

@@ -100,8 +100,8 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
                             <option value="">Chọn cấp học</option>
                             {levels.map((level) => (
                                 <option
-                                    key={level._id}
-                                    value={level._id}
+                                    key={level.id}
+                                    value={level.id}
                                 >
                                     {level.name}
                                 </option>
@@ -124,8 +124,8 @@ const AddDocumentPopup = ({ levels, fetchSubjects, addDocument, onClose }) => {
 
                             {subjects.map((subject) => (
                                 <option
-                                    key={subject._id}
-                                    value={subject._id}
+                                    key={subject.id}
+                                    value={subject.id}
                                 >
                                     {subject.name}
                                 </option>

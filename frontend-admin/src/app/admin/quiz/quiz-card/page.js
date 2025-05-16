@@ -36,7 +36,7 @@ const QuizCard = ({ quiz, onDelete }) => {
     // Xử lý click vào nút edit
     const handleEdit = (e) => {
         e.stopPropagation();
-        router.push(`/admin/quiz/edit-quiz/${quiz?._id}`);
+        router.push(`/admin/quiz/edit-quiz/${quiz?.id}`);
         setShowDropdown(false);
     };
 
@@ -44,7 +44,7 @@ const QuizCard = ({ quiz, onDelete }) => {
     const handleDelete = (e) => {
         e.stopPropagation();
         if (window.confirm('Bạn có chắc chắn muốn xóa Quiz này không?')) {
-            onDelete(quiz?._id);
+            onDelete(quiz?.id);
         }
         setShowDropdown(false);
     };
