@@ -5,10 +5,10 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
 
     // State để lưu dữ liệu chỉnh sửa
     const [formData, setFormData] = useState({
-        _id: document?._id || "",
+        id: document?.id || "",
         title: document?.title || "",
-        level: document?.level._id || "",
-        subject: document?.subject._id || "",
+        level: document?.level?.id || document?.levelId || "",
+        subject: document?.subject?.id || document?.subjectId || "",
         pages: document?.pages || "",
         fileType: document?.fileType || "",
         fileUrl: document?.fileUrl || "",
@@ -29,7 +29,7 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
                     // Chỉ reset subject nếu user chọn cấp học mới, không reset khi load lần đầu
                     setFormData((prev) => ({
                         ...prev,
-                        subject: prev.subject && data.some(s => s._id === prev.subject) ? prev.subject : ""
+                        subject: prev.subject && data.some(s => s.id === prev.subject) ? prev.subject : ""
                     }));
                 })
                 .finally(() => setLoadingSubjects(false));
@@ -107,8 +107,8 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
                             <option value="">Chọn cấp học</option>
                             {levels.map((level) => (
                                 <option
-                                    key={level._id}
-                                    value={level._id}
+                                    key={level.id}
+                                    value={level.id}
                                 >
                                     {level.name}
                                 </option>
@@ -130,8 +130,8 @@ const UpdateDocumentPopup = ({ levels, fetchSubjects, document, updateDocument, 
                             <option value="">Chọn môn học</option>
                             {subjects.map((subject) => (
                                 <option
-                                    key={subject._id}
-                                    value={subject._id}
+                                    key={subject.id}
+                                    value={subject.id}
                                 >
                                     {subject.name}
                                 </option>

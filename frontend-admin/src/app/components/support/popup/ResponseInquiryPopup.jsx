@@ -5,7 +5,7 @@ const ResponseInquiryPopup = ({ inquiry, onUpdate, onClose }) => {
 
     // State lưu dữ liệu nhập
     const [formData, setFormData] = useState({
-        inquiryId: inquiry?._id || "",
+        inquiryId: inquiry?.id || "",
         response: inquiry?.response || "",
     });
 
@@ -53,7 +53,7 @@ const ResponseInquiryPopup = ({ inquiry, onUpdate, onClose }) => {
                     <input
                         type="text"
                         name="email"
-                        value={inquiry.userId.email}
+                        value={inquiry.email}
                         className="w-full border border-gray-400 p-2 rounded-lg focus:outline-none"
                         readOnly
                     />

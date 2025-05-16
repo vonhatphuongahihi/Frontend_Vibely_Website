@@ -38,11 +38,11 @@ const Inquiry = () => {
 
     // Xóa thắc mắc
     const handleDeleteInquiry = async () => {
-        if (!selectedInquiry?._id) return;
+        if (!selectedInquiry?.id) return;
 
         try {
-            await deleteInquiry(selectedInquiry._id);
-            setInquiries((prev) => prev.filter((inquiry) => inquiry._id !== selectedInquiry._id));
+            await deleteInquiry(selectedInquiry.id);
+            setInquiries((prev) => prev.filter((inquiry) => inquiry.id !== selectedInquiry.id));
             toast.success("Xóa thắc mắc thành công!");
             setSelectedInquiry(null);
             closeModal();
@@ -59,8 +59,8 @@ const Inquiry = () => {
                 response: inquiry.response,
             });
 
-            const updatedInquiry = data.inquiry;
-            setInquiries((prev) => prev.map((inquiry) => (inquiry._id === updatedInquiry._id ? updatedInquiry : inquiry)));
+            const updatedInquiry = data.data;
+            setInquiries((prev) => prev.map((inquiry) => (inquiry.id === updatedInquiry.id ? updatedInquiry : inquiry)));
             toast.success("Phản hồi thắc mắc thành công!");
             setSelectedInquiry(null);
             closeModal();

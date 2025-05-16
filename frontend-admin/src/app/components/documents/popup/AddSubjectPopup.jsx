@@ -65,8 +65,8 @@ const AddSubjectPopup = ({ levels, addSubject, onClose }) => {
                     <option value="">- Chọn cấp học -</option>
                     {levels.map((level) => (
                         <option
-                            key={level._id}
-                            value={level._id}
+                            key={level.id}
+                            value={level.id}
                         >
                             {level.name}
                         </option>

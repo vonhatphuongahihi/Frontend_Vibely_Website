@@ -27,9 +27,9 @@ const SupportTable = ({ inquiries, openModal, setSelectedInquiry }) => {
             </thead>
             <tbody>
                 {inquiries.map((inq) => (
-                    <tr key={inq._id} className="border-t border-gray-300 text-left">
-                        <td className="px-2 py-3 w-1/7">{inq.userId.username}</td>
-                        <td className="px-2 py-3 w-67/315 break-all">{inq.userId.email}</td>
+                    <tr key={inq.id} className="border-t border-gray-300 text-left">
+                        <td className="px-2 py-3 w-1/7">{inq.username}</td>
+                        <td className="px-2 py-3 w-67/315 break-all">{inq.email}</td>
                         <td className="px-2 py-3 w-1/2 md:w-7/20 break-words">{inq.message}</td>
                         <td className="px-2 py-3 w-1/12 text-center hidden lg:table-cell">{formatDate(inq.createdAt)}</td>
                         <td className="px-2 py-3 w-1/9 text-center">{inq.status}</td>

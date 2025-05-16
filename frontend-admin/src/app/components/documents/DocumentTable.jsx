@@ -28,10 +28,10 @@ const DocumentTable = ({ documents, openModal, setSelectedDoc }) => {
             </thead>
             <tbody>
                 {documents.map((doc) => (
-                    <tr key={doc._id} className="border-t border-gray-300 text-left">
+                    <tr key={doc.id} className="border-t border-gray-300 text-left">
                         <td className="px-2 py-3 w-1/3 break-words">{doc.title}</td>
-                        <td className="px-2 py-3 w-3/20 md:whitespace-nowrap">{doc.level.name}</td>
-                        <td className="px-2 py-3 w-1/10 md:whitespace-nowrap">{doc.subject.name}</td>
+                        <td className="px-2 py-3 w-3/20 md:whitespace-nowrap">{doc?.level?.name || doc.levelName}</td>
+                        <td className="px-2 py-3 w-1/10 md:whitespace-nowrap">{doc?.subject?.name || doc.subjectName}</td>
                         <td className="px-2 py-3 w-1/12 text-center hidden lg:table-cell">{doc.pages}</td>
                         <td className="px-2 py-3 w-1/9 text-center hidden lg:table-cell">{formatDate(doc.uploadDate)}</td>
                         <td className="px-2 py-3 w-1/9 text-center hidden lg:table-cell">{formatDate(doc.updatedAt)}</td>
