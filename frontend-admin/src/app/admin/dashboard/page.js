@@ -31,15 +31,35 @@ const Dashboard = () => {
             // Gọi API để lấy dữ liệu thống kê
             const statsData = await getDashboardStats(timeRange);
 
-            const formattedUserData = statsData.usersStats.map(item => ({
-                date: item._id.month ? `${item._id.year}-${item._id.month}` : item._id.date,
-                count: item.count
-            }));
+            const formattedUserData = statsData.usersStats.map(item => {
+                let date;
+                if (timeRange === 'day') {
+                    date = `${item._id.year}-${item._id.month}-${item._id.day}`;
+                } else if (timeRange === 'month') {
+                    date = `${item._id.year}-${item._id.month}`;
+                } else {
+                    date = `${item._id.year}`;
+                }
+                return {
+                    date,
+                    count: item.count
+                };
+            });
 
-            const formattedPostData = statsData.postsStats.map(item => ({
-                date: item._id.month ? `${item._id.year}-${item._id.month}` : item._id.date,
-                count: item.count
-            }));
+            const formattedPostData = statsData.postsStats.map(item => {
+                let date;
+                if (timeRange === 'day') {
+                    date = `${item._id.year}-${item._id.month}-${item._id.day}`;
+                } else if (timeRange === 'month') {
+                    date = `${item._id.year}-${item._id.month}`;
+                } else {
+                    date = `${item._id.year}`;
+                }
+                return {
+                    date,
+                    count: item.count
+                };
+            });
 
             setUserStats(formattedUserData);
             setPostStats(formattedPostData);
@@ -81,7 +101,7 @@ const Dashboard = () => {
                         </select>
                     </div>
                     {userStats.length > 0 && postStats.length > 0 ? (
-                        <ChartSection userStats={userStats} postStats={postStats} />
+                        <ChartSection userStats={userStats} postStats={postStats} timeRange={timeRange} />
                     ) : (
                         <p></p>
                     )}

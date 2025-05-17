@@ -22,21 +22,24 @@ const ChartSection = ({ userStats, postStats, timeRange }) => {
     }
 
     const formatDate = (date) => {
+        const d = dayjs(date);
+        if (!d.isValid()) return "";
         if (timeRange === 'day') {
-            return dayjs(date).format('DD/MM/YYYY');
+            return d.format('DD/MM/YYYY');
         } else if (timeRange === 'month') {
-            return dayjs(date).format('MM/YYYY');
+            return d.format('MM/YYYY');
         } else if (timeRange === 'year') {
-            return dayjs(date).format('YYYY');
+            return d.format('YYYY');
         }
         return date;
     };
 
     const CustomTooltip = ({ active, payload, label }) => {
         if (active && payload && payload.length) {
+            const formatted = formatDate(label);
             return (
                 <div className="bg-white p-2 shadow-md rounded border border-gray-200">
-                    <p className="text-gray-700 font-medium">{formatDate(label)}</p>
+                    {formatted && <p className="text-gray-700 font-medium">{formatted}</p>}
                     <p className="text-blue-600 font-semibold">{`${payload[0].value} ${payload[0].payload.type === 'user' ? 'người dùng' : 'bài viết'}`}</p>
                 </div>
             );
