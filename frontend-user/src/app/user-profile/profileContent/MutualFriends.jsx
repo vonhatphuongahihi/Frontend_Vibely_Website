@@ -26,6 +26,9 @@ export const MutualFriends = ({ id, isOwner }) => {
       fetchMutualFriends(id);
     }
   }, [id, fetchMutualFriends]);
+  useEffect(() => {
+  console.log("Mutual Friends Updated: ", mutualFriends);
+}, [mutualFriends]);
 
   const handleUnfollow = async (userId) => {
     await UnfollowUser(userId);
@@ -38,9 +41,12 @@ export const MutualFriends = ({ id, isOwner }) => {
     setSearchQuery(event.target.value);
   };
 
-  const filteredFriends = mutualFriends.filter((friend) =>
-    friend.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+const filteredFriends = Array.isArray(mutualFriends)
+  ? mutualFriends.filter((friend) =>
+      friend?.username?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  : [];
+
   const Tabs = ({className}) =>{
     return(
       <div className={`flex flex-wrap gap-4 justify-end md:w-[260px] ${className}`}>

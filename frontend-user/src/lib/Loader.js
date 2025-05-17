@@ -4,8 +4,13 @@ import { useEffect } from "react";
 import Image from "next/image";
 import "./loader.css";
 
-const Loader = ({ onLoad }) => {
+const Loader = ({ onLoad = () => {} }) => {
   useEffect(() => {
+    if (typeof onLoad !== "function") {
+      console.error("`onLoad` phải là một hàm.");
+      return;
+    }
+
     const timer = setTimeout(() => {
       onLoad();
     }, 10000);

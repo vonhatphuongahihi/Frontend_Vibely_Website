@@ -35,14 +35,17 @@ export const ProfileDetails = ({
         return;
       }
 
-      // Gửi API cập nhật
-      const updatedBio = await createOrUpdateUserBio(id, { bioText: tempBio });
+    const fullBio = {
+      ...profileData.bio,
+      bioText: tempBio, // chỉ thay đổi phần bioText
+    };
 
-      // Cập nhật dữ liệu mới vào state
-      setProfileData((prev) => ({
-        ...prev,
-        bio: { ...prev.bio, bioText: tempBio }, // Cập nhật motto mới
-      }));
+    const updatedBio = await createOrUpdateUserBio(id, fullBio);
+
+    setProfileData((prev) => ({
+      ...prev,
+      bio: updatedBio,
+    }));
 
       // Đóng modal chỉnh sửa
       setIsEditBioModal(false);
