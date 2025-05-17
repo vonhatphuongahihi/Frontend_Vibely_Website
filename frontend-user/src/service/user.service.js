@@ -53,7 +53,7 @@ export const deleteUserFromRequest = async (userId) => {
 //  Lấy thông tin hồ sơ người dùng
 export const fetchUserProfile = async (userId) => {
     try {
-        const response = await axiosInstance.get(`/users/profile/${userId}`)
+        const response = await axiosInstance.get(`/users/profile`)
         return response?.data?.data;
     } catch (error) {
         throw error;
@@ -73,7 +73,11 @@ export const getMutualFriends = async (userId) => {
 // Cập nhật hồ sơ người dùng
 export const updateUserProfile = async (userId, updateData) => {
     try {
-        const response = await axiosInstance.put(`/users/profile/${userId}`, updateData)
+        const response = await axiosInstance.put(`/users/profile`, updateData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
         return response?.data?.data;
     } catch (error) {
         throw error;
@@ -83,17 +87,22 @@ export const updateUserProfile = async (userId, updateData) => {
 // Cập nhật ảnh bìa hồ sơ
 export const updateUserCoverPhoto = async (userId, updateData) => {
     try {
-        const response = await axiosInstance.put(`/users/profile/cover-picture/${userId}`, updateData)
+        const response = await axiosInstance.put(`/users/profile`, updateData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            }
+        });
         return response?.data?.data;
     } catch (error) {
         throw error;
     }
 }
 
+
 // Tạo hoặc cập nhật tiểu sử (Bio) của người dùng
 export const createOrUpdateUserBio = async (userId, bioData) => {
     try {
-        const response = await axiosInstance.put(`/users/bio/${userId}`, bioData)
+        const response = await axiosInstance.put(`/users/bio`, bioData)
         return response?.data?.data;
     } catch (error) {
         throw error;

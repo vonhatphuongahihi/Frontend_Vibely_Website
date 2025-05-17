@@ -14,18 +14,21 @@ const Page = () => {
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
 
-  const fetchProfile = async () => {
-    setLoading(true);
-    try {
-      const result = await fetchUserProfile(id);
-      setProfileData(result.profile);
-      setIsOwner(result.isOwner);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchProfile = async () => {
+  setLoading(true);
+  try {
+    const result = await fetchUserProfile();
+    console.log("Dữ liệu nhận được từ backend:", result);
+
+    setProfileData(result); // ✅ không dùng result.profile nếu không có
+    setIsOwner(true);       // hoặc xử lý tuỳ ý
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     if (id) {

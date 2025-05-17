@@ -53,8 +53,8 @@ const QuizPage = () => {
     const handleDeleteQuiz = async (quizId) => {
         try {
             await deleteQuiz(quizId);
-            setQuizzes(quizzes.filter(q => q._id !== quizId));
-            setFilteredQuizzes(filteredQuizzes.filter(q => q._id !== quizId));
+            setQuizzes(quizzes.filter(q => q.id !== quizId));
+            setFilteredQuizzes(filteredQuizzes.filter(q => q.id !== quizId));
             toast.success('Xóa quiz thành công');
         } catch (error) {
             console.error('Error deleting quiz:', error);
@@ -119,9 +119,9 @@ const QuizPage = () => {
                     <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
                         {filteredQuizzes.map((quiz) => (
                             <QuizCard
-                                key={quiz._id}
+                                key={quiz.id}
                                 quiz={quiz}
-                                onDelete={() => handleDeleteQuiz(quiz._id)}
+                                onDelete={() => handleDeleteQuiz(quiz.id)}
                             />
                         ))}
                     </div>
