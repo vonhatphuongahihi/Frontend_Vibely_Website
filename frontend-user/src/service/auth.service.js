@@ -79,9 +79,12 @@ export const deleteAccount = async () => {
             toast.error("Bạn chưa đăng nhập");
             return;
         }
-        const response = await axiosInstance.delete('/auth/deleteAccount');
+        const response = await axiosInstance.delete('/auth/deleteAccount', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
         localStorage.removeItem("auth_token");
-        toast.success("Xóa tài khoản thành công");
         return response.data;
     } catch (error) {
         console.error("Xóa tài khoản thất bại:", error.response?.data || error.message);
