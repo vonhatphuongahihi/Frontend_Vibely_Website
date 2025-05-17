@@ -24,6 +24,7 @@ const ProfileHeader = ({
   isOwner,
   setProfileData,
   fetchProfile,
+  userId,
 }) => {
   const [isEditProfileModel, setIsEditProfileModel] = useState(false);
   const [isEditCoverModel, setIsEditCoverModel] = useState(false);
@@ -80,17 +81,24 @@ const ProfileHeader = ({
       // Nếu có ảnh bìa, cập nhật ảnh bìa
       if (coverPhotoFile) {
         const coverFormData = new FormData();
-        coverFormData.append("coverPicture", coverPhotoFile);
-        const updateCover = await updateUserCoverPhoto(id, coverFormData);
-        updateProfile.coverPicture = updateCover.coverPicture;
+        coverFormData.append("coverPicture", coverPhotoFile); // file từ input
+        const updateCover = await updateUserCoverPhoto(userId, coverFormData);
+        
+        if (updateCover && updateCover.coverPicture) {
+          updateProfile.coverPicture = updateCover.coverPicture;
+        } else {
+          // Xử lý khi không có dữ liệu trả về hoặc sai định dạng
+          console.warn("Không nhận được dữ liệu ảnh mới từ API");
+        }
       }
 
       // **Gửi API cập nhật Bio**
       const bioData = {
-        liveIn: data.liveIn,
-        workplace: data.workplace,
-        education: data.education,
-        hometown: data.hometown,
+        liveIn: data.liveIn || profile.liveIn,
+        workplace: data.workplace || profile.workplace,
+        education: data.education || profile.education,
+        hometown: data.hometown || profile.hometown,
+        bioText: profileData?.bio?.bioText || "",
       };
       const updatedBio = await createOrUpdateUserBio(id, bioData);
 
@@ -109,24 +117,32 @@ const ProfileHeader = ({
   };
 
 
-  const onSubmitCoverPhoto = async (e) => {
-    e.preventDefault();
-    try {
-      setLoading(true);
-      const formData = new FormData();
-      if (coverPhotoFile) {
-        formData.append("coverPicture", coverPhotoFile);
-      }
-      const updateProfile = await updateUserCoverPhoto(id, formData);
-      setProfileData({ ...profileData, coverPicture: updateProfile.coverPicture });
-      setIsEditCoverModel(false);
-      setCoverPhotoFile(null);
-    } catch (error) {
-      console.error("Lỗi khi cập nhật ảnh bìa", error);
-    } finally {
-      setLoading(false);
+const onSubmitCoverPhoto = async (e) => {
+  e.preventDefault();
+  try {
+    setLoading(true);
+    const formData = new FormData();
+    if (coverPhotoFile) {
+      formData.append("coverPicture", coverPhotoFile);
     }
-  };
+    const updateProfile = await updateUserCoverPhoto(id, formData);
+    console.log('Update cover response:', updateProfile);
+    // Giả sử API trả về URL ảnh mới trong updateProfile.coverPicture
+    if (updateProfile && updateProfile.coverPicture) {
+      setProfileData(prev => ({ ...prev, coverPicture: updateProfile.coverPicture }));
+    } else {
+      // Nếu API không trả URL, dùng URL.createObjectURL
+      const objectUrl = URL.createObjectURL(coverPhotoFile);
+      setProfileData(prev => ({ ...prev, coverPicture: objectUrl }));
+    }
+    setIsEditCoverModel(false);
+    setCoverPhotoFile(null);
+  } catch (error) {
+    console.error("Lỗi khi cập nhật ảnh bìa", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
 
 
@@ -209,7 +225,7 @@ const ProfileHeader = ({
           <div className="mt-4 mdLmt-0 text-center md:text-left flex-grow">
             <h1 className="text-3xl font-bold">{profileData?.username}</h1>
             <p className="text-gray-400 font-semibold">
-              {mutualFriends.length} người bạn
+            {Array.isArray(mutualFriends) ? mutualFriends.length : 0} người bạn
             </p>
           </div>
           {isOwner && (
@@ -543,3 +559,4 @@ const ProfileField = ({
 };
 
 export default ProfileHeader;
+
