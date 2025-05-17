@@ -7,15 +7,21 @@ import { motion } from 'framer-motion'
 import userStore from '@/store/userStore'
 
 const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userStory, avatar, isLoading, onReact, reaction, reactions, onDelete }) => {
-    console.log({ userStory })
-    const userPlaceholder = userStory?.username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
+    // Chỉ log khi cần debug
+    // console.log({ userStory })
+    
+    // Đảm bảo userStory không null trước khi truy cập thuộc tính
+    const userPlaceholder = userStory?.username?.split(" ")?.map((name) => name?.[0])?.join("") || ""; //tên người dùng viết tắt
+    
     //xóa tin (dành cho người đăng tin)
     const handleDeleteStory = () => {
-        onDelete();
+        if (onDelete) onDelete();
         onClose();
     }
+    
     const { user } = userStore()
-    console.log({ id: user?.id, userStoryId: userStory?.id })
+    // console.log({ id: user?.id, userStoryId: userStory?.id })
+    
     return (
         <div className='fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50'>
             <div className='relative w-full max-w-md h-[70vh] flex flex-col bg-white rounded-lg overflow-hidden'>
@@ -30,12 +36,12 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                 <div className='absolute top-4 left-4 z-10 flex items-center'>
                     <Avatar className='w-10 h-10 mr-2'>
                         {avatar ? (
-                            <AvatarImage src={avatar} alt={userStory?.username} />
+                            <AvatarImage src={avatar} alt={userStory?.username || ""} />
                         ) : (
                             <AvatarFallback>{userPlaceholder}</AvatarFallback>
                         )}
                     </Avatar>
-                    <span className='text-gray-700 font-semibold'>{userStory?.username}</span>
+                    <span className='text-gray-700 font-semibold'>{userStory?.username || ""}</span>
                 </div>
                 {/*file phuong tien*/}
                 <div className='flex flex-grow items-center justify-center bg-gray-100'>
@@ -60,6 +66,7 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                     <div className='absolute bottom-4 right-2 transform -translate-x-1/2'>
                         <Button className='bg-[#086280] hover:bg-[#23CAF1] text-white'
                             onClick={onPost}
+                            disabled={isLoading}
                         >
                             {isLoading ? "Đang lưu..." : "Đăng"}
                         </Button>
@@ -72,8 +79,14 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                         {user?.id === userStory?.id && (
                             <div>
                                 <div className='absolute bottom-20 left-5 transform flex gap-5'>
-                                    <Image src={"/love.png"} alt="loved" width={24} height={24} />
-                                    <p className='text-lg font-semibold'>{reactions?.length}</p>
+                                    <Image 
+                                        src="/love.png" 
+                                        alt="loved" 
+                                        width={24} 
+                                        height={24}
+                                        style={{ width: 'auto', height: 'auto' }} 
+                                    />
+                                    <p className='text-lg font-semibold'>{reactions?.length || 0}</p>
                                 </div>
                                 <Button className='absolute bottom-6 left-5 transform py-3 bg-red-300 opacity-70'
                                     variant="ghost"
@@ -83,23 +96,18 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                                 </Button>
                             </div>
                         )}
-
-                        <motion.div className='absolute bottom-4 right-2 transform' whileTap={!reaction ? { scale: 5 } : {}}>
-                            <Button className='py-6'
-                                variant="ghost"
-                                onClick={() => onReact('tym')}
-                            >
-                                {reaction ?
-                                    <div className='flex gap-2'>
-                                        <Image src={"/love.png"} alt="loved" width={36} height={36} />
-                                    </div>
-                                    :
-                                    <motion.div className='flex gap-2 text-black'>
-                                        <Heart style={{ width: "30px", height: "30px" }} />
-                                    </motion.div>
-                                }
-                            </Button>
-                        </motion.div>
+                        {/*Nút thả tim cho người khác xem story*/}
+                        {user?.id !== userStory?.id && (
+                            <div className='absolute bottom-6 left-5 transform'>
+                                <Button
+                                    variant="ghost"
+                                    className={`rounded-full p-2 ${reaction ? 'bg-red-100' : 'bg-gray-100'}`}
+                                    onClick={() => onReact && onReact("tym")}
+                                >
+                                    <Heart className={`h-6 w-6 ${reaction ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

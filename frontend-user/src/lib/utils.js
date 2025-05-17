@@ -7,8 +7,9 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-export const formatedDate = (date)=>{
-  return formatDistanceToNow(parseISO(date),{addSuffix:true,locale:vi})
+export const formatedDate = (date) => {
+  if (!date) return "";
+  return formatDistanceToNow(parseISO(date), {addSuffix:true, locale:vi});
 }
 
 export const  formatDateInDDMMYYY = (date) =>{

@@ -7,13 +7,14 @@ import { Button } from '@/components/ui/button'
 import userStore from '@/store/userStore'
 import { usePostStore } from '@/store/usePostStore'
 import ShowStoryPreview from './ShowStoryPreview'
+import { toast } from 'react-hot-toast'
 
 const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
   const [filePreview, setFilePreview] = useState(null)
   const { handleCreateStory } = usePostStore()
   const { user } = userStore() //lấy thông tin người dùng
-  const storyUserPlaceholder = story?.user?.username?.split(" ").map((name) => name[0]).join(""); //tên người đăng bài viết tắt
-  const userPlaceholder = user?.username?.split(" ").map((name) => name[0]).join(""); //tên người dùng viết tắt
+  const storyUserPlaceholder = story?.user?.username?.split(" ")?.map((name) => name?.[0])?.join("") || ""; //tên người đăng bài viết tắt
+  const userPlaceholder = user?.username?.split(" ")?.map((name) => name?.[0])?.join("") || ""; //tên người dùng viết tắt
   const [isNewStory, setIsNewStory] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   //chọn ảnh từ thiết bị
@@ -41,20 +42,45 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       const formData = new FormData()
       if (selectedFile) {
         formData.append('file', selectedFile)
+        console.log(`Đang gửi file: ${selectedFile.name}, kích thước: ${selectedFile.size} bytes, loại: ${selectedFile.type}`)
+      } else {
+        console.error("Không có file được chọn")
+        toast.error("Vui lòng chọn một file để tạo story")
+        setLoading(false)
+        return
       }
-      await handleCreateStory(formData)
+      
+      const result = await handleCreateStory(formData)
+      console.log("Kết quả tạo story:", result)
       resetStoryState()
     } catch (error) {
-      console.log(error)
+      console.error("Lỗi khi tạo story:", error)
+      toast.error(`Lỗi khi tạo story: ${error.message || "Không xác định"}`)
       setLoading(false)
     }
   }
   // tải nội dung story nếu ko phải đang tạo tin mới
-  const handleStoryClick = () => {  //upload
-    setFilePreview(story?.mediaUrl)
-    setFileType(story?.mediaType)
-    setIsNewStory(false)
-    setShowPreview(true)
+  const handleStoryClick = () => {
+    console.log("Story đầy đủ:", story);
+    
+    if (!story) {
+      console.error("Story không tồn tại");
+      return;
+    }
+    
+    if (!story.mediaUrl) {
+      console.error("Story data is missing or incomplete:", story);
+      // Thử truy cập thuộc tính lồng nhau
+      console.log("ID:", story.id);
+      console.log("User:", story.user);
+      console.log("Các thuộc tính khác:", Object.keys(story));
+      return;
+    }
+    
+    setFilePreview(story.mediaUrl);
+    setFileType(story.mediaType);
+    setIsNewStory(false);
+    setShowPreview(true);
   }
   //tắt xem story
   const handleClosePreview = () => {
@@ -67,9 +93,11 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
     setFilePreview(null)
     setFileType(null)
     setIsNewStory(false)
+    setLoading(false) // Thêm reset loading
   }
 
-  console.log({ isNewStory, user, story })
+  // Chỉ log khi cần debug, tránh lỗi khi story là undefined
+  // console.log({ isNewStory, user, story })
 
   return (
     <>
@@ -108,17 +136,23 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
                 onChange={handleFileChange}
               />
             </div>
-          ) : (
+          ) : story ? ( // Kiểm tra story tồn tại trước khi hiển thị
             <>
               {/*Xem tin*/}
-              {story?.mediaType === 'image' ? (
-                <img src={story?.mediaUrl} alt={story?.user?.username} className="w-full h-full object-cover" />
+              {story.mediaType && story.mediaUrl ? (
+                story.mediaType === 'image' ? (
+                  <img src={story.mediaUrl} alt={story?.user?.username} className="w-full h-full object-cover" />
+                ) : (
+                  <video
+                    src={story.mediaUrl}
+                    alt={story?.user?.username}
+                    className="w-full h-full object-cover"
+                  />
+                )
               ) : (
-                <video
-                  src={story?.mediaUrl}
-                  alt={story?.user?.username}
-                  className="w-full h-full object-cover"
-                />
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <p className="text-gray-500">Không thể hiển thị nội dung</p>
+                </div>
               )}
               <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full ">
                 <Avatar className="w-8 h-8 bg-gray-100">
@@ -131,14 +165,13 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
               </div>
               <div className="absolute bottom-2 left-2 right-2">
                 <p className="text-white text-xs font-semibold truncate">{story?.user?.username}</p>
-
               </div>
             </>
-          )}
+          ) : null}
         </CardContent>
       </Card>
       {/*Nội dung tin*/}
-      {showPreview && (
+      {showPreview && filePreview && (
         <ShowStoryPreview
           file={filePreview}
           fileType={fileType}
@@ -149,9 +182,9 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
           avatar={isNewStory ? user?.profilePicture : story?.user?.profilePicture}
           isLoading={loading}
           reactions={story?.reactions}
-          reaction={story?.reactions?.find(react => react?.user?.id.toString() == user?.id) ? "tym" : null}
-          onReact={(reactType) => onReact(reactType)}  // chức năng react
-          onDelete={() => onDelete()}
+          reaction={story?.reactions?.find(react => react?.user?.id?.toString() === user?.id) ? "tym" : null}
+          onReact={(reactType) => onReact && onReact(reactType)}
+          onDelete={() => onDelete && onDelete()}
         />
       )}
     </>
