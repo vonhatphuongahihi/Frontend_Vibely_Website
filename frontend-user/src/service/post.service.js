@@ -4,13 +4,29 @@ import axiosInstance from "./url.service"
 //Phương thức tạo bài viết
 export const createPost = async (postData) => {
     try {
+      // Kiểm tra kích thước file nếu có
+      const file = postData.get('file');
+      if (file) {
+        console.log(`Đang gửi file: ${file.name}, kích thước: ${(file.size / (1024 * 1024)).toFixed(2)}MB, loại: ${file.type}`);
+        
+        // Kiểm tra nếu là video và kích thước quá lớn
+        if (file.type.startsWith('video/') && file.size > 90 * 1024 * 1024) {
+          throw new Error("Video quá lớn, vui lòng chọn video nhỏ hơn 90MB");
+        }
+      }
+      
       const result = await axiosInstance.post('/users/posts', postData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000, // Tăng timeout lên 60 giây cho file lớn
       });
       return result?.data?.data;
     } catch (error) {
+      console.error("Lỗi khi tạo bài viết:", error);
+      if (error.response?.status === 413) {
+        throw new Error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
+      }
       throw error;
     }
   };
@@ -18,15 +34,32 @@ export const createPost = async (postData) => {
 //Phương thức tạo story
 export const createStory = async (storyData) => {
     try {
+        // Kiểm tra xem formData có file không
+        if (!storyData.get('file')) {
+            console.error("Không có file trong formData");
+            throw new Error("Không có file để tạo story");
+        }
+        
+        // Log để debug
+        console.log("Đang gửi request tạo story với file:", storyData.get('file').name);
+        
         const result = await axiosInstance.post('/users/story', storyData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
         })
-        return result?.data?.data
+        
+        // Kiểm tra response
+        if (!result?.data?.data) {
+            console.error("Response không chứa dữ liệu story:", result);
+            throw new Error("Không nhận được dữ liệu story từ server");
+        }
+        
+        console.log("Story đã được tạo thành công:", result.data.data);
+        return result?.data?.data;
     } catch (error) {
-        //console.error(error)
-        throw error
+        console.error("Lỗi chi tiết khi tạo story:", error.response?.data || error.message);
+        throw error;
     }
 }
 

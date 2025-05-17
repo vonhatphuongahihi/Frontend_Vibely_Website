@@ -36,31 +36,71 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             const res = await getAllStories();
+            console.log("Raw story data từ API:", res);
+            
+            if (!res || res.length === 0) {
+                console.log("Không có story nào được trả về từ API");
+                set({ stories: [], loading: false });
+                return;
+            }
+            
+            // Kiểm tra cấu trúc dữ liệu
+            const sampleStory = res[0];
+            console.log("Mẫu story đầu tiên:", sampleStory);
+            console.log("Các thuộc tính của story:", Object.keys(sampleStory));
+            
+            // Chuyển đổi dữ liệu nếu cần
+            const processedStories = res.map(story => {
+                // Đảm bảo các trường cần thiết đều có
+                return {
+                    ...story,
+                    id: story.id || story._id, // Đảm bảo có id
+                    mediaUrl: story.mediaUrl, // Đảm bảo có mediaUrl
+                    mediaType: story.mediaType, // Đảm bảo có mediaType
+                    user: story.user || {} // Đảm bảo có user
+                };
+            });
+            
             const now = new Date();
             const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Lùi lại 24 giờ
             //Story chỉ tồn tại trong 24h 
-            const filterStories = res.filter(story => {
+            const filterStories = processedStories.filter(story => {
                 const storyDate = new Date(story.createdAt);
                 return storyDate >= last24Hours; // Chỉ lấy story có thời gian >= thời gian 24h trước
             });
+            
+            console.log("Stories sau khi lọc và xử lý:", filterStories);
             set({ stories: filterStories, loading: false })
         } catch (error) {
+            console.error("Lỗi khi fetch stories:", error);
             set({ error, loading: false })
         }
     },
 
     handleCreatePost: async (postData) => {
-
         try {
-            const newPost = await createPost(postData)
+            set({ loading: true });
+            const newPost = await createPost(postData);
             set((state) => ({
                 posts: [newPost, ...state.posts],   //thêm bài đăng mới vào danh sách các bài đăng
                 loading: false,
-            }))
-            toast.success("Tạo bài đăng thành công.")
+            }));
+            toast.success("Tạo bài đăng thành công.");
+            return newPost;
         } catch (error) {
-            set({ error, loading: false })
-            toast.error("Đã xảy ra lỗi khi đăng bài. Vui lòng thử lại.")
+            console.error("Lỗi chi tiết khi tạo bài viết:", error);
+            set({ error, loading: false });
+            
+            // Hiển thị thông báo lỗi cụ thể
+            if (error.message) {
+                toast.error(error.message);
+            } else if (error.response?.status === 413) {
+                toast.error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
+            } else {
+                toast.error("Đã xảy ra lỗi khi đăng bài. Vui lòng thử lại.");
+            }
+            
+            return null;
         }
     },
 
@@ -87,14 +127,23 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             const newStory = await createStory(storyData)  //thêm story mới vào danh sách các story
-            set((state) => ({
-                stories: [newStory, ...state.stories],
-                loading: false,
-            }))
-            toast.success("Tạo story thành công.")
+            if (newStory) { // Kiểm tra newStory có tồn tại không
+                set((state) => ({
+                    stories: [newStory, ...state.stories],
+                    loading: false,
+                }))
+                toast.success("Tạo story thành công.")
+                return newStory; // Trả về story đã tạo để component có thể sử dụng
+            } else {
+                set({ loading: false })
+                toast.error("Không thể tạo story. Dữ liệu không hợp lệ.")
+                return null;
+            }
         } catch (error) {
+            console.error("Lỗi trong store khi tạo story:", error);
             set({ error, loading: false })
             toast.error("Đã xảy ra lỗi khi đăng story. Vui lòng thử lại.")
+            throw error; // Ném lỗi để component có thể bắt và xử lý
         }
     },
 
