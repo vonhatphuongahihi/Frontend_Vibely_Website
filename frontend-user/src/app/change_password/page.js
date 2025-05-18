@@ -3,6 +3,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import LeftSideBar from "../components/LeftSideBar";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 export default function ResetPassword() {
     const [oldPassword, setOldPassword] = useState("");
@@ -13,42 +15,54 @@ export default function ResetPassword() {
     const router = useRouter();
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
+    const changePassword = async (oldPassword, newPassword) => {
+        try {
+            const response = await axios.post(`${API_URL}/auth/change-password`, {
+                oldPassword,
+                newPassword
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            throw error;
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setError("");
+
+        // Kiểm tra mật khẩu mới và xác nhận mật khẩu
         if (password !== confirmPassword) {
-            setError("Mật khẩu nhập lại không khớp!");
+            toast.error("Mật khẩu mới và xác nhận mật khẩu không khớp");
+            return;
+        }
+
+        // Kiểm tra độ dài mật khẩu mới
+        if (password.length < 6) {
+            toast.error("Mật khẩu mới phải có ít nhất 6 ký tự");
             return;
         }
 
         try {
-            const token = localStorage.getItem('token'); // Lấy token từ localStorage
-            const response = await fetch(`${API_URL}/auth/change-password`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    oldPassword: oldPassword,
-                    newPassword: password
-                })
-            });
+            const result = await changePassword(oldPassword, password);
 
-            const data = await response.json();
-
-            if (!response.ok) {
-                setError(data.message);
-                return;
+            if (result?.status === "success") {
+                setSuccess(true);
+                setError('');
+                toast.success("Đổi mật khẩu thành công");
+                setOldPassword("");
+                setPassword("");
+                setConfirmPassword("");
+            } else {
+                toast.error(result?.message || "Đổi mật khẩu thất bại");
             }
-
-            setSuccess(true);
-            setError('');
-            setTimeout(() => {
-                router.push("/user-login");
-            }, 3000);
         } catch (error) {
-            setError("Đã xảy ra lỗi khi đổi mật khẩu");
+            const errorMessage = error?.response?.data?.message || "Đã xảy ra lỗi khi đổi mật khẩu";
+            toast.error(errorMessage);
             console.error("Lỗi:", error);
         }
     };
@@ -56,7 +70,7 @@ export default function ResetPassword() {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-[#F9FDFF] p-6">
             <div className="md:hidden">
-            <LeftSideBar/>
+                <LeftSideBar />
             </div>
             <form onSubmit={handleSubmit} className="w-full md:w-[50%] lg:w-[31%] bg-white shadow-md rounded-lg p-6 text-center border border-[#0E42D2] mt-14">
                 <div className="mb-6 flex justify-center">
@@ -92,8 +106,7 @@ export default function ResetPassword() {
                     />
                     {error && <p className="text-red-500 mb-4">{error}</p>}
                     {success && (
-                        <p className="text-green-500 mb-4">
-                            Đã đặt lại mật khẩu thành công. Vui lòng đăng nhập lại.
+                        <p >
                         </p>
                     )}
                 </div>
