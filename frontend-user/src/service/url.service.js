@@ -7,7 +7,8 @@ const axiosInstance = axios.create({
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-    }
+    },
+    withCredentials: true
 });
 
 // Xử lý yêu cầu
