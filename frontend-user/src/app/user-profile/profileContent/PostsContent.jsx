@@ -4,19 +4,19 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { AnimatePresence, motion } from 'framer-motion'
-import { MessageCircle, MoreHorizontal, ThumbsUp} from 'lucide-react'
+import { MessageCircle, MoreHorizontal, ThumbsUp } from 'lucide-react'
+import { QRCodeCanvas } from "qrcode.react"
 import { useEffect, useRef, useState } from 'react'
+import { AiOutlineCopy, AiOutlineDelete } from "react-icons/ai"
+import { FaFacebook, FaLinkedin } from "react-icons/fa"
+import { FaXTwitter } from "react-icons/fa6"
 import { PiShareFatBold } from "react-icons/pi"
-import { FaXTwitter } from "react-icons/fa6";
-import { FaFacebook, FaLinkedin } from "react-icons/fa";
-import { AiOutlineCopy, AiOutlineDelete } from "react-icons/ai";
-import { QRCodeCanvas } from "qrcode.react";
 
+import PostComments from '@/app/posts/PostComments'
 import { formatedDate } from '@/lib/utils'
+import userStore from '@/store/userStore'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import userStore from '@/store/userStore'
-import PostComments from '@/app/posts/PostComments'
 
 export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
@@ -25,44 +25,44 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
   const [isChoosing, setIsChoosing] = useState(false)
   const totalReact = post?.reactionStats?.like+post?.reactionStats?.love+post?.reactionStats?.haha+post?.reactionStats?.wow+post?.reactionStats?.sad+post?.reactionStats?.angry
   const commentInputRef = useRef(null)
-const router= useRouter()
+  const router= useRouter()
 
-const {user} = userStore()
-const [reaction,setReaction] = useState(null) 
+  const {user} = userStore()
+  const [reaction,setReaction] = useState(null) 
 
-const [dropdownOpen, setDropdownOpen] = useState(false);
-const [popupOpen, setPopupOpen] = useState(false);
-const dropdownRef = useRef(null);
-const popupRef = useRef(null);
-// Đóng dropdown khi click ra ngoài
-useEffect(() => {
-  function handleClickOutside(event) {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setDropdownOpen(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [popupOpen, setPopupOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const popupRef = useRef(null);
+  // Đóng dropdown khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
     }
-  }
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-// Đóng popup khi click ra ngoài
-useEffect(() => {
-  function handleClickOutside(event) {
-    if (popupRef.current && !popupRef.current.contains(event.target)) {
-      setPopupOpen(false);
+  // Đóng popup khi click ra ngoài
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        setPopupOpen(false);
+      }
     }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleUserProfile = ()  => {
+    router.push(`/user-profile/${post?.user?.id}`)
   }
-  document.addEventListener("mousedown", handleClickOutside);
-  return () => document.removeEventListener("mousedown", handleClickOutside);
-}, []);
 
-const handleUserProfile = ()  => {
-  router.push(`/user-profile/${post?.user?.id}`)
-}
-
-const handleSinglePost = ()  => {
-  router.push(`/posts/${post?.id}`)
-}
+  const handleSinglePost = ()  => {
+    router.push(`/posts/${post?.id}`)
+  }
 
   const handleCommentClick = () =>{
     setShowComments(!showComments)
@@ -75,10 +75,10 @@ const handleSinglePost = ()  => {
   useEffect(() => {
     setReaction(post?.reactions?.find(react=>react?.user == user?.id)?post?.reactions?.find(react=>react?.user == user?.id).type:null)
     //đảm bảo object hợp lệ
-      if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
+    if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
       setTopReactions([]);
       return;
-  }
+    }
     // cập nhật danh sách top reactions
     const filteredReactions = Object.entries(post?.reactionStats)
         .filter(([key, value]) => value > 0) // loại bỏ reaction có số lượng = 0
@@ -86,7 +86,7 @@ const handleSinglePost = ()  => {
         .slice(0, 3); // lấy 3 reaction nhiều nhất
     
     setTopReactions(filteredReactions);
-}, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
+  }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
 
   const generateSharedLink = () => {
     return `http://localhost:3000/posts/${post?.id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
@@ -122,9 +122,6 @@ const handleSinglePost = ()  => {
     onReact(reaction);
     setShowReactionChooser(false); // Ẩn thanh reaction sau khi chọn
   };
-  const handleDeletePost = () =>{
-    onDelete();
-  }
 
   return (
     <motion.div
@@ -188,7 +185,7 @@ const handleSinglePost = ()  => {
               <button
                 onClick={() => {
                   setPopupOpen(false);
-                  handleDeletePost();
+                  onDelete();
                 }}
                 className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
               >

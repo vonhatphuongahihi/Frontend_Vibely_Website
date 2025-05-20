@@ -1,4 +1,4 @@
-import axiosInstance from "./url.service"
+import axiosInstance from "./url.service";
 //Các phương thức dùng để tương tác với API
 
 //Phương thức tạo bài viết
@@ -80,7 +80,6 @@ export const getAllUserPosts = async (userId) => {
         const result = await axiosInstance.get(`/users/posts/user/${userId}`)
         return result?.data?.data;
     } catch (error) {
-        //console.error(error)
         throw error;
     }
 }
@@ -98,7 +97,7 @@ export const getAllStories = async () => {
 
 // phương thức để react cho một bài viết
 export const reactPost = async (postId, reactType) => {
-    console.log({reactType, postId})
+    console.log(reactType, postId)
     try {
         const result = await axiosInstance.post(`users/posts/react/${postId}`, { type: reactType });
         return result?.data;

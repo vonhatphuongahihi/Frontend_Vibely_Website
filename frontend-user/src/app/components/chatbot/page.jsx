@@ -97,9 +97,6 @@ const Chatbot = ({ isOpen, onClose }) => {
                 return;
             }
 
-            console.log("Token:", currentToken); // Debug log
-            console.log("User data:", userData); // Debug log
-
             // Gọi API chatbot để nhận câu trả lời
             const response = await fetch(`${API_URL}/chatbot/handleMessage`, {
                 method: "POST",
