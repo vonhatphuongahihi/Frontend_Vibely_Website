@@ -51,7 +51,7 @@ function Posts() {
   const handleSearch = () => {
     if (searchQuery) {
       const filterPost = postList.filter((post) =>
-        post._id.toString() === searchQuery //tìm theo id
+        post.id.toString() === searchQuery //tìm theo id
           || post?.user?.username?.toLowerCase().includes(searchQuery.toLowerCase()) //tìm theo tên người đăng
           || post?.content?.toLowerCase().includes(searchQuery.toLowerCase()) //tìm theo nội dung bài viết
           ? post : null
@@ -110,6 +110,10 @@ function Posts() {
   };
 
   const handleDelete = async (postId) => {
+    if (!postId) {
+      toast.error("Không tìm thấy ID bài viết để xóa!");
+      return;
+    }
     await deletePost(postId)
     await fetchPosts()
     toast.success("Xóa bài viết thành công.")
@@ -176,7 +180,7 @@ function Posts() {
           <div className="flex mb-3">
             <p className="font-['Roboto_Condensed'] text-sm md:text-xl hidden lg:block">Số lượt bày tỏ cảm xúc: &nbsp;</p>
             <p className="font-['Roboto_Condensed'] text-sm md:text-xl lg:hidden">Số lượt cảm xúc: &nbsp;</p>
-            <p className="font-bold font-['Roboto_Condensed'] text-sm md:text-xl">{Object.values(post.reactionStats).reduce((acc, val) => acc + val, 0)}</p>
+            <p className="font-bold font-['Roboto_Condensed'] text-sm md:text-xl">{post?.reactionStats ? Object.values(post.reactionStats).reduce((acc, val) => acc + val, 0) : 0}</p>
           </div>
           <div className="grid grid-cols-3 lg:grid-cols-6 gap-6 mb-7">
             <div className="flex items-center gap-1 md:gap-2">
@@ -216,7 +220,7 @@ function Posts() {
             <Button
               className="w-30 md:w-40 text-sm md:text-[20px] h-8 md:h-10 cursor-pointer hover:bg-gray-700 text-white bg-[#DF0000] font-['Roboto_Condensed'] rounded-[25px] overflow-hidden"
               onClick={() => {
-                handleDelete(post?._id)
+                handleDelete(post?._id || post?.id)
               }}
             >
               <MdDelete className="w-10 h-10" />
@@ -321,11 +325,11 @@ function Posts() {
         {/*List*/}
         {postList &&
           (filterPosts.length > 0 //nếu đang search thì hiện danh sách lọc
-            ? filterPosts.map((post) => {
-              return <PostCard key={post?._id} post={post} />;
+            ? filterPosts.map((post, idx) => {
+              return <PostCard key={post?._id || post?.id || idx} post={post} />;
             })
-            : postList.map((post) => {
-              return <PostCard key={post?._id} post={post} />;
+            : postList.map((post, idx) => {
+              return <PostCard key={post?._id || post?.id || idx} post={post} />;
             }))}
       </div>
     </div>
