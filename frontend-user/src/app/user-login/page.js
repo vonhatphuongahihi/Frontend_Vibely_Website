@@ -46,7 +46,7 @@ const Page = () => {
         setIsLoading(false);
       }
     };
- 
+
     checkLoginStatus();
   }, [router]);
 

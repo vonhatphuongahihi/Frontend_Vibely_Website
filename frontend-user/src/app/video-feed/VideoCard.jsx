@@ -24,8 +24,8 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [isChoosing, setIsChoosing] = useState(false)
   const totalReact = post?.reactionStats?.like + post?.reactionStats?.love + post?.reactionStats?.haha + post?.reactionStats?.wow + post?.reactionStats?.sad + post?.reactionStats?.angry
   const totalComment =
-    (post.comments?.length || 0) +
-    post.comments.reduce((total, cmt) => total + (cmt.replies?.length || 0), 0);
+    (post?.comments?.length || 0) +
+    (post?.comments?.reduce((total, cmt) => total + (cmt?.replies?.length || 0), 0) || 0);
   const commentInputRef = useRef(null)
   const router = useRouter()
 

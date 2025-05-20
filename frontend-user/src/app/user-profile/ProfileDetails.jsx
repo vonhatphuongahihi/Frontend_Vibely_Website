@@ -4,12 +4,13 @@ import { createOrUpdateUserBio } from "@/service/user.service";
 import { usePostStore } from "@/store/usePostStore";
 import { motion } from "framer-motion";
 import { Briefcase, GraduationCap, Home, MapPin } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import NewPostForm from "../posts/NewPostForm";
 import { MutualFriends } from "./profileContent/MutualFriends";
 import { PostsContent } from "./profileContent/PostsContent";
 import { SavedDocuments } from "./profileContent/SavedDocuments";
-import NewPostForm from "../posts/NewPostForm";
-import { useRouter } from "next/navigation";
 
 export const ProfileDetails = ({
   activeTab,
@@ -64,6 +65,7 @@ export const ProfileDetails = ({
     handleReactPost,
     handleCommentPost,
     handleSharePost,
+    handleDeletePost,
   } = usePostStore();
 
   useEffect(() => {
@@ -80,21 +82,20 @@ export const ProfileDetails = ({
     }
   }, []);
   const handleReact = async (postId, reactType) => {
-    console.log("reactType: ", reactType);
     const updatedReactPosts = { ...reactPosts };
+
     if (updatedReactPosts && updatedReactPosts[postId] === reactType) {
       delete updatedReactPosts[postId]; // hủy react nếu nhấn lại
     } else {
       updatedReactPosts[postId] = reactType; // cập nhật cảm xúc mới
     }
-    //lưu danh sách mới vào biến
+    
     setReactPosts(updatedReactPosts);
-    //lưu vào cục bộ
     localStorage.setItem("reactPosts", JSON.stringify(updatedReactPosts));
 
     try {
-      await handleReactPost(postId, updatedReactPosts[postId] || null); //api
-      await fetchPosts(); // tải lại danh sách
+      await handleReactPost(postId, updatedReactPosts[postId] || null);
+      // await fetchPosts();
     } catch (error) {
       console.log(error);
       toast.error(
@@ -104,42 +105,6 @@ export const ProfileDetails = ({
   };
   const router = useRouter();
 
-  const userVideos = [
-    {
-      id: 1,
-      thumbnail: "https://i.ytimg.com/vi/3aNuJnzVjhE/maxresdefault.jpg",
-    },
-    {
-      id: 2,
-      thumbnail:
-        "https://i.ytimg.com/vi/GEqCju1U0kA/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCwi90iiJnBNbFKhUdZHQbXwIDpqw",
-    },
-    {
-      id: 3,
-      thumbnail:
-        "https://i.ytimg.com/vi/UzOlPj-I0bM/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLAEXyhSNC1A8CM0dElDYCRpoTIerg",
-    },
-    {
-      id: 4,
-      thumbnail:
-        "https://i.ytimg.com/vi/CkPHIVrTwzI/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLB4Pbkea19pib3VfNRycRdg_YqKfw",
-    },
-    {
-      id: 5,
-      thumbnail:
-        "https://img.vietcetera.com/uploads/images/02-nov-2021/real-time-study-with-me-with-music-3-00-19-14-1613640165.jpg",
-    },
-    {
-      id: 6,
-      thumbnail:
-        "https://i.ytimg.com/vi/1ex_bNIFR1A/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLCnyWx4Qein0GIzXqaRHNDpUQ8prg",
-    },
-    {
-      id: 7,
-      thumbnail:
-        "https://static.ybox.vn/2021/4/6/1619279350970-ezgif.com-resize.jpg",
-    },
-  ];
   const [isPostFormOpen, setIsPostFormOpen] = useState(false)
   const tabContent = {
     posts: (
@@ -266,6 +231,11 @@ export const ProfileDetails = ({
                   await handleSharePost(post?.id);
                   await fetchUserPost(id);
                 }}
+                onDelete={async () => {
+                  // Chức năng xóa bài viết
+                  await handleDeletePost(post?.id);
+                  await fetchUserPost(id);
+                }}
               />
             ))
           ) : (
@@ -306,7 +276,7 @@ export const ProfileDetails = ({
                     (post) => post?.mediaType === "video" && post?.mediaUrl
                   )
                   .map((post) => (
-                    <div key={post?.id} onClick={() => router.push(`/posts/${post?.id}`)} className="w-[220px] h-[180px]">
+                    <div key={post?.id} onClick={() => router.push(`/posts/${post?.id}`)} className="w-[220px] h-[180px] cursor-pointer">
                       <video
                         //controls
                         className="w-full h-full object-cover rounded-lg"
@@ -372,7 +342,7 @@ export const ProfileDetails = ({
                       key={post?.id}
                       src={post?.mediaUrl}
                       alt="user_all_photos"
-                      className="w-[200px] h-[150px] object-cover rounded-lg"
+                      className="w-[200px] h-[150px] object-cover rounded-lg cursor-pointer"
                       onClick={() => router.push(`/posts/${post?.id}`)}
                     />
                   ))

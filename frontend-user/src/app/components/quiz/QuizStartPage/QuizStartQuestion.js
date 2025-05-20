@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { updateQuiz } from '@/service/quiz.service';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
 import toast, { Toaster } from 'react-hot-toast';
-import { updateQuiz } from '@/service/quiz.service';
 
 function QuizStartQuestions({ quizData, onUpdateTime }) {
     const time = 30;
@@ -306,8 +306,7 @@ function ScoreComponent({ quizStartParentProps }) {
                     <div className="flex gap-1 items-center justify-center">
                         <Image src="/incorrect-answer.png" alt="" width={20} height={20} />
                         <span className="text-[14px]">
-                            Trả lời sai:
-                            {quizData.quizQuestions.length - score}
+                            Trả lời sai: {quizData.quizQuestions.length - score}
                         </span>
                     </div>
                 </div>
