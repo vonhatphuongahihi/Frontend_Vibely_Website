@@ -1,49 +1,65 @@
 'use client'
 
-import { getAdminById, updateAdminInfo } from '@/service/accountAdmin.service'
+import { getAdminById, updateAdminInfo} from '@/service/accountAdmin.service';
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { jwtDecode } from "jwt-decode";
 import ProfileDetailsSection from '../../components/account/ProfileDetailsSection'
 import ProfilePictureSection from '../../components/account/ProfilePictureSection'
 import Sidebar from '../../components/sidebar/Sidebar'
 
 const AccountPage = () => {
     const [userData, setUserData] = useState(null);
-    const adminId = "67d52f779c79c05e5f9766df"
-
+    const [adminId, setAdminId] = useState(null);
     useEffect(() => {
-        const fetchUserData = async () => {
-            if (!adminId) {
-                console.error("Không tìm thấy adminId");
-                return;
-            }
-
-            try {
-                const data = await getAdminById(adminId);
-                if (data) {
-                    setUserData(data?.admin || {});
-                    localStorage.setItem("adminData", JSON.stringify(data));
-                } else {
-                    console.error("Không tìm thấy dữ liệu cho adminId:", adminId);
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        };
-
-        const storedData = localStorage.getItem("adminData");
-        if (storedData) {
-            try {
-                const parsedData = JSON.parse(storedData);
-                setUserData(parsedData);
-            } catch (e) {
-                console.error("Lỗi:", e);
-            }
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            console.error('Không tìm thấy token');
+            return;
         }
 
+        const decoded = jwtDecode(token);
+        setAdminId(decoded.userId);
+    }, []);
+
+    // Khi đã có adminId thì mới fetch dữ liệu
+    useEffect(() => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) {
+            console.error('Không tìm thấy token');
+            return;
+        }
+
+        const decoded = jwtDecode(token);
+        setAdminId(decoded.userId);
+
+        // Lấy userData từ localStorage làm initial state nếu có
+        const storedUserData = localStorage.getItem('adminData');
+        if (storedUserData) {
+            setUserData(JSON.parse(storedUserData));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (!adminId) return;
+
+        const fetchUserData = async () => {
+        if (!adminId) return;
+            try {
+                const response = await getAdminById(adminId);
+                console.log('API trả về:', response);
+                if (response?.data) {
+                setUserData(response.data);
+                localStorage.setItem('adminData', JSON.stringify(response.data));
+                } else {
+                console.error("Không tìm thấy dữ liệu cho adminId:", adminId);
+                }
+            } catch (error) {
+                console.error("Lỗi khi fetch admin:", error);
+            }
+        };
         fetchUserData();
     }, [adminId]);
-
 
 
     // Hàm xử lý thay đổi input
@@ -59,11 +75,10 @@ const AccountPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const updatedData = await updateAdminInfo(adminId, userData);
+            await updateAdminInfo(adminId, userData);
             toast.success("Cập nhật thành công!");
+            localStorage.setItem("adminData", JSON.stringify(userData));
 
-            setUserData(updatedData.data);
-            localStorage.setItem("adminData", JSON.stringify(updatedData));
         } catch (error) {
             toast.error("Lỗi khi cập nhật thông tin admin!");
         }

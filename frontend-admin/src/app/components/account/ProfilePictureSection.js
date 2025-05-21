@@ -16,7 +16,7 @@ const ProfilePictureSection = ({ userData, onPictureUpdate }) => {
         if (!file) return;
 
         try {
-            const res = await uploadProfilePicture(file);
+            const res = await uploadProfilePicture(userData.id, file);
 
             // Nếu response là object chứa data.profilePicture
             const imageUrl = res?.data?.profilePicture || res?.profilePicture;

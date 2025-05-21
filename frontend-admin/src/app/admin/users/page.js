@@ -41,7 +41,7 @@ const UsersPage = () => {
       setUsersList(users);
       if (users.length > 0) {
         setSelectedUser(users[0]);
-        fetchFriends(users[0]._id);
+        fetchFriends(users[0].id);
       }
     } catch (error) {
       setError("Không thể tải danh sách người dùng");
@@ -65,7 +65,7 @@ const UsersPage = () => {
   const handleUserClick = (user) => {
     scrollToTop()
     setSelectedUser(user);
-    fetchFriends(user._id);
+    fetchFriends(user.id);
   };
 
   // Xử lý khi tìm kiếm
@@ -82,7 +82,7 @@ const UsersPage = () => {
       setUsersList(results);
       if (results.length > 0) {
         setSelectedUser(results[0]);
-        fetchFriends(results[0]._id);
+        fetchFriends(results[0].id);
       } else {
         setSelectedUser(null);
         setFriendsList([]);
@@ -112,19 +112,19 @@ const UsersPage = () => {
   const handleConfirmDelete = async () => {
     if (userToDelete) {
       try {
-        await deleteUser(userToDelete._id);
+        await deleteUser(userToDelete.id);
         // Cập nhật danh sách sau khi xóa
         const updatedUsers = usersList.filter(
-          (user) => user._id !== userToDelete._id
+          (user) => user.id !== userToDelete.id
         );
         setUsersList(updatedUsers);
 
         // Nếu người dùng đang được chọn là người dùng bị xóa, chọn người dùng khác
-        if (selectedUser && selectedUser._id === userToDelete._id) {
+        if (selectedUser && selectedUser.id === userToDelete.id) {
           // setSelectedUser(updatedUsers.length > 0 ? updatedUsers[0] : null);
           if (updatedUsers.length > 0) {
             setSelectedUser(updatedUsers[0]);
-            fetchFriends(updatedUsers[0]._id);
+            fetchFriends(updatedUsers[0].id);
           } else {
             setSelectedUser(null);
             setFriendsList([]);
@@ -236,14 +236,14 @@ const UsersPage = () => {
                 <tbody className="divide-y divide-gray-200">
                   {usersList.map((user) => (
                     <tr
-                      key={user._id}
-                      className={`hover:bg-gray-50 cursor-pointer ${selectedUser && selectedUser._id === user._id
+                      key={user.id}
+                      className={`hover:bg-gray-50 cursor-pointer ${selectedUser && selectedUser.id === user.id
                         ? "bg-blue-50"
                         : ""
                         }`}
                       onClick={() => handleUserClick(user)}
                     >
-                      <td className="px-2 xl:px-4 py-1 xl:py-3 text-gray-800 text-xs md:text-sm xl:text-base max-w-[230px]">{user._id}</td>
+                      <td className="px-2 xl:px-4 py-1 xl:py-3 text-gray-800 text-xs md:text-sm xl:text-base max-w-[230px]">{user.id}</td>
                       <td className="px-2 xl:px-4 py-1 xl:py-3 text-xs md:text-sm xl:text-base max-w-[250px]">
                         <div className="flex items-center">
                           <div className="h-8 w-8 rounded-full overflow-hidden mr-3">

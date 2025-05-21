@@ -31,6 +31,24 @@ const Page = () => {
         resolver: yupResolver(loginSchema),
     });
 
+    const handleLogin = async () => {
+        const res = await fetch('http://localhost:8081/admin/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem('adminToken', data.token);
+            router.push('/admin/account'); // điều hướng sau khi đăng nhập thành công
+        } else {
+            alert(data.message);
+        }
+    }
+
     // Kiểm tra trạng thái đăng nhập khi component mount
     useEffect(() => {
         const checkLoginStatus = async () => {

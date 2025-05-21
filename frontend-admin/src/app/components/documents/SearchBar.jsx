@@ -77,8 +77,8 @@ const SearchBar = ({
                         </option>
                         {levels.map((level) => (
                             <option
-                                key={level._id}
-                                value={level._id}
+                                key={level.id}
+                                value={level.id}
                             >
                                 {level.name}
                             </option>
@@ -100,8 +100,8 @@ const SearchBar = ({
                         </option>
                         {subjects.map((subject) => (
                             <option
-                                key={subject._id}
-                                value={subject._id}
+                                key={subject.id}
+                                value={subject.id}
                             >
                                 {subject.name}
                             </option>
