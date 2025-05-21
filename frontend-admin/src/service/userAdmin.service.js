@@ -10,7 +10,7 @@ export const getAllUsers = async () => {
         throw error;
     }
 };
-
+ 
 // Xóa user theo ID
 export const deleteUser = async (userId) => {
     try {
@@ -36,7 +36,7 @@ export const searchUsers = async (query) => {
 // Lấy danh sách bạn bè của user
 export const getAllFriends = async (userId) => {
     try {
-        const result = await axiosInstance.get(`/admin/users/friends/${userId}`);
+        const result = await axiosInstance.get(`/admin/users/${userId}/friends`);
         return result?.data?.data;
     } catch (error) {
         console.error("Lỗi khi lấy danh sách bạn bè:", error);
