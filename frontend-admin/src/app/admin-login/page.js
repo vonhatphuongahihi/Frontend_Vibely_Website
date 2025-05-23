@@ -22,7 +22,7 @@ const loginSchema = yup.object().shape({
     email: yup.string().email("Email không hợp lệ").required("Email không được để trống"),
     password: yup.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").required("Mật khẩu không được để trống"),
 });
-
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 const Page = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ const Page = () => {
     });
 
     const handleLogin = async () => {
-        const res = await fetch('http://localhost:8081/admin/auth/login', {
+        const res = await fetch(`${API_URL}/admin/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password }),
