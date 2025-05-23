@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loginUser, registerUser, checkUserAuth, getGoogleLoginUrl, getFacebookLoginUrl, getGithubLoginUrl } from "@/service/auth.service";
+import { checkUserAuth, getFacebookLoginUrl, getGithubLoginUrl, getGoogleLoginUrl, loginUser } from "@/service/auth.service";
 import { yupResolver } from "@hookform/resolvers/yup";
+import axios from 'axios';
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,7 +21,6 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as yup from "yup";
-import axios from 'axios';
 
 
 const Page = () => {

@@ -1,4 +1,4 @@
-import { addCommentToPost, createPost, getAllPosts, getAllStories, getPostByUserId, reactPost, sharePost, createStory, reactStory, getAllUserPosts, addReplyToPost, deletePost, deleteComment, deleteReply, likeComment, editPost, deleteStory } from '@/service/post.service';
+import { addCommentToPost, addReplyToPost, createPost, createStory, deleteComment, deletePost, deleteReply, deleteStory, editPost, getAllPosts, getAllStories, getAllUserPosts, likeComment, reactPost, reactStory, sharePost } from '@/service/post.service';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
 //quản lý trạng thái các bài viết và story
@@ -159,7 +159,6 @@ export const usePostStore = create((set) => ({
     },
 
     handleReactPost: async (postId, reactType) => {
-        console.log("postId", postId);
         set({ loading: true });
         try {
             const updatedStats = await reactPost(postId, reactType);
@@ -186,7 +185,7 @@ export const usePostStore = create((set) => ({
             }));
         } catch (error) {
             set({ error, loading: false });
-            toast.error("Lỗi khi react bài viết. Vui lòng thử lại.");
+            toast.error("Lỗi khi react story. Vui lòng thử lại.");
         }
     },
 
