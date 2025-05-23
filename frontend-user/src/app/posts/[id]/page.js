@@ -1,16 +1,16 @@
 "use client";
-import React, { useEffect, useState } from 'react'
-import { useParams } from "next/navigation";
 import { getSinglePost } from '@/service/post.service';
+import { usePostStore } from '@/store/usePostStore';
+import { useParams } from "next/navigation";
+import { useEffect, useState } from 'react';
 import PostCard from '../PostCard';
-import { usePostStore } from '@/store/usePostStore'
 
 function Page() {
   const params = useParams();
   const postId = params.id;   //postId
   const [post, setPost] = useState(null)
   const [loading, setLoading] = useState(false);
-  const { handleReactPost, handleCommentPost, handleSharePost, handleDeletePost } = usePostStore();
+  const { handleReactPost, handleCommentPost, handleSharePost, handleDeletePost, handleEditPost } = usePostStore();
   const fetchPost = async () => {
     setLoading(true);
     try {
@@ -46,6 +46,10 @@ function Page() {
           }}
           onDelete={async () => {  //chức năng xóa
             await handleDeletePost(post?.id)
+            await fetchPost()
+          }}
+          onEdit={async (postData) => {
+            await handleEditPost(post?.id, postData)
             await fetchPost()
           }}
         />

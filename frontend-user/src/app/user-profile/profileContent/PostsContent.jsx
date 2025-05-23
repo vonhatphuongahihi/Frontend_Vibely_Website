@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { AnimatePresence, motion } from 'framer-motion'
-import { MessageCircle, MoreHorizontal, ThumbsUp } from 'lucide-react'
+import { MessageCircle, MoreHorizontal, ThumbsUp, X } from 'lucide-react'
 import { QRCodeCanvas } from "qrcode.react"
 import { useEffect, useRef, useState } from 'react'
 import { AiOutlineCopy, AiOutlineDelete } from "react-icons/ai"
@@ -72,13 +72,36 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
   }
   const userPostPlaceholder = post?.user?.username?.split(" ").map((name) => name[0]).join(""); // tên người đăng bài viết tắt
   const [topReactions, setTopReactions] = useState([]);
+  const [reactionUserGroups, setReactionUserGroups] = useState({}); // Lưu danh sách user theo từng reaction
+  const [currentReactionDetail, setCurrentReaction] = useState("like"); //reaction hiện tại của bảng chi tiết, mặc định là like
   useEffect(() => {
-    setReaction(post?.reactions?.find(react=>react?.user == user?.id)?post?.reactions?.find(react=>react?.user == user?.id).type:null)
+    // Kiểm tra post và user trước khi set reaction
+    if (!post || !user || !post.reactions) {
+      setReaction(null);
+      setTopReactions([]);
+      setReactionUserGroups({});
+      return;
+    }
+
+    setReaction(post?.reactions?.find(react=>react?.user?.id == user?.id) ? post?.reactions?.find(react=>react?.user?.id == user?.id).type : null)
     //đảm bảo object hợp lệ
     if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
       setTopReactions([]);
+      setReactionUserGroups({});
       return;
     }
+
+    // Group reactions by type
+    const reactionGroups = post.reactions.reduce((acc, react) => {
+      if (!acc[react.type]) {
+        acc[react.type] = [];
+      }
+      if (react.user) {
+        acc[react.type].push(react.user);
+      }
+      return acc;
+    }, {});
+
     // cập nhật danh sách top reactions
     const filteredReactions = Object.entries(post?.reactionStats)
         .filter(([key, value]) => value > 0) // loại bỏ reaction có số lượng = 0
@@ -86,7 +109,8 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
         .slice(0, 3); // lấy 3 reaction nhiều nhất
     
     setTopReactions(filteredReactions);
-  }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
+    setReactionUserGroups(reactionGroups);
+  }, [post, user, post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
 
   const generateSharedLink = () => {
     return `http://localhost:3000/posts/${post?.id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
@@ -117,11 +141,16 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
     setIsShareDialogOpen(false);
   };
   const handleReaction = (reaction) => {
-    console.log("(PostCard.jsx/handleReaction) Reaction in post that has id", post?.id,":", reaction)
     setIsChoosing(false)  //đã chọn được 'cảm xúc'
     onReact(reaction);
     setShowReactionChooser(false); // Ẩn thanh reaction sau khi chọn
   };
+
+  //mở bảng chi tiết reaction
+  const [reactDetailOpen, setReactDetailOpen] = useState(false)
+  const handleReactionDetail = () => {
+    setReactDetailOpen(true);
+  }
 
   return (
     <motion.div
@@ -209,18 +238,109 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
               Trình duyệt của bạn không hỗ trợ thẻ video.
             </video>
           )}
+
+          {/*Bảng hiện danh sách các người dùng đã bày tỏ cảm xúc - tùy theo cảm xúc mà phân loại và hiển thị*/}
+          {reactDetailOpen && currentReactionDetail && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+              <div className="bg-white p-6 h-96 rounded-lg shadow-lg flex flex-col">
+                <div className='flex items-center justify-between gap-20 md:gap-40 pb-5'>
+                  <div className='flex md:gap-10 h-10 justify-center items-center'>
+                    <motion.button whileHover={{ scale: 1.2 }}  //phóng to biểu tượng lên
+                      className={`px-2 py-2 ${currentReactionDetail === "like" ? "border-b-2 border-[#086280]" : ""} `}
+                      onClick={() => {
+                        setCurrentReaction("like")
+                      }}>
+                      <Image src={"/like.png"} alt="like" width={30} height={30} unoptimized />
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.2 }}
+                      className={`px-2 py-2 ${currentReactionDetail === "love" ? "border-b-2 border-[#086280]" : ""} `}
+                      onClick={() => {
+                        setCurrentReaction("love")
+                      }}>
+                      <Image src={"/love.png"} alt="love" width={30} height={30} unoptimized />
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.2 }}
+                      className={`px-2 py-2 ${currentReactionDetail === "haha" ? "border-b-2 border-[#086280]" : ""} `}
+                      onClick={() => {
+                        setCurrentReaction("haha")
+                      }}>
+                      <Image src={"/haha.png"} alt="haha" width={30} height={30} unoptimized />
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.2 }}
+                      className={`px-2 py-2 ${currentReactionDetail === "wow" ? "border-b-2 border-[#086280]" : ""} `}
+                      onClick={() => {
+                        setCurrentReaction("wow")
+                      }}>
+                      <Image src={"/wow.png"} alt="wow" width={30} height={30} unoptimized />
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.2 }}
+                      className={`px-2 py-2 ${currentReactionDetail === "sad" ? "border-b-2 border-[#086280]" : ""} `}
+                      onClick={() => {
+                        setCurrentReaction("sad")
+                      }}>
+                      <Image src={"/sad.png"} alt="sad" width={30} height={30} unoptimized />
+                    </motion.button>
+                    <motion.button whileHover={{ scale: 1.2 }}
+                      className={`px-2 py-2 ${currentReactionDetail === "angry" ? "border-b-2 border-[#086280]" : ""} `}
+                      onClick={() => {
+                        setCurrentReaction("angry")
+                      }}>
+                      <Image src={"/angry.png"} alt="angry" width={30} height={30} unoptimized />
+                    </motion.button>
+                  </div>
+                  {/*Nút đóng bảng*/}
+                  <Button variant="ghost" className="hover:bg-gray-200" onClick={() => {
+                    setReactDetailOpen(false)
+                    setCurrentReaction("like")
+                  }}>
+                    <X style={{ width: "20px", height: "20px" }} />
+                  </Button>
+                </div>
+                {/*Danh sách người dùng*/}
+                {reactionUserGroups?.[currentReactionDetail]?.map((user, index) => {
+                  return (
+                    <div 
+                      key={index}
+                      className="flex items-center space-x-2 cursor-pointer mb-2 " 
+                      onClick={() => {
+                        router.push(`/user-profile/${user?.id}`);
+                        setReactDetailOpen(false)
+                      }}
+                    >
+                      <Avatar className="h-10 w-10 ml-2">
+                        {user?.profilePicture ? (
+                          <AvatarImage
+                            src={user?.profilePicture}
+                            alt={user?.username}
+                          />
+                        ) : (
+                          <AvatarFallback>
+                            {user?.username?.split(" ").map((name) => name[0]).join("")}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <p className="text-sm font-medium leading-none">{user?.username}</p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/*Top 3 cảm xúc nhiều nhất + tính tổng số lượt bày tỏ*/}
           <div className="flex justify-between items-center mb-2">
-            <span className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer flex">
+            <span className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer flex"
+              onClick={() => {handleReactionDetail() }}>
               {
-               topReactions.map((reaction)=>(
-                <Image src={`/${reaction[0]}.png`} alt={`${reaction[0]}`}  width={18} height={18} key={reaction[0]}/>
+                topReactions.map((reaction)=>(
+                  <Image src={`/${reaction[0]}.png`} alt={`${reaction[0]}`}  width={18} height={18} key={reaction[0]}/>
                 ))
               }
               &nbsp;
               {
-              totalReact > 0 && (
-              totalReact>1000000?totalReact/1000000+"M":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1M, 2M,...
-              totalReact>1000?totalReact/1000+"k":totalReact  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1k, 2k,...
+                totalReact > 0 && (
+                  totalReact>1000000?totalReact/1000000+"M":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1M, 2M,...
+                    totalReact>1000?totalReact/1000+"k":totalReact  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1k, 2k,...
               )}
             </span>
             <div className="flex gap-3">
@@ -228,18 +348,18 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
                 className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer"
                 onClick={() => setShowComments(!showComments)}
               >
-              {
-              post?.commentCount > 0 && (  
-              post?.commentCount>1000000?post?.commentCount/1000000+" triệu":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1 triệu, 2 triệu,...
-              post?.commentCount>1000?post?.commentCount/1000+" ngàn":post?.commentCount  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1 ngàn, 2 ngàn,...
-              +" bình luận")}
+                {
+                  post?.commentCount > 0 && (  
+                    post?.commentCount>1000000?post?.commentCount/1000000+" triệu":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1 triệu, 2 triệu,...
+                      post?.commentCount>1000?post?.commentCount/1000+" ngàn":post?.commentCount  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1 ngàn, 2 ngàn,...
+                        +" bình luận")}
               </span>
               <span className="text-[15px] text-gray-500 hover:underline border-gray-400 cursor-pointer">
-              {
-              post?.shareCount > 0 && (  
-                post?.shareCount>1000000?post?.shareCount/1000000+" triệu":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1 triệu, 2 triệu,...
-                post?.shareCount>1000?post?.shareCount/1000+" ngàn":post?.shareCount  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1 ngàn, 2 ngàn,...
-              +" lượt chia sẻ")}
+                {
+                  post?.shareCount > 0 && (  
+                    post?.shareCount>1000000?post?.shareCount/1000000+" triệu":  //Nếu tổng lượt react >1tr thì hiển thị kiểu 1 triệu, 2 triệu,...
+                      post?.shareCount>1000?post?.shareCount/1000+" ngàn":post?.shareCount  //Nếu tổng lượt react >1000 thì hiển thị kiểu 1 ngàn, 2 ngàn,...
+                        +" lượt chia sẻ")}
               </span>
             </div>
           </div>
@@ -252,68 +372,68 @@ export const PostsContent = ({post, onReact, onComment, onShare, onDelete}) => {
               className={`flex-1 hover:bg-gray-100 text-gray-500 hover:text-gray-500 text-[15px] h-8 
                 ${reaction=="like"?'text-blue-600'
                   :reaction=="love"?"text-red-600"
-                  :reaction=="haha"||reaction=="sad"||reaction=="wow"?"text-yellow-400"
-                  :reaction=="angry"?"text-orange-500":""}
+                    :reaction=="haha"||reaction=="sad"||reaction=="wow"?"text-yellow-400"
+                      :reaction=="angry"?"text-orange-500":""}
               `}
             >
               {reaction=="like"? <Image src={"/like.png"} alt="haha"  width={24} height={24}/> 
-              :reaction=="love"? <Image src={"/love.png"} alt="haha"  width={24} height={24}/> 
-              :reaction=="haha"? <Image src={"/haha.png"} alt="haha"  width={24} height={24}/> 
-              :reaction=="wow"? <Image src={"/wow.png"} alt="haha"  width={24} height={24}/> 
-              :reaction=="sad"? <Image src={"/sad.png"} alt="haha"  width={24} height={24}/> 
-              :reaction=="angry"? <Image src={"/angry.png"} alt="haha"  width={24} height={24}/> 
-              : <ThumbsUp style={{ width: "20px", height: "20px" }} /> }
+                :reaction=="love"? <Image src={"/love.png"} alt="haha"  width={24} height={24}/> 
+                  :reaction=="haha"? <Image src={"/haha.png"} alt="haha"  width={24} height={24}/> 
+                    :reaction=="wow"? <Image src={"/wow.png"} alt="haha"  width={24} height={24}/> 
+                      :reaction=="sad"? <Image src={"/sad.png"} alt="haha"  width={24} height={24}/> 
+                        :reaction=="angry"? <Image src={"/angry.png"} alt="haha"  width={24} height={24}/> 
+                          : <ThumbsUp style={{ width: "20px", height: "20px" }} /> }
               {reaction=="love"?"Yêu thích"
-              :reaction=="haha"?"Haha"
-              :reaction=="wow"?"Wow"
-              :reaction=="sad"?"Buồn"
-              :reaction=="angry"?"Phẫn nộ"
-              :"Thích"}
+                :reaction=="haha"?"Haha"
+                  :reaction=="wow"?"Wow"
+                    :reaction=="sad"?"Buồn"
+                      :reaction=="angry"?"Phẫn nộ"
+                        :"Thích"}
             </Button>
             {(showReactionChooser||isChoosing) && ( //nếu đang để chuột ở nút mở bảng chọn hoặc trong bảng chọn thì bảng chọn sẽ luôn hiện tránh tình trạng chưa chọn xong đã bị ẩn
-            <div
-            className={"absolute bottom-10 bg-white flex shadow gap-1 transition-all opacity-100 scale-100 translate-y-0 rounded-2xl"}
-            onMouseEnter={()=>setIsChoosing(true)}  //đang chọn
-            onMouseLeave={() =>setTimeout(() => setIsChoosing(false), 500)}
-            >
-            <motion.button whileHover={{ scale: 2 }}  //phóng to biểu tượng lên
-            className="px-2 py-2" onClick={()=>{
-              handleReaction('like')
-            }}>
-              <Image src={"/like.gif"} alt="like" width={30} height={30} unoptimized/>
-            </motion.button>
-            <motion.button whileHover={{ scale: 2 }}
-            className="px-2 py-2" onClick={()=>{
-              handleReaction('love')
-            }}>
-            <Image src={"/love.gif"} alt="love"  width={30} height={30} unoptimized/>
-            </motion.button>
-            <motion.button whileHover={{ scale: 2 }}
-            className="px-2 py-2" onClick={()=>{
-              handleReaction('haha')
-            }}>
-            <Image src={"/haha.gif"} alt="haha"  width={30} height={30} unoptimized/>
-            </motion.button>
-            <motion.button whileHover={{ scale: 2 }}
-            className="px-2 py-2" onClick={()=>{
-              handleReaction('wow')
-            }}>
-              <Image src={"/wow.gif"} alt="wow"  width={30} height={30} unoptimized/>
-            </motion.button>
-            <motion.button whileHover={{ scale: 2 }}
-            className="px-2 py-2" onClick={()=>{
-              handleReaction('sad')
-            }}>
-            <Image src={"/sad.gif"} alt="sad"  width={30} height={30} unoptimized/>
-            </motion.button>
-            <motion.button whileHover={{ scale: 2 }}
-            className="px-2 py-2" onClick={()=>{
-              handleReaction('angry')
-            }}>
-            <Image src={"/angry.gif"} alt="angry"  width={30} height={30} unoptimized/>
-            </motion.button>
-            </div>
-          )}
+              <div
+                className={"absolute bottom-10 bg-white flex shadow gap-1 transition-all opacity-100 scale-100 translate-y-0 rounded-2xl"}
+                onMouseEnter={()=>setIsChoosing(true)}  //đang chọn
+                onMouseLeave={() =>setTimeout(() => setIsChoosing(false), 500)}
+              >
+                <motion.button whileHover={{ scale: 2 }}  //phóng to biểu tượng lên
+                  className="px-2 py-2" onClick={()=>{
+                    handleReaction('like')
+                }}>
+                  <Image src={"/like.gif"} alt="like" width={30} height={30} unoptimized/>
+                </motion.button>
+                <motion.button whileHover={{ scale: 2 }}
+                  className="px-2 py-2" onClick={()=>{
+                    handleReaction('love')
+                }}>
+                  <Image src={"/love.gif"} alt="love"  width={30} height={30} unoptimized/>
+                </motion.button>
+                <motion.button whileHover={{ scale: 2 }}
+                  className="px-2 py-2" onClick={()=>{
+                    handleReaction('haha')
+                }}>
+                  <Image src={"/haha.gif"} alt="haha"  width={30} height={30} unoptimized/>
+                </motion.button>
+                <motion.button whileHover={{ scale: 2 }}
+                  className="px-2 py-2" onClick={()=>{
+                    handleReaction('wow')
+                }}>
+                  <Image src={"/wow.gif"} alt="wow"  width={30} height={30} unoptimized/>
+                </motion.button>
+                <motion.button whileHover={{ scale: 2 }}
+                  className="px-2 py-2" onClick={()=>{
+                    handleReaction('sad')
+                }}>
+                  <Image src={"/sad.gif"} alt="sad"  width={30} height={30} unoptimized/>
+                </motion.button>
+                <motion.button whileHover={{ scale: 2 }}
+                  className="px-2 py-2" onClick={()=>{
+                    handleReaction('angry')
+                }}>
+                  <Image src={"/angry.gif"} alt="angry"  width={30} height={30} unoptimized/>
+                </motion.button>
+              </div>
+            )}
             <Button
               variant="ghost"
               className={`flex-1 hover:bg-gray-100 text-gray-500 hover:text-gray-500 text-[15px] h-8`}

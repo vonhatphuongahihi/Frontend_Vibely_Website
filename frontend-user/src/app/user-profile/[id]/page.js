@@ -1,11 +1,11 @@
 //import React from "react";
 "use client";
-import React, { useEffect, useState } from "react";
+import LeftSideBar from "@/app/components/LeftSideBar";
+import { fetchUserProfile } from "@/service/user.service";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import ProfileHeader from "../ProfileHeader";
 import ProfileTabs from "../ProfileTabs";
-import { fetchUserProfile } from "@/service/user.service";
-import LeftSideBar from "@/app/components/LeftSideBar";
 
 const Page = () => {
   const params = useParams();
@@ -17,11 +17,10 @@ const Page = () => {
 const fetchProfile = async () => {
   setLoading(true);
   try {
-    const result = await fetchUserProfile();
-    console.log("Dữ liệu nhận được từ backend:", result);
+    const result = await fetchUserProfile(id);
 
-    setProfileData(result); // ✅ không dùng result.profile nếu không có
-    setIsOwner(true);       // hoặc xử lý tuỳ ý
+    setProfileData(result.profile);
+    setIsOwner(result.isOwner);
   } catch (error) {
     console.error(error);
   } finally {
