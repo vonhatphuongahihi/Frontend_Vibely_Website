@@ -51,7 +51,6 @@
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
     "imagekitio-react": "^4.3.0",
-    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.475.0",
     "motion-dom": "^12.6.3",
     "next": "^15.1.7",

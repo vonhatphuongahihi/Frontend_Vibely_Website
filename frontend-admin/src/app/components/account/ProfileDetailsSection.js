@@ -79,7 +79,7 @@ const ProfileDetailsSection = ({ userData, handleInputChange, handleSubmit }) =>
                                 </label>
                                 <select
                                     name="nationality"
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                                    className="w-full p-3.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
                                     value={userData?.nationality || ""}
                                     onChange={handleInputChange}
                                 >
