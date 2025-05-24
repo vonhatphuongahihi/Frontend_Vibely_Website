@@ -22,7 +22,7 @@ const loginSchema = yup.object().shape({
     email: yup.string().email("Email không hợp lệ").required("Email không được để trống"),
     password: yup.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự").required("Mật khẩu không được để trống"),
 });
-
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 const Page = () => {
     const router = useRouter();
     const [loading, setLoading] = useState(false);
@@ -30,6 +30,24 @@ const Page = () => {
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: yupResolver(loginSchema),
     });
+
+    const handleLogin = async () => {
+        const res = await fetch(`${API_URL}/admin/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password }),
+            credentials: 'include'
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            localStorage.setItem('adminToken', data.token);
+            router.push('/admin/account'); // điều hướng sau khi đăng nhập thành công
+        } else {
+            alert(data.message);
+        }
+    }
 
     // Kiểm tra trạng thái đăng nhập khi component mount
     useEffect(() => {

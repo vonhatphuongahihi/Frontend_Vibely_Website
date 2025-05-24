@@ -243,7 +243,7 @@ const Header = () => {
                         >
                           <Search className="absolute text-sm text-gray-400" />
                           <div className="flex items-center gap-2">
-                            <Avatar className="h-8 w-8">
+                            <Avatar className="h-6 w-6">
                               {user?.profilePicture ? (
                                 <AvatarImage
                                   src={user?.profilePicture}

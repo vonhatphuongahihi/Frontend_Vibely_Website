@@ -348,7 +348,7 @@ const onSubmitCoverPhoto = async (e) => {
                 </div>
                 {/* Công việc */}
                 <ProfileField
-                  label="Công việc"
+                  label="Nơi làm việc"
                   field="workplace"
                   value={profile.workplace}
                   isEditingField={isEditingField}

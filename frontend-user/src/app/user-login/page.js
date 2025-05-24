@@ -11,8 +11,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { loginUser, registerUser, checkUserAuth, getGoogleLoginUrl, getFacebookLoginUrl, getGithubLoginUrl } from "@/service/auth.service";
+import { checkUserAuth, getFacebookLoginUrl, getGithubLoginUrl, getGoogleLoginUrl, loginUser } from "@/service/auth.service";
 import { yupResolver } from "@hookform/resolvers/yup";
+import axios from 'axios';
 import { motion } from "framer-motion";
 import { LogIn } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -20,7 +21,6 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import * as yup from "yup";
-import axios from 'axios';
 
 
 const Page = () => {
@@ -98,21 +98,65 @@ const Page = () => {
 
   const onSubmitRegister = async (data) => {
     try {
-      // const result = await registerUser(data)
-      // if (result.status === 'success') {
-      await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/send-otp`, { email: data.email });
-      // Lưu email tạm thời vào localStorage
-      // localStorage.setItem('tempEmail', data.email);
-      localStorage.setItem('tempRegisterData', JSON.stringify(data));
-      // Chuyển hướng đến trang xác nhận OTP
-      router.push('/user-login/code-confirm');
-      // }
-      toast.success('Vui lòng kiểm tra email để xác thực tài khoản')
+      setIsSubmitting(true);
+
+      // Kiểm tra email và username trước
+      const checkResponse = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/check-registration`, {
+        email: data.email,
+        username: data.username
+      });
+
+      if (checkResponse.data.status === 'error') {
+        // Hiển thị thông báo lỗi cụ thể từ backend
+        toast.error(checkResponse.data.message);
+        return;
+      }
+
+      // Nếu email và username hợp lệ, gửi OTP
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_URL}/auth/send-otp`, {
+        email: data.email,
+        username: data.username
+      });
+
+      // Nếu thành công
+      if (response.data.status === 'success') {
+        localStorage.setItem('tempRegisterData', JSON.stringify(data));
+        router.push('/user-login/code-confirm');
+        toast.success('Vui lòng kiểm tra email để xác thực tài khoản');
+      }
     } catch (error) {
-      console.error(error);
-      toast.error('Email đã tồn tại')
+      console.error('Lỗi đăng ký:', error);
+
+      // Xử lý các loại lỗi cụ thể
+      if (error.response) {
+        const errorMessage = error.response.data.message;
+
+        // Kiểm tra các loại lỗi cụ thể
+        if (errorMessage.includes('Email đã được sử dụng')) {
+          toast.error('Email này đã được sử dụng. Vui lòng sử dụng email khác.');
+        } else if (errorMessage.includes('Email không được để trống')) {
+          toast.error('Vui lòng nhập email của bạn.');
+        } else if (errorMessage.includes('Tên người dùng không được để trống')) {
+          toast.error('Vui lòng nhập tên người dùng.');
+        } else if (errorMessage.includes('Mật khẩu không được để trống')) {
+          toast.error('Vui lòng nhập mật khẩu.');
+        } else if (errorMessage.includes('Mật khẩu phải có ít nhất 6 ký tự')) {
+          toast.error('Mật khẩu phải có ít nhất 6 ký tự.');
+        } else if (errorMessage.includes('Email không hợp lệ')) {
+          toast.error('Email không hợp lệ. Vui lòng kiểm tra lại.');
+        } else {
+          // Hiển thị thông báo lỗi từ server nếu có
+          toast.error(errorMessage || 'Có lỗi xảy ra, vui lòng thử lại sau');
+        }
+      } else if (error.request) {
+        // Lỗi không nhận được phản hồi từ server
+        toast.error('Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối internet của bạn.');
+      } else {
+        // Lỗi khác
+        toast.error('Có lỗi xảy ra, vui lòng thử lại sau');
+      }
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   }
 

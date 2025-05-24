@@ -53,7 +53,7 @@ export const deleteUserFromRequest = async (userId) => {
 //  Lấy thông tin hồ sơ người dùng
 export const fetchUserProfile = async (userId) => {
     try {
-        const response = await axiosInstance.get(`/users/profile`)
+        const response = await axiosInstance.get(`/users/profile/${userId}`)
         return response?.data?.data;
     } catch (error) {
         throw error;
@@ -78,6 +78,7 @@ export const updateUserProfile = async (userId, updateData) => {
                 'Content-Type': 'multipart/form-data',
             }
         });
+        console.log("updateData", response)
         return response?.data?.data;
     } catch (error) {
         throw error;

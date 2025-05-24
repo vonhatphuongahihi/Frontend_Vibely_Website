@@ -2,23 +2,23 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
+import { Textarea } from '@/components/ui/textarea'
+import { formatedDate } from '@/lib/utils'
+import userStore from '@/store/userStore'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ImageIcon, MessageCircle, MoreHorizontal, Pencil, ThumbsUp, X, XIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { PiShareFatBold } from "react-icons/pi"
-import { FaXTwitter } from "react-icons/fa6";
-import { FaFacebook, FaLinkedin } from "react-icons/fa";
-import { AiOutlineCopy, AiOutlineDelete } from "react-icons/ai";
-import { QRCodeCanvas } from "qrcode.react";
-import PostComments from './PostComments'
-import { formatedDate } from '@/lib/utils'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import userStore from '@/store/userStore'
-import { Textarea } from '@/components/ui/textarea'
+import { QRCodeCanvas } from "qrcode.react"
+import { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-hot-toast'
+import { AiOutlineCopy, AiOutlineDelete } from "react-icons/ai"
+import { FaFacebook, FaLinkedin } from "react-icons/fa"
+import { FaXTwitter } from "react-icons/fa6"
+import { PiShareFatBold } from "react-icons/pi"
+import PostComments from './PostComments'
 
 const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
@@ -483,7 +483,14 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                 {/*Danh sách người dùng*/}
                 {reactionUserGroups?.[currentReactionDetail]?.map((user, index) => {
                   return (
-                    <div key={index} className="flex items-center space-x-2 cursor-pointer mb-2 " onClick={() => handleNavigation(`/user-profile/${user?.id}`)}>
+                    <div
+                      key={index}
+                      className="flex items-center space-x-2 cursor-pointer mb-2 "
+                      onClick={() => {
+                        router.push(`/user-profile/${user?.id}`);
+                        setReactDetailOpen(false)
+                      }}
+                    >
                       <Avatar className="h-10 w-10 ml-2">
                         {user?.profilePicture ? (
                           <AvatarImage

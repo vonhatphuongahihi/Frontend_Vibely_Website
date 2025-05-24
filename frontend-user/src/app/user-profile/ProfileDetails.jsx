@@ -94,8 +94,8 @@ export const ProfileDetails = ({
     localStorage.setItem("reactPosts", JSON.stringify(updatedReactPosts));
 
     try {
-      await handleReactPost(postId, updatedReactPosts[postId] || null);
-      // await fetchPosts();
+      await handleReactPost(postId, reactType);
+      await fetchUserPost(id);
     } catch (error) {
       console.log(error);
       toast.error(
