@@ -516,6 +516,8 @@ const Messenger = () => {
                                 const friendId = conv.members.find(id => id !== user.id);
                                 friend = { id: friendId, username: friendId };
                             }
+                            // Sử dụng trường unread trả về từ backend
+                            const unread = !!conv.unread;
                             return (
                                 <button
                                     key={conv.id}
@@ -531,7 +533,7 @@ const Messenger = () => {
                                     }}
                                     className="w-full text-left"
                                 >
-                                    <Conversation friend={friend} currentChat={currentChat} lastMessage={conv.lastMessage} />
+                                    <Conversation friend={friend} currentChat={currentChat} lastMessage={conv.lastMessage} unread={unread} />
                                 </button>
                             );
                         })
