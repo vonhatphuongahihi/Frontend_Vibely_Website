@@ -17,7 +17,7 @@ import SockJS from 'sockjs-client';
 
 const Messenger = () => {
     const [user, setUser] = useState(null);
-    // const [conversations, setConversations] = useState([]);
+    const [conversations, setConversations] = useState([]);
     const [friends, setFriends] = useState([]);
     const [selectedFriend, setSelectedFriend] = useState(null);
     const [filteredFriends, setFilteredFriends] = useState([]);
@@ -106,6 +106,7 @@ const Messenger = () => {
                 window.location.href = "/user-login";
             } else {
                 setUser(res.user);
+                console.log("user after checkUserAuth:", res.user); // DEBUG LOG
             }
         });
     }, []);
@@ -148,6 +149,64 @@ const Messenger = () => {
         getMessages();
     }, [currentChat]);
 
+    // Lấy danh sách hội thoại của user
+    useEffect(() => {
+        console.log("user in conversations useEffect:", user); // DEBUG LOG
+        if (!user || !user.id) return;
+        const getConversations = async () => {
+            try {
+                const token = localStorage.getItem("auth_token");
+                const res = await axios.get(`${API_URL}/conversations/user/${user.id}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                console.log("Conversations from backend:", res.data);
+                // Sort conversations trước khi set
+                const sorted = (res.data || []).slice().sort((a, b) => {
+                    console.log("Comparing:", {
+                        a: a.lastMessageTime,
+                        b: b.lastMessageTime,
+                        aDate: new Date(a.lastMessageTime || 0),
+                        bDate: new Date(b.lastMessageTime || 0)
+                    });
+                    return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
+                });
+                console.log("Sorted conversations:", sorted);
+                setConversations(sorted);
+            } catch (err) {
+                console.error("Lỗi khi lấy danh sách hội thoại:", err);
+            }
+        };
+        getConversations();
+    }, [user]);
+
+    // Khi có tin nhắn mới, cập nhật lại conversations
+    useEffect(() => {
+        if (!arrivalMessage || !arrivalMessage.conversationId) return;
+        console.log("New message arrived:", arrivalMessage);
+        setConversations(prev => {
+            const updated = prev.map(conv => {
+                if (conv.id === arrivalMessage.conversationId) {
+                    return {
+                        ...conv,
+                        lastMessage: arrivalMessage.content,
+                        lastMessageTime: arrivalMessage.createdAt
+                    };
+                }
+                return conv;
+            });
+            // Sort lại
+            const sorted = updated.slice().sort((a, b) => {
+                console.log("Re-sorting after new message:", {
+                    a: a.lastMessageTime,
+                    b: b.lastMessageTime
+                });
+                return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
+            });
+            console.log("Updated conversations after new message:", sorted);
+            return sorted;
+        });
+    }, [arrivalMessage]);
+
     // Gửi tin nhắn
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -169,14 +228,16 @@ const Messenger = () => {
                 stompClient.current.publish({
                     destination: '/app/chat.sendMessage',
                     body: JSON.stringify({
-                senderId: user.id,
-                receiverId: currentChat.members.find(member => member !== user.id),
+                        senderId: user.id,
+                        receiverId: currentChat.members.find(member => member !== user.id),
                         ...res.data
                     })
-            });
+                });
             } else {
                 console.error("STOMP not connected - message sent but real-time update failed");
             }
+            // Tự động load lại danh sách hội thoại
+            fetchConversations(user.id);
         } catch (err) {
             console.error("❌ Lỗi khi gửi tin nhắn:", err);
         }
@@ -205,6 +266,23 @@ const Messenger = () => {
     };
 
     const displayedFriends = searchValue.length > 0 ? filteredFriends : friends;
+
+    // Sắp xếp hội thoại theo lastMessageTime giảm dần
+    const displayedConversations = (searchValue.length > 0 ?
+        conversations.filter(c => {
+            if (c.membersData) {
+                return c.membersData.some(m => m.username?.toLowerCase().includes(searchValue.toLowerCase()));
+            }
+            return true;
+        }) :
+        conversations
+    ).slice().sort((a, b) => {
+        console.log("Sorting displayed conversations:", {
+            a: a.lastMessageTime,
+            b: b.lastMessageTime
+        });
+        return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
+    });
 
     const handleOptionClick = async (option) => {
         switch (option) {
@@ -381,6 +459,26 @@ const Messenger = () => {
         };
     }, [currentChat, messages, user]);
 
+    // Thêm hàm này ở ngoài useEffect
+    const fetchConversations = async (userId) => {
+        try {
+            const token = localStorage.getItem("auth_token");
+            const res = await axios.get(`${API_URL}/conversations/user/${userId}`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            // Sort conversations trước khi set
+            const sorted = (res.data || []).slice().sort((a, b) => new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0));
+            setConversations(sorted);
+        } catch (err) {
+            console.error("Lỗi khi lấy danh sách hội thoại:", err);
+        }
+    };
+
+    useEffect(() => {
+        if (!user || !user.id) return;
+        fetchConversations(user.id);
+    }, [user]);
+
     return (
         <div className="pt-14 messenger">
             <div className="md:hidden">
@@ -408,36 +506,37 @@ const Messenger = () => {
                         </div>
                     </div>
                     {/* Danh sách hội thoại */}
-                    {displayedFriends.length > 0 ? (
-                        displayedFriends.map((friend) => (
-                            <button
-                                key={friend.id}
-                                onClick={async () => {
-                                    try {
-                                        const res = await axios.post(`${API_URL}/conversations`, {
-                                            senderId: user.id,
-                                            receiverId: friend.id,
-                                        }, {
-                                            headers: {
-                                                Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                                            }
-                                        });
-                                        setCurrentChat(res.data);
-                                        setSelectedFriend(friend);
-                                        setOpenChat(true)
-                                        // Đánh dấu đã đọc ngay khi click vào conversation
-                                        await markMessagesAsRead();
-                                    } catch (err) {
-                                        console.error("Lỗi tạo hoặc lấy hội thoại:", err);
-                                    }
-                                }}
-                                className="w-full text-left"
-                            >
-                                <Conversation friend={friend} currentChat={currentChat} />
-                            </button>
-                        ))
+                    {displayedConversations.length > 0 ? (
+                        displayedConversations.map((conv) => {
+                            // Lấy bạn bè (không phải mình)
+                            let friend = {};
+                            if (conv.membersData) {
+                                friend = conv.membersData.find(m => m.id !== user.id) || {};
+                            } else if (conv.members) {
+                                const friendId = conv.members.find(id => id !== user.id);
+                                friend = { id: friendId, username: friendId };
+                            }
+                            return (
+                                <button
+                                    key={conv.id}
+                                    onClick={async () => {
+                                        try {
+                                            setCurrentChat(conv);
+                                            setSelectedFriend(friend);
+                                            setOpenChat(true);
+                                            await markMessagesAsRead();
+                                        } catch (err) {
+                                            console.error("Lỗi khi chọn hội thoại:", err);
+                                        }
+                                    }}
+                                    className="w-full text-left"
+                                >
+                                    <Conversation friend={friend} currentChat={currentChat} lastMessage={conv.lastMessage} />
+                                </button>
+                            );
+                        })
                     ) : (
-                        <p>Không có bạn bè nào</p>
+                        <p>Không có hội thoại nào</p>
                     )}
                 </div>
             </div>
