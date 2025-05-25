@@ -407,7 +407,7 @@ const Page = () => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword" className="text-[#086280]">Mật khẩu</Label>
+                      <Label htmlFor="confirmPassword" className="text-[#086280]">Nhập lại mật khẩu</Label>
                       <Input
                         id="confirmPassword"
                         name="confirmpassword"
