@@ -13,12 +13,12 @@ const About = () => {
     return (
         <div className="container mx-auto px-4">
             <div className="md:hidden">
-            <LeftSideBar/>
+                <LeftSideBar />
             </div>
             <ScrollRevealEffect />
 
             {/* banner */}
-            <div className="my-10 mt-20">
+            <div className="my-10 pt-16">
                 <Heading title="Về chúng tôi" />
             </div>
             <div className="flex flex-col md:flex-row items-center justify-between mb-2 md:mb-10 w-full">
@@ -49,7 +49,7 @@ const About = () => {
                                             src={row.img}
                                             height={30}
                                             width={30}
-                                            alt = ''
+                                            alt=''
                                         />
                                     </div>
 
@@ -126,12 +126,12 @@ const About = () => {
                     </div>
                 </div>
             </div>
-            
+
             {/* Team  */}
             <div className="my-10">
                 <Heading title="Team & Founder" />
             </div>
-            
+
             <div className="container mx-auto mt-24 mb-10">
                 <div className="grid grid-cols-4">
                     {TEAM.map((row, key) => (
