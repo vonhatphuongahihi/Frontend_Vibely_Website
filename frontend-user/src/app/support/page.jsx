@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import { Button } from "../../components/ui/button";
 import { Textarea } from "../../components/ui/textarea";
 import LeftSideBar from "../components/LeftSideBar";
+import Link from "next/link";
+import { FaFileContract, FaShieldAlt } from "react-icons/fa";
 
 const SupportPage = () => {
     const [message, setMessage] = useState("");
@@ -89,6 +91,31 @@ const SupportPage = () => {
                         >
                             {loading ? "Đang gửi..." : "Gửi"}
                         </Button>
+                    </div>
+
+                    {/* Links to Terms and Privacy Policy */}
+                    <div className="mt-12 border-t border-gray-200 pt-8">
+                        <div className="text-center text-gray-600 mb-4 font-medium">Tài liệu quan trọng</div>
+                        <div className="flex flex-col md:flex-row gap-4 justify-center">
+                            <Link href="/terms-of-service" className="flex-1">
+                                <Button
+                                    variant="outline"
+                                    className="w-full flex items-center justify-center gap-2 py-5 border border-[#38affa] text-[#38affa] hover:bg-[#38affa] hover:text-white transition-all duration-300 bg-white"
+                                >
+                                    <FaFileContract className="text-lg" />
+                                    <span>Điều khoản sử dụng</span>
+                                </Button>
+                            </Link>
+                            <Link href="/privacy-policy" className="flex-1">
+                                <Button
+                                    variant="outline"
+                                    className="w-full flex items-center justify-center gap-2 py-5 border border-[#38affa] text-[#38affa] hover:bg-[#38affa] hover:text-white transition-all duration-300 bg-white"
+                                >
+                                    <FaShieldAlt className="text-lg" />
+                                    <span>Chính sách bảo mật</span>
+                                </Button>
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </div>
