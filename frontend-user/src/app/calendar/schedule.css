@@ -46,3 +46,46 @@
 .e-vertical-view .e-current-time {
   background-color: red !important;
 }
+
+.google-calendar-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.connect-btn,
+.disconnect-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.connect-btn {
+  background-color: #4285f4;
+  color: white;
+  border: none;
+}
+
+.connect-btn:hover {
+  background-color: #357abd;
+}
+
+.disconnect-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+}
+
+.disconnect-btn:hover {
+  background-color: #d32f2f;
+}
+
+.connect-btn img,
+.disconnect-btn img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
