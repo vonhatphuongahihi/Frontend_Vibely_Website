@@ -6,10 +6,13 @@ import { useEffect } from "react";
 // import { toast } from "react-hot-toast";
 import { GoBookmarkSlashFill } from "react-icons/go";
 
-export const SavedDocuments = () => {
+export const SavedDocuments = ({isOwner}) => {
     const { savedDocuments, fetchSavedDocuments, fetchSavedDocumentById, unsaveDocument } = useSavedDocumentsStore();
     const router = useRouter();
     const handleNavigation = (path) => {
+        if (!isOwner) {
+            return;
+        }
         router.push(path);
     };
 
@@ -44,8 +47,8 @@ export const SavedDocuments = () => {
                         {savedDocuments.map((doc) => (
                             <div
                                 key={doc.id}
-                                className="relative flex flex-col p-4 border border-gray-200 rounded-lg shadow-md bg-white
-                                    cursor-pointer hover:shadow-xl transition-all duration-200 ease-in hover:bg-[#086280]/15"
+                                className={`relative flex flex-col p-4 border border-gray-200 rounded-lg shadow-md bg-white
+                                    ${isOwner ? 'cursor-pointer hover:shadow-xl hover:bg-[#086280]/15 transition-all duration-200 ease-in' : ''}`}
                                 onClick={() => handleNavigation(`/saved/${doc.id}`)}
                             >
                                 {/* Icon File */}
@@ -67,16 +70,18 @@ export const SavedDocuments = () => {
                                 </div>
 
                                 {/* Nút Hành Động */}
-                                <button 
-                                    className="absolute top-2 right-2 bg-gray-200 p-2 rounded-full cursor-pointer 
-                                        hover:bg-[#086280] hover:text-white transition-all duration-200 ease-in"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleUnsaveDocument(doc.id);
-                                    }}
-                                >
-                                    <GoBookmarkSlashFill/>
-                                </button>
+                                {isOwner &&
+                                    <button 
+                                        className="absolute top-2 right-2 bg-gray-200 p-2 rounded-full cursor-pointer 
+                                            hover:bg-[#086280] hover:text-white transition-all duration-200 ease-in"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleUnsaveDocument(doc.id);
+                                        }}
+                                    >
+                                        <GoBookmarkSlashFill/>
+                                    </button>
+                                }
                             </div>
                         ))}
                     </div>
