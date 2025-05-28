@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { formatedDate } from "@/lib/utils";
 import userStore from "@/store/userStore";
 import { ChevronDown, ChevronUp, MoreHorizontal, Send } from "lucide-react";
-import { AiOutlineDelete } from "react-icons/ai";
-import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { useEffect, useRef, useState } from "react";
+import { AiOutlineDelete } from "react-icons/ai";
 
 function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply, likeComment }) {
   const [showAllReplies, setShowAllReplies] = useState(false); //xem tất cả/2 cái đầu
@@ -163,7 +163,7 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCo
             <Button
               variant="ghost"
               size="sm"
-              className={`px-2 hover:underline ${comment?.reactions?.find((react => react?.user.toString() == user?.id)) ? "text-[#54C8FD]" : ""}`}
+              className={`px-2 hover:underline ${comment?.reactions?.find((react => react?.user?.id == user?.id)) ? "text-[#54C8FD]" : ""}`}
               onClick={() => { handleLikeComment() }}
             >
               Thích
@@ -184,7 +184,7 @@ function VideoComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCo
             className="font-semibold text-[13px] text-gray-500 px-2 hover:underline cursor-pointer"
             onClick={() => setShowReplies(!showReplies)}
           >
-            {comment.replies.length > 0
+            {comment?.replies?.length > 0
               ? !showReplies
                 ? "Hiện tất cả " + comment.replies.length + " phản hồi"
                 : "Ẩn phản hồi"

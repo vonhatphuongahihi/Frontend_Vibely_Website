@@ -1,21 +1,21 @@
 "use client";
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Separator } from '@/components/ui/separator'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Clock, MessageCircle, ThumbsUp, X } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { PiShareFatBold } from "react-icons/pi"
-import { FaXTwitter } from "react-icons/fa6";
-import { FaFacebook, FaLinkedin } from "react-icons/fa";
-import { AiOutlineCopy } from "react-icons/ai";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { formatedDate } from '@/lib/utils';
+import userStore from '@/store/userStore';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Clock, MessageCircle, ThumbsUp, X } from 'lucide-react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { QRCodeCanvas } from "qrcode.react";
-import VideoComments from './VideoComments'
-import { formatedDate } from '@/lib/utils'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import userStore from '@/store/userStore'
+import { useEffect, useRef, useState } from 'react';
+import { AiOutlineCopy } from "react-icons/ai";
+import { FaFacebook, FaLinkedin } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import { PiShareFatBold } from "react-icons/pi";
+import VideoComments from './VideoComments';
 // code tương tự như post (khác cách hiển thị 1 xíu)
 const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
@@ -39,6 +39,14 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [reactionUserGroups, setReactionUserGroups] = useState({}); // Lưu danh sách user theo từng reaction
   const [currentReactionDetail, setCurrentReaction] = useState("like");
   useEffect(() => {
+    // Kiểm tra post và user trước khi set reaction
+    if (!post || !user || !post.reactions) {
+      setReaction(null);
+      setTopReactions([]);
+      setReactionUserGroups({});
+      return;
+    }
+
     setReaction(post?.reactions?.find(react => react?.user?.id == user?.id) ? post?.reactions?.find(react => react?.user?.id == user?.id).type : null)
     //đảm bảo object hợp lệ
     if (!post?.reactionStats || typeof post?.reactionStats !== "object") {

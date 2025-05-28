@@ -76,6 +76,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
       setSelectedFile(null);
       setFilePreview(null);
       setIsPostFormOpen(false);
+      setLoading(false);
     } catch (error) {
       console.error("Error posting:", error);
       setLoading(false);

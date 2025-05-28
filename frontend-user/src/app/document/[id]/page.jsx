@@ -91,7 +91,15 @@ const DocumentDetail = () => {
     };
 
     if (!document) {
-        return <div className="text-center mt-20 text-xl">Đang tải dữ liệu...</div>;
+        return (
+            <div className="flex flex-row w-full min-h-screen bg-[#F4F7FE]">
+                <div className="w-full md:w-4/5 md:ml-52 py-6 px-6 overflow-y-auto">
+                    <div className="flex items-center justify-center h-full">
+                        <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (

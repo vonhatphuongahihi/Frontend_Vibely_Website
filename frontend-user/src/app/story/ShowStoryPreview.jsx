@@ -1,10 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import userStore from '@/store/userStore'
 import { Heart, X } from 'lucide-react'
 import Image from 'next/image'
-import React from 'react'
-import { motion } from 'framer-motion'
-import userStore from '@/store/userStore'
 
 const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userStory, avatar, isLoading, onReact, reaction, reactions, onDelete }) => {
     // Chỉ log khi cần debug
@@ -68,7 +66,7 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                             onClick={onPost}
                             disabled={isLoading}
                         >
-                            {isLoading ? "Đang lưu..." : "Đăng"}
+                            {isLoading ? "Đang đăng..." : "Đăng"}
                         </Button>
                     </div>
                 )}
