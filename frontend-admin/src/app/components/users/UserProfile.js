@@ -4,7 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const UserProfile = ({ user, friends }) => {
   if (!user) return null;
   const calculateAge = (dob) => {
-    if (!dob) return "N/A"; // Tránh lỗi nếu không có dữ liệu
+    if (!dob) return "Chưa cập nhật"; // Tránh lỗi nếu không có dữ liệu
 
     const birthDate = new Date(dob);
     const today = new Date();
@@ -20,6 +20,23 @@ const UserProfile = ({ user, friends }) => {
     }
 
     return age;
+  };
+  const normalizeGender = (gender) => {
+    if (!gender) return "Chưa cập nhật";
+    
+    const normalized = gender.toString().trim().toLowerCase();
+
+    const genderMap = {
+      male: "Nam",
+      nam: "Nam",
+      female: "Nữ",
+      nữ: "Nữ",
+      nu: "Nữ",
+      other: "Khác",
+      khác: "Khác"
+    };
+
+    return genderMap[normalized] || "Chưa cập nhật";
   };
 
   return (
@@ -41,9 +58,9 @@ const UserProfile = ({ user, friends }) => {
               />
             )}
           </Avatar>
-          <div className="absolute top-0 right-0 bg-[#086280] text-white text-xs rounded-full px-2 py-1">
+          {/* <div className="absolute top-0 right-0 bg-[#086280] text-white text-xs rounded-full px-2 py-1">
             {user.id}
-          </div>
+          </div> */}
         </div>
 
         {/* User Name */}
@@ -95,7 +112,7 @@ const UserProfile = ({ user, friends }) => {
             <h3 className="text-sm font-medium text-gray-700 mb-1">
               Giới tính
             </h3>
-            <p className="text-gray-600">{user.gender}</p>
+            <p>{normalizeGender(user.gender)}</p>
           </div>
         </div>
 
