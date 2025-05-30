@@ -203,11 +203,78 @@ export const likeComment = async (postId, commentId) => {
 //Phương thức sửa bài viết
 export const editPost = async (postId, postData) => {
     try {
-        const result = await axiosInstance.put(`/users/posts/edit/${postId}`, postData)
-        return result?.data?.data
+        // Log để debug
+        console.log("Editing post:", postId);
+        console.log("Post data:", postData);
+        
+        // Kiểm tra nếu postData đã là FormData thì dùng luôn
+        // Nếu không thì tạo FormData mới
+        let formData;
+        if (postData instanceof FormData) {
+            formData = postData;
+        } else {
+            formData = new FormData();
+            if (postData.content !== undefined) {
+                formData.append('content', postData.content);
+            }
+            if (postData.file) {
+                formData.append('file', postData.file);
+            }
+            if (postData.removeMedia !== undefined) {
+                formData.append('removeMedia', postData.removeMedia);
+            }
+        }
+
+        // Log FormData contents để debug
+        console.log("FormData contents:");
+        for (let [key, value] of formData.entries()) {
+            console.log(key, value);
+        }
+
+        const result = await axiosInstance.put(`/users/posts/edit/${postId}`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+            timeout: 30000, // Giảm timeout xuống 30 giây
+        });
+        
+        console.log("Edit post result:", result?.data);
+        return result?.data?.data;
     } catch (error) {
-        //console.error(error)
-        throw error
+        console.error("Lỗi khi sửa bài viết:", error);
+        
+        // Xử lý các loại lỗi cụ thể
+        if (error.code === 'ECONNABORTED') {
+            throw new Error("Yêu cầu hết thời gian chờ. Vui lòng thử lại.");
+        }
+        
+        if (error.response) {
+            console.error("Response data:", error.response.data);
+            console.error("Response status:", error.response.status);
+            
+            if (error.response.status === 413) {
+                throw new Error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
+            }
+            
+            if (error.response.status === 403) {
+                throw new Error("Bạn không có quyền chỉnh sửa bài viết này.");
+            }
+            
+            if (error.response.status === 404) {
+                throw new Error("Không tìm thấy bài viết.");
+            }
+            
+            // Sử dụng message từ backend nếu có
+            if (error.response.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+        }
+        
+        if (error.request) {
+            throw new Error("Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.");
+        }
+        
+        throw new Error("Đã xảy ra lỗi khi chỉnh sửa bài viết. Vui lòng thử lại.");
     }
 }
 

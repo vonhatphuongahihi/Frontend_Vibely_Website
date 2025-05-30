@@ -258,11 +258,31 @@ const Messenger = () => {
             return;
         }
 
+        // Debug logging
+        console.log("🔍 Searching for:", value);
+        console.log("📞 Available conversations:", conversations);
+        
+        // Lọc friends
         const filtered = friends.filter((friend) =>
             friend.username.toLowerCase().includes(value)
         );
 
         setFilteredFriends(filtered);
+        
+        // Debug kết quả lọc conversations
+        const filteredConvs = conversations.filter(c => {
+            if (c.membersData && Array.isArray(c.membersData)) {
+                const friend = c.membersData.find(m => m.id !== user?.id);
+                if (friend) {
+                    const matches = friend.username?.toLowerCase().includes(value);
+                    console.log(`👤 ${friend.username} matches "${value}":`, matches);
+                    return matches;
+                }
+            }
+            return false;
+        });
+        
+        console.log("✅ Filtered conversations:", filteredConvs);
     };
 
     const displayedFriends = searchValue.length > 0 ? filteredFriends : friends;
@@ -270,10 +290,16 @@ const Messenger = () => {
     // Sắp xếp hội thoại theo lastMessageTime giảm dần
     const displayedConversations = (searchValue.length > 0 ?
         conversations.filter(c => {
-            if (c.membersData) {
-                return c.membersData.some(m => m.username?.toLowerCase().includes(searchValue.toLowerCase()));
+            // Lọc conversation theo tên của member (không phải current user)
+            if (c.membersData && Array.isArray(c.membersData)) {
+                // Tìm friend trong conversation (không phải current user)
+                const friend = c.membersData.find(m => m.id !== user?.id);
+                if (friend) {
+                    return friend.username?.toLowerCase().includes(searchValue.toLowerCase());
+                }
             }
-            return true;
+            // Fallback: nếu không có membersData, không hiển thị trong kết quả tìm kiếm
+            return false;
         }) :
         conversations
     ).slice().sort((a, b) => {
@@ -516,6 +542,16 @@ const Messenger = () => {
                                 const friendId = conv.members.find(id => id !== user.id);
                                 friend = { id: friendId, username: friendId };
                             }
+                            
+                            // Debug logging cho friend data
+                            console.log("🧑‍🤝‍🧑 Friend data for conversation:", {
+                                conversationId: conv.id,
+                                friend: friend,
+                                hasProfilePicture: !!friend.profilePicture,
+                                profilePictureUrl: friend.profilePicture,
+                                membersData: conv.membersData
+                            });
+                            
                             // Sử dụng trường unread trả về từ backend
                             const unread = !!conv.unread;
                             return (
@@ -599,11 +635,23 @@ const Messenger = () => {
                             {/* Danh sách tin nhắn */}
                             <div className="chatBoxTop">
                                 {messages.length > 0 ? (
-                                    messages.map((msg) => (
-                                        <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
-                                            <Message message={msg} own={msg.senderId === user.id} />
-                                        </div>
-                                    ))
+                                    messages.map((msg) => {
+                                        // Tìm user info từ currentChat.membersData dựa trên senderId
+                                        let senderInfo = null;
+                                        if (currentChat?.membersData && msg.senderId) {
+                                            senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
+                                        }
+                                        
+                                        return (
+                                            <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
+                                                <Message 
+                                                    message={msg} 
+                                                    own={msg.senderId === user.id} 
+                                                    senderInfo={senderInfo}
+                                                />
+                                            </div>
+                                        );
+                                    })
                                 ) : (
                                     <div className="flex justify-center items-center h-full">
                                         <p className="">Chưa có tin nhắn nào</p>
@@ -699,11 +747,23 @@ const Messenger = () => {
                         {/* Danh sách tin nhắn */}
                         <div className="chatBoxTop">
                             {messages.length > 0 ? (
-                                messages.map((msg) => (
-                                    <div key={msg.id} ref={scrollRef}>
-                                        <Message message={msg} own={msg.senderId === user.id} />
-                                    </div>
-                                ))
+                                messages.map((msg) => {
+                                    // Tìm user info từ currentChat.membersData dựa trên senderId
+                                    let senderInfo = null;
+                                    if (currentChat?.membersData && msg.senderId) {
+                                        senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
+                                    }
+                                    
+                                    return (
+                                        <div key={msg.id} ref={scrollRef}>
+                                            <Message 
+                                                message={msg} 
+                                                own={msg.senderId === user.id} 
+                                                senderInfo={senderInfo}
+                                            />
+                                        </div>
+                                    );
+                                })
                             ) : (
                                 <div className="flex justify-center items-center h-full">
                                     <p className="">Chưa có tin nhắn nào</p>

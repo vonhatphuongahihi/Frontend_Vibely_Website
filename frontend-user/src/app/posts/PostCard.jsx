@@ -205,19 +205,31 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       setLoading(true)
       const formData = new FormData()
       formData.append('content', postContent)
+      
+      // Logic xử lý media:
+      // 1. Nếu có selectedFile (người dùng chọn file mới) -> upload file mới
+      // 2. Nếu không có selectedFile nhưng có filePreview -> giữ nguyên file cũ (không làm gì)
+      // 3. Nếu không có selectedFile và không có filePreview -> xóa media
+      
       if (selectedFile) {
-        formData.append('file', selectedFile)
+        // Trường hợp 1: Upload file mới
+        console.log("Uploading new file:", selectedFile.name);
+        formData.append('file', selectedFile);
+      } else if (!filePreview && post?.mediaUrl) {
+        // Trường hợp 3: Xóa media (filePreview = null nhưng bài viết gốc có media)
+        console.log("Removing media");
+        formData.append('removeMedia', 'true');
       }
-      //Không thay đổi thì selectedFile = null, filePreview là url
-      //Có thay đổi ảnh thì selectedFile = file
-      //Xóa ảnh thì selectedFile = filePreview = null
-      // if (selectedFile) {
-      //   formData.append('flag', 1)
-      // } else if (!selectedFile && filePreview) {
-      //   formData.append('flag', 0)
-      // } else {
-      //   formData.append('flag', -1)
-      // }
+      // Trường hợp 2: Giữ nguyên file cũ (không làm gì - không gửi file hoặc removeMedia)
+      
+      console.log("Edit form data:", {
+        content: postContent,
+        hasSelectedFile: !!selectedFile,
+        hasFilePreview: !!filePreview,
+        originalMediaUrl: post?.mediaUrl,
+        removeMedia: !filePreview && post?.mediaUrl
+      });
+
       await onEdit(formData)
       setPostContent('')
       setSelectedFile(null)
@@ -226,7 +238,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       setLoading(false)
       setEditPost(false);
     } catch (error) {
-      //console.log(error)
+      console.error("Error editing post:", error)
       setLoading(false)
     }
   }
