@@ -635,11 +635,23 @@ const Messenger = () => {
                             {/* Danh sách tin nhắn */}
                             <div className="chatBoxTop">
                                 {messages.length > 0 ? (
-                                    messages.map((msg) => (
-                                        <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
-                                            <Message message={msg} own={msg.senderId === user.id} />
-                                        </div>
-                                    ))
+                                    messages.map((msg) => {
+                                        // Tìm user info từ currentChat.membersData dựa trên senderId
+                                        let senderInfo = null;
+                                        if (currentChat?.membersData && msg.senderId) {
+                                            senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
+                                        }
+                                        
+                                        return (
+                                            <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
+                                                <Message 
+                                                    message={msg} 
+                                                    own={msg.senderId === user.id} 
+                                                    senderInfo={senderInfo}
+                                                />
+                                            </div>
+                                        );
+                                    })
                                 ) : (
                                     <div className="flex justify-center items-center h-full">
                                         <p className="">Chưa có tin nhắn nào</p>
@@ -735,11 +747,23 @@ const Messenger = () => {
                         {/* Danh sách tin nhắn */}
                         <div className="chatBoxTop">
                             {messages.length > 0 ? (
-                                messages.map((msg) => (
-                                    <div key={msg.id} ref={scrollRef}>
-                                        <Message message={msg} own={msg.senderId === user.id} />
-                                    </div>
-                                ))
+                                messages.map((msg) => {
+                                    // Tìm user info từ currentChat.membersData dựa trên senderId
+                                    let senderInfo = null;
+                                    if (currentChat?.membersData && msg.senderId) {
+                                        senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
+                                    }
+                                    
+                                    return (
+                                        <div key={msg.id} ref={scrollRef}>
+                                            <Message 
+                                                message={msg} 
+                                                own={msg.senderId === user.id} 
+                                                senderInfo={senderInfo}
+                                            />
+                                        </div>
+                                    );
+                                })
                             ) : (
                                 <div className="flex justify-center items-center h-full">
                                     <p className="">Chưa có tin nhắn nào</p>
