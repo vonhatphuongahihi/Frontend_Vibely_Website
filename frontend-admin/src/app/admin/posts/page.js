@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import Sidebar from "../../components/sidebar/Sidebar";
 import { Input } from "@/components/ui/input";
 import { deletePost, getAllPosts } from "@/service/post.service";
@@ -19,7 +19,9 @@ function Posts() {
   const [postList, setPostList] = useState([]);
   const [filterMode, setFilterMode] = useState("Mới nhất");
   const [modeChooserOpen, setModeChooserOpen] = useState(false);
+  const [isSearchActive, setIsSearchActive] = useState(false);
   const dropdownRef = useRef(null);
+
   //Tải ds bài viết
   const fetchPosts = async () => {
     try {
@@ -32,6 +34,7 @@ function Posts() {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchPosts();
   }, []);
@@ -47,67 +50,85 @@ function Posts() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  //Lọc bài viết theo từ khóa
-  const handleSearch = () => {
-    if (searchQuery) {
+  //Lọc bài viết theo từ khóa chỉ khi nhấn nút tìm
+  const performSearch = useCallback((query) => {
+    if (query && query.trim()) {
       const filterPost = postList.filter((post) =>
-        post.id.toString() === searchQuery //tìm theo id
-          || post?.user?.username?.toLowerCase().includes(searchQuery.toLowerCase()) //tìm theo tên người đăng
-          || post?.content?.toLowerCase().includes(searchQuery.toLowerCase()) //tìm theo nội dung bài viết
-          ? post : null
+        post.id.toString() === query //tìm theo id
+          || post?.user?.username?.toLowerCase().includes(query.toLowerCase()) //tìm theo tên người đăng
+          || post?.content?.toLowerCase().includes(query.toLowerCase()) //tìm theo nội dung bài viết
       );
       if (filterPost.length < 1) toast.error("Không tìm thấy kết quả")
       setFilterPosts(filterPost);
+      setIsSearchActive(true);
     } else {
       setFilterPosts([]);
+      setIsSearchActive(false);
+    }
+  }, [postList]);
+
+  const handleSearch = () => {
+    // Nếu ô tìm kiếm trống thì clear kết quả tìm kiếm
+    if (!searchQuery || searchQuery.trim() === '') {
+      setFilterPosts([]);
+      setIsSearchActive(false);
+      return;
+    }
+    // Nếu có text thì thực hiện tìm kiếm
+    performSearch(searchQuery);
+  };
+
+  // Xử lý thay đổi input - CHỈ cập nhật searchQuery, KHÔNG làm gì khác
+  const handleSearchInputChange = (e) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    // KHÔNG clear filterPosts ở đây để tránh re-render
+  };
+
+  // Hàm sắp xếp (không mutate array gốc)
+  const sortPosts = (posts, mode) => {
+    if (!posts || posts.length === 0) return [];
+    const sortedPosts = [...posts]; // Tạo bản sao
+    if (mode === "Mới nhất") {
+      return sortedPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (mode === "Lượt react") {
+      return sortedPosts.sort((a, b) => {
+        const totalReactsA = Object.values(a.reactionStats || {}).reduce(
+          (acc, val) => acc + val,
+          0
+        );
+        const totalReactsB = Object.values(b.reactionStats || {}).reduce(
+          (acc, val) => acc + val,
+          0
+        );
+        return totalReactsB - totalReactsA;
+      });
+    } else if (mode === "Lượt bình luận") {
+      return sortedPosts.sort((a, b) => (b.commentCount || 0) - (a.commentCount || 0));
+    } else {
+      return sortedPosts.sort((a, b) => (b.shareCount || 0) - (a.shareCount || 0));
     }
   };
 
-  //Nếu đang lọc thì sắp xếp ds lọc
+  //Sắp xếp thay đổi mode
   const handleModeChooser = (mode) => {
     setFilterMode(mode);
-    if (filterPosts.length > 0) {
-      if (mode === "Mới nhất") {
-        filterPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (mode === "Lượt react") {
-        filterPosts.sort((a, b) => {
-          const totalReactsA = Object.values(a.reactionStats).reduce(
-            (acc, val) => acc + val,
-            0
-          );
-          const totalReactsB = Object.values(b.reactionStats).reduce(
-            (acc, val) => acc + val,
-            0
-          );
-          return totalReactsB - totalReactsA;
-        });
-      } else if (mode === "Lượt bình luận") {
-        filterPosts.sort((a, b) => b.commentCount - a.commentCount);
-      } else {
-        filterPosts.sort((a, b) => b.shareCount - a.shareCount);
-      }
-    } else {
-      if (mode === "Mới nhất") {
-        postList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-      } else if (mode === "Lượt react") {
-        postList.sort((a, b) => {
-          const totalReactsA = Object.values(a.reactionStats).reduce(
-            (acc, val) => acc + val,
-            0
-          );
-          const totalReactsB = Object.values(b.reactionStats).reduce(
-            (acc, val) => acc + val,
-            0
-          );
-          return totalReactsB - totalReactsA;
-        });
-      } else if (mode === "Lượt bình luận") {
-        postList.sort((a, b) => b.commentCount - a.commentCount);
-      } else {
-        postList.sort((a, b) => b.shareCount - a.shareCount);
-      }
+    // Sắp xếp lại cả hai danh sách bằng cách tạo mới
+    setPostList(prevPostList => sortPosts(prevPostList, mode));
+    if (isSearchActive && filterPosts.length > 0) {
+      setFilterPosts(prevFilterPosts => sortPosts(prevFilterPosts, mode));
     }
   };
+
+  // Tối ưu hóa việc hiển thị - chỉ phụ thuộc vào những gì thực sự cần thiết
+  const displayPosts = useMemo(() => {
+    // Nếu đang trong chế độ tìm kiếm và có kết quả thì hiển thị kết quả tìm kiếm
+    if (isSearchActive && filterPosts.length > 0) {
+      return sortPosts(filterPosts, filterMode);
+    }
+    // Ngược lại hiển thị toàn bộ danh sách
+    return sortPosts(postList, filterMode);
+  }, [postList, filterPosts, filterMode, isSearchActive]);
 
   const handleDelete = async (postId) => {
     if (!postId) {
@@ -241,17 +262,16 @@ function Posts() {
           <h1 className="text-2xl font-semibold text-[#333]">Quản lý bài viết</h1>
         </div>
         {/*Search & Filter*/}
-        <div className="flex h-[10px] items-center mb-10 py-3 px-3 md:px-6 justify-between">
+        <div className="flex items-center mb-10 py-3 px-3 md:px-6 justify-between min-h-[60px]">
           <div className="flex w-3/5 items-center gap-2 justify-start">
             <Input
               type="text"
               placeholder="Tìm kiếm"
               className="w-xl border px-4 py-2 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 border-gray-300 italic"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={handleSearchInputChange}
+              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             />
-
-
             <Button
               className="w-14 md:w-24 h-10 cursor-pointer md:ml-2 px-6 py-2 bg-[#086280] text-white rounded-lg hover:bg-gray-700 transition duration-200"
               onClick={() => {
@@ -283,7 +303,7 @@ function Posts() {
                 ref={dropdownRef}
               >
                 <button
-                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base items-center gap-2"
                   onClick={() => {
                     setModeChooserOpen(false);
                     handleModeChooser("Mới nhất");
@@ -292,7 +312,7 @@ function Posts() {
                   Mới nhất
                 </button>
                 <button
-                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base items-center gap-2"
                   onClick={() => {
                     setModeChooserOpen(false);
                     handleModeChooser("Lượt react");
@@ -301,7 +321,7 @@ function Posts() {
                   Lượt react
                 </button>
                 <button
-                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base items-center gap-2"
                   onClick={() => {
                     setModeChooserOpen(false);
                     handleModeChooser("Lượt bình luận");
@@ -310,7 +330,7 @@ function Posts() {
                   Lượt bình luận
                 </button>
                 <button
-                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base flex items-center gap-2"
+                  className="flex justify-center block w-full px-2 md:px-4 py-2 text-left bg-white text-[#07617f] hover:bg-[#07617f] hover:text-white text-sm md:text-base items-center gap-2"
                   onClick={() => {
                     setModeChooserOpen(false);
                     handleModeChooser("Lượt chia sẻ");
@@ -323,14 +343,9 @@ function Posts() {
           </div>
         </div>
         {/*List*/}
-        {postList &&
-          (filterPosts.length > 0 //nếu đang search thì hiện danh sách lọc
-            ? filterPosts.map((post, idx) => {
-              return <PostCard key={post?._id || post?.id || idx} post={post} />;
-            })
-            : postList.map((post, idx) => {
-              return <PostCard key={post?._id || post?.id || idx} post={post} />;
-            }))}
+        {displayPosts.map((post, idx) => {
+          return <PostCard key={post?._id || post?.id || idx} post={post} />;
+        })}
       </div>
     </div>
   );
