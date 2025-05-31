@@ -2,17 +2,17 @@ import "./conversation.css";
 import { useState } from "react";
 
 export default function Conversation({ friend, currentChat, lastMessage, unread }) {
-  const isActive = currentChat?.members?.includes(friend.id);
+  const isActive = currentChat?.members?.includes(friend?.id);
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
   // Debug logging
-  console.log("🖼️ Conversation avatar debug:", {
-    friendData: friend,
-    profilePicture: friend?.profilePicture,
-    username: friend?.username,
-    hasProfilePicture: !!friend?.profilePicture
-  });
+  // console.log("🖼️ Conversation avatar debug:", {
+  //   friendData: friend,
+  //   profilePicture: friend?.profilePicture,
+  //   username: friend?.username,
+  //   hasProfilePicture: !!friend?.profilePicture
+  // });
 
   const handleImageLoad = () => {
     console.log("✅ Avatar loaded successfully:", friend?.profilePicture);
@@ -98,12 +98,19 @@ export default function Conversation({ friend, currentChat, lastMessage, unread 
             {friend?.username || "Unknown User"}
             {unread && <span style={{ color: '#2196f3', marginLeft: 6, fontSize: 18 }}>•</span>}
           </span>
-          {lastMessage && (
+          {lastMessage ? (
             <span
               className="conversationLastMessage text-gray-500 text-xs truncate max-w-[180px]"
               style={{ marginTop: 2, fontWeight: unread ? 600 : 400, color: unread ? '#222' : undefined }}
             >
               {lastMessage}
+            </span>
+          ) : (
+            <span
+              className="conversationLastMessage text-gray-400 text-xs truncate max-w-[180px]"
+              style={{ marginTop: 2, fontStyle: 'italic' }}
+            >
+              Nhấn để bắt đầu trò chuyện
             </span>
           )}
         </div>
