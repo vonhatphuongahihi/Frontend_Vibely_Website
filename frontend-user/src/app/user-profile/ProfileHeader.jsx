@@ -83,7 +83,7 @@ const ProfileHeader = ({
         const coverFormData = new FormData();
         coverFormData.append("coverPicture", coverPhotoFile); // file từ input
         const updateCover = await updateUserCoverPhoto(userId, coverFormData);
-        
+
         if (updateCover && updateCover.coverPicture) {
           updateProfile.coverPicture = updateCover.coverPicture;
         } else {
@@ -117,32 +117,31 @@ const ProfileHeader = ({
   };
 
 
-const onSubmitCoverPhoto = async (e) => {
-  e.preventDefault();
-  try {
-    setLoading(true);
-    const formData = new FormData();
-    if (coverPhotoFile) {
-      formData.append("coverPicture", coverPhotoFile);
+  const onSubmitCoverPhoto = async (e) => {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      const formData = new FormData();
+      if (coverPhotoFile) {
+        formData.append("coverPicture", coverPhotoFile);
+      }
+      const updateProfile = await updateUserCoverPhoto(id, formData);
+      // Giả sử API trả về URL ảnh mới trong updateProfile.coverPicture
+      if (updateProfile && updateProfile.coverPicture) {
+        setProfileData(prev => ({ ...prev, coverPicture: updateProfile.coverPicture }));
+      } else {
+        // Nếu API không trả URL, dùng URL.createObjectURL
+        const objectUrl = URL.createObjectURL(coverPhotoFile);
+        setProfileData(prev => ({ ...prev, coverPicture: objectUrl }));
+      }
+      setIsEditCoverModel(false);
+      setCoverPhotoFile(null);
+    } catch (error) {
+      console.error("Lỗi khi cập nhật ảnh bìa", error);
+    } finally {
+      setLoading(false);
     }
-    const updateProfile = await updateUserCoverPhoto(id, formData);
-    console.log('Update cover response:', updateProfile);
-    // Giả sử API trả về URL ảnh mới trong updateProfile.coverPicture
-    if (updateProfile && updateProfile.coverPicture) {
-      setProfileData(prev => ({ ...prev, coverPicture: updateProfile.coverPicture }));
-    } else {
-      // Nếu API không trả URL, dùng URL.createObjectURL
-      const objectUrl = URL.createObjectURL(coverPhotoFile);
-      setProfileData(prev => ({ ...prev, coverPicture: objectUrl }));
-    }
-    setIsEditCoverModel(false);
-    setCoverPhotoFile(null);
-  } catch (error) {
-    console.error("Lỗi khi cập nhật ảnh bìa", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
 
@@ -225,7 +224,7 @@ const onSubmitCoverPhoto = async (e) => {
           <div className="mt-4 mdLmt-0 text-center md:text-left flex-grow">
             <h1 className="text-3xl font-bold">{profileData?.username}</h1>
             <p className="text-gray-400 font-semibold">
-            {Array.isArray(mutualFriends) ? mutualFriends.length : 0} người bạn
+              {Array.isArray(mutualFriends) ? mutualFriends.length : 0} người bạn
             </p>
           </div>
           {isOwner && (
