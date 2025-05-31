@@ -78,7 +78,6 @@ export const updateUserProfile = async (userId, updateData) => {
                 'Content-Type': 'multipart/form-data',
             }
         });
-        console.log("updateData", response)
         return response?.data?.data;
     } catch (error) {
         throw error;

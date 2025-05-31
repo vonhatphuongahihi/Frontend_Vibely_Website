@@ -110,7 +110,6 @@ const Schedule = () => {
     const handleGoogleCalendarConnect = async () => {
         try {
             const authUrl = await getGoogleCalendarAuthUrl();
-            console.log("Auth URL:", authUrl); // Debug log
 
             if (!authUrl) {
                 toast.error("URL xác thực không hợp lệ");
@@ -150,18 +149,14 @@ const Schedule = () => {
         setShowAuth(false);
 
         const messageHandler = async (event) => {
-            console.log("Received message:", event.data); // Debug log
 
             if (event.data.type === 'GOOGLE_CALENDAR_AUTH') {
                 const { code } = event.data;
-                console.log("Received auth code:", code); // Debug log
 
                 try {
                     const response = await connectGoogleCalendar({ code });
-                    console.log("Token exchange response:", response); // Debug log
 
                     const statusResponse = await getGoogleCalendarStatus();
-                    console.log("Status response:", statusResponse); // Debug log
 
                     if (statusResponse.data) {
                         setIsGoogleCalendarConnected(true);

@@ -14,17 +14,15 @@ const GoogleCalendarCallback = () => {
                     throw new Error('Không tìm thấy mã xác thực');
                 }
 
-                console.log("Callback received code:", code); // Debug log
 
                 // Gửi code về cho main window
                 if (window.opener) {
-                    console.log("Sending code to main window"); // Debug log
                     window.opener.postMessage({
                         type: 'GOOGLE_CALENDAR_AUTH',
                         code: code
-                    }, '*'); // Thay đổi origin thành '*' để cho phép gửi từ bất kỳ domain nào
+                    }, '*');
                 } else {
-                    console.log("No opener window found"); // Debug log
+                    console.log("Không tìm thấy window.opener");
                 }
 
                 // Hiển thị thông báo thành công

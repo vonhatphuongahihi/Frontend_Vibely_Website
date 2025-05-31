@@ -36,19 +36,15 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             const res = await getAllStories();
-            console.log("Raw story data từ API:", res);
-            
+
             if (!res || res.length === 0) {
-                console.log("Không có story nào được trả về từ API");
                 set({ stories: [], loading: false });
                 return;
             }
-            
+
             // Kiểm tra cấu trúc dữ liệu
             const sampleStory = res[0];
-            console.log("Mẫu story đầu tiên:", sampleStory);
-            console.log("Các thuộc tính của story:", Object.keys(sampleStory));
-            
+
             // Chuyển đổi dữ liệu nếu cần
             const processedStories = res.map(story => {
                 // Đảm bảo các trường cần thiết đều có
@@ -60,7 +56,7 @@ export const usePostStore = create((set) => ({
                     user: story.user || {} // Đảm bảo có user
                 };
             });
-            
+
             const now = new Date();
             const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000); // Lùi lại 24 giờ
             //Story chỉ tồn tại trong 24h 
@@ -68,8 +64,7 @@ export const usePostStore = create((set) => ({
                 const storyDate = new Date(story.createdAt);
                 return storyDate >= last24Hours; // Chỉ lấy story có thời gian >= thời gian 24h trước
             });
-            
-            console.log("Stories sau khi lọc và xử lý:", filterStories);
+
             set({ stories: filterStories, loading: false })
         } catch (error) {
             console.error("Lỗi khi fetch stories:", error);
@@ -90,7 +85,7 @@ export const usePostStore = create((set) => ({
         } catch (error) {
             console.error("Lỗi chi tiết khi tạo bài viết:", error);
             set({ error, loading: false });
-            
+
             // Hiển thị thông báo lỗi cụ thể
             if (error.message) {
                 toast.error(error.message);
@@ -99,7 +94,7 @@ export const usePostStore = create((set) => ({
             } else {
                 toast.error("Đã xảy ra lỗi khi đăng bài. Vui lòng thử lại.");
             }
-            
+
             return null;
         }
     },

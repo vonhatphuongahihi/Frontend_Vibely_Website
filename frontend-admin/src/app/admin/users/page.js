@@ -37,7 +37,6 @@ const UsersPage = () => {
     try {
       setLoading(true);
       const users = await getAllUsers();
-      console.log("Danh sách người dùng:", users);
       setUsersList(users);
       if (users.length > 0) {
         setSelectedUser(users[0]);
