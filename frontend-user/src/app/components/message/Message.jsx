@@ -10,12 +10,12 @@ export default function Message({ message, own, senderInfo }) {
   const [imageLoaded, setImageLoaded] = useState(false);
 
   // Debug logging
-  console.log("📨 Message debug:", {
-    message: message,
-    senderId: message.senderId,
-    own: own,
-    senderInfo: senderInfo
-  });
+  // console.log("📨 Message debug:", {
+  //   message: message,
+  //   senderId: message.senderId,
+  //   own: own,
+  //   senderInfo: senderInfo
+  // });
 
   const handleImageLoad = () => {
     console.log("✅ Message avatar loaded successfully:", senderInfo?.profilePicture);
