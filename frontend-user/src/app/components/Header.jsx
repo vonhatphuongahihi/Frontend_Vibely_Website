@@ -61,7 +61,6 @@ const Header = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        console.log("fetchUsers");
         const result = await getAllUsers();
         setUserList(result);
       } catch (error) {

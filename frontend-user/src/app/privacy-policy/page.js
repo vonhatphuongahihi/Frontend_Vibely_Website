@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">1</div>
-                            <h2 className="text-2xl font-bold">Thông tin chúng tôi thu thập</h2>
+                            <p className="text-2xl font-bold">Thông tin chúng tôi thu thập</p>
                         </div>
                         <div className="pl-14">
                             <div className="mb-6">
@@ -51,7 +51,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">2</div>
-                            <h2 className="text-2xl font-bold">Cách chúng tôi sử dụng thông tin</h2>
+                            <p className="text-2xl font-bold">Cách chúng tôi sử dụng thông tin</p>
                         </div>
                         <div className="pl-14">
                             <div className="grid md:grid-cols-2 gap-8">
@@ -85,7 +85,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">3</div>
-                            <h2 className="text-2xl font-bold">Quyền riêng tư của bạn</h2>
+                            <p className="text-2xl font-bold">Quyền riêng tư của bạn</p>
                         </div>
                         <div className="pl-14">
                             <div className="grid md:grid-cols-2 gap-6">
@@ -133,7 +133,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">4</div>
-                            <h2 className="text-2xl font-bold">Bảo mật dữ liệu</h2>
+                            <p className="text-2xl font-bold">Bảo mật dữ liệu</p>
                         </div>
                         <div className="pl-14">
                             <div className="flex flex-col md:flex-row gap-8">
@@ -181,7 +181,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">5</div>
-                            <h2 className="text-2xl font-bold">Thay đổi chính sách</h2>
+                            <p className="text-2xl font-bold">Thay đổi chính sách</p>
                         </div>
                         <div className="pl-14">
                             <div className="bg-purple-50 p-4 rounded-lg mb-4">
@@ -209,7 +209,7 @@ export default function PrivacyPolicy() {
                     <section>
                         <div className="flex items-center mb-6">
                             <FaEnvelope className="text-[#4F46E5] text-2xl mr-4" />
-                            <h2 className="text-2xl font-bold">Liên hệ</h2>
+                            <p className="text-2xl font-bold">Liên hệ</p>
                         </div>
                         <div className="pl-14">
                             <p className="mb-6">

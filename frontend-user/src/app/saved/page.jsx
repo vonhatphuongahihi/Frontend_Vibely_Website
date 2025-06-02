@@ -14,14 +14,16 @@ import LeftSideBar from "../components/LeftSideBar";
 const SavedPage = () => {
     const router = useRouter();
 
+    // State declarations
     const [levels, setLevels] = useState([]);
     const [subjects, setSubjects] = useState([]);
     const [documents, setDocuments] = useState([]);
-    const [isSidebarOpen, setSidebarOpen] = useState(false)
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [selectedLevelId, setSelectedLevelId] = useState(null);
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const [token, setToken] = useState(null);
     const [query, setQuery] = useState("");
+    const [isPageLoading, setIsPageLoading] = useState(true);
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
     const truncateText = (text, maxLength) => {
@@ -29,7 +31,7 @@ const SavedPage = () => {
         return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
     };
 
-    // Lấy token từ localStorage trên client
+    // Get token from localStorage
     useEffect(() => {
         const storedToken = localStorage.getItem("auth_token");
         if (storedToken) {
@@ -37,9 +39,9 @@ const SavedPage = () => {
         }
     }, []);
 
-    // Gọi API để lấy cấp học và danh sách tài liệu ban đầu
+    // Fetch initial data
     useEffect(() => {
-        const fetchLevel = async () => {
+        const fetchInitialData = async () => {
             if (!token) return;
 
             try {
@@ -54,15 +56,17 @@ const SavedPage = () => {
                 });
 
                 setDocuments(docsRes.data.data);
+                setIsPageLoading(false);
             } catch (err) {
                 toast.error("Lỗi khi lấy dữ liệu ban đầu");
+                setIsPageLoading(false);
             }
         };
 
-        fetchLevel();
+        fetchInitialData();
     }, [token]);
 
-    // Gọi API lấy danh sách môn học khi chọn cấp học
+    // Fetch subjects when level changes
     useEffect(() => {
         const fetchSubjects = async () => {
             if (!selectedLevelId) {
@@ -84,7 +88,7 @@ const SavedPage = () => {
         fetchSubjects();
     }, [selectedLevelId, token]);
 
-    // Gọi API để tìm kiếm tài liệu theo query và lọc theo cấp học, môn học
+    // Fetch filtered documents
     useEffect(() => {
         const fetchFilteredDocs = async () => {
             if (!token) return;
@@ -108,10 +112,52 @@ const SavedPage = () => {
         fetchFilteredDocs();
     }, [query, selectedLevelId, selectedSubjectId, token]);
 
+    // Gọi API để lấy danh sách tài liệu đã lưu
+    useEffect(() => {
+        if (token) {
+            const fetchSavedDocuments = async () => {
+                try {
+                    const result = await axios.get(`${API_URL}/users/saved`, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    // Lấy thông tin chi tiết cho từng document
+                    const documentsWithDetails = await Promise.all(
+                        result.data.data.map(async (doc) => {
+                            try {
+                                const docResult = await axios.get(`${API_URL}/documents/${doc._id}`, {
+                                    headers: { Authorization: `Bearer ${token}` },
+                                });
+                                return docResult.data.data;
+                            } catch (err) {
+                                console.error(`Lỗi khi lấy chi tiết tài liệu ${doc._id}:`, err);
+                                return null;
+                            }
+                        })
+                    );
+
+                    // Lọc bỏ các document null
+                    setDocuments(documentsWithDetails.filter(doc => doc !== null));
+                } catch (err) {
+                    console.error("Lỗi khi lấy danh sách tài liệu đã lưu:", err);
+                }
+            };
+
+            fetchSavedDocuments();
+        }
+    }, [token]);
+
+    if (isPageLoading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
+                <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
-            {/* Thanh bên */}
+            {/* Sidebar */}
             <div className="md:hidden">
                 <LeftSideBar />
             </div>
@@ -123,15 +169,11 @@ const SavedPage = () => {
                 <GiHamburgerMenu style={{ width: 24, height: 24 }} />
             </Button>
 
-            {/*Nội dung thanh bên*/}
+            {/* Sidebar content */}
             <div className={`fixed top-14 left-0 h-full sm:w-2/5 w-3/4 p-5 bg-white z-50 transform transition-transform duration-300  
-                ${isSidebarOpen
-                    ? "translate-x-0"
-                    : "-translate-x-full"
-                }
+                ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}
                 lg:translate-x-0 lg:static lg:w-1/5 rounded-xl shadow-lg overflow-auto`}
             >
-
                 <Button variant="bigIcon" className="lg:hidden absolute top-4 right-2" onClick={() => setSidebarOpen(false)}>
                     <AiOutlineClose style={{ width: 24, height: 24, color: "black" }} />
                 </Button>
@@ -142,7 +184,7 @@ const SavedPage = () => {
 
                 <Separator className="mt-1 mb-4 border-b border-gray-300" />
 
-                {/* Danh sách cấp học */}
+                {/* Level list */}
                 <div className="flex flex-col">
                     <div
                         key="all-levels"
@@ -170,10 +212,9 @@ const SavedPage = () => {
                     ))}
                 </div>
 
-
                 <Separator className="mt-1 mb-4 border-b border-gray-300" />
 
-                {/* Danh sách môn học */}
+                {/* Subject list */}
                 {selectedLevelId && (
                     <div className="flex flex-col">
                         <div
@@ -198,7 +239,7 @@ const SavedPage = () => {
                 )}
             </div>
 
-            {/* Danh sách tài liệu */}
+            {/* Document list */}
             <div className="flex-1 p-4">
                 <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4 mt-4">
                     {documents.map((doc) => (
@@ -218,8 +259,8 @@ const SavedPage = () => {
                             <h3 className="font-semibold text-[18px]">{truncateText(doc.title, 50)}</h3>
                             <p className="text-[13px] font-semibold mt-1 italic">{doc.pages} trang</p>
                             <div className="flex justify-between mt-2">
-                                <p className="text-[13px] text-gray-500 font-semibold italic">{doc.level.name}</p>
-                                <p className="text-[13px] text-gray-500 font-semibold italic">{doc.subject.name}</p>
+                                <p className="text-[13px] text-gray-500 font-semibold italic">{doc.levelName}</p>
+                                <p className="text-[13px] text-gray-500 font-semibold italic">{doc.subjectName}</p>
                             </div>
                         </div>
                     ))}

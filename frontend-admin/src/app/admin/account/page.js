@@ -1,6 +1,6 @@
 'use client'
 
-import { getAdminById, updateAdminInfo} from '@/service/accountAdmin.service';
+import { getAdminById, updateAdminInfo } from '@/service/accountAdmin.service';
 import { useEffect, useState } from 'react'
 import { toast } from 'react-hot-toast'
 import { jwtDecode } from "jwt-decode";
@@ -44,15 +44,14 @@ const AccountPage = () => {
         if (!adminId) return;
 
         const fetchUserData = async () => {
-        if (!adminId) return;
+            if (!adminId) return;
             try {
                 const response = await getAdminById(adminId);
-                console.log('API trả về:', response);
                 if (response?.data) {
-                setUserData(response.data);
-                localStorage.setItem('adminData', JSON.stringify(response.data));
+                    setUserData(response.data);
+                    localStorage.setItem('adminData', JSON.stringify(response.data));
                 } else {
-                console.error("Không tìm thấy dữ liệu cho adminId:", adminId);
+                    console.error("Không tìm thấy dữ liệu cho adminId:", adminId);
                 }
             } catch (error) {
                 console.error("Lỗi khi fetch admin:", error);
