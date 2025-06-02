@@ -119,7 +119,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
     const sortedReactions = Object.entries(reactionGroups)
       .sort((a, b) => b[1].length - a[1].length)
       .slice(0, 3);
-    
+
     setTopReactions(sortedReactions.map(([reaction]) => reaction));
     setReactionUserGroups(reactionGroups);
   }, [post, user, post?.reactionStats]); // Dependencies updated
@@ -134,16 +134,16 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const handleReaction = (reaction) => {
     const token = localStorage.getItem("auth_token");
     if (!token) {
-        toast.error("Vui lòng đăng nhập để thực hiện chức năng này");
-        return;
+      toast.error("Vui lòng đăng nhập để thực hiện chức năng này");
+      return;
     }
     console.log("post", post);
     if (!post?.id) {
-        console.error("Invalid post ID", { post });
-        toast.error("Không thể thực hiện. Bài viết không tồn tại.");
-        return;
+      console.error("Invalid post ID", { post });
+      toast.error("Không thể thực hiện. Bài viết không tồn tại.");
+      return;
     }
-    
+
     console.log("Reacting to post:", post.id, "with reaction:", reaction);
     setIsChoosing(false);
     onReact(reaction);
@@ -205,12 +205,12 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       setLoading(true)
       const formData = new FormData()
       formData.append('content', postContent)
-      
+
       // Logic xử lý media:
       // 1. Nếu có selectedFile (người dùng chọn file mới) -> upload file mới
       // 2. Nếu không có selectedFile nhưng có filePreview -> giữ nguyên file cũ (không làm gì)
       // 3. Nếu không có selectedFile và không có filePreview -> xóa media
-      
+
       if (selectedFile) {
         // Trường hợp 1: Upload file mới
         console.log("Uploading new file:", selectedFile.name);
@@ -221,7 +221,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
         formData.append('removeMedia', 'true');
       }
       // Trường hợp 2: Giữ nguyên file cũ (không làm gì - không gửi file hoặc removeMedia)
-      
+
       console.log("Edit form data:", {
         content: postContent,
         hasSelectedFile: !!selectedFile,
@@ -294,7 +294,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   Sửa bài viết
                 </button>
                 {/*Nút xóa bài viết*/}
-                <button className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200 flex items-center gap-2"
+                <button className="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-200 flex items-center gap-2 cursor-pointer"
                   onClick={() => {
                     setDropdownOpen(false)
                     setPopupOpen(true)
@@ -372,7 +372,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                     }}
                     className="px-4 py-2 text-white w-full rounded-md bg-[#086280] hover:bg-gray-600"
                   >
-                    {loading ? "Đang lưu..." : "Hoàn Tất"}
+                    {loading ? "Đang lưu..." : "Hoàn tất"}
                   </button>
                   {/*Nút hủy chỉnh sửa*/}
                   <button

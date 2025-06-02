@@ -74,7 +74,7 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   }
   //Các biến và hàm cho Chia Sẻ Bài Viết
   const generateSharedLink = () => {
-    return `http://localhost:3000/posts/${post?.id}`; //sau khi deploy thì đổi lại + tạo trang bài viết đi!!!!
+    return `https://vibely-study-social-website.vercel.app/posts/${post?.id}`;
   };
   const handleShare = (platform) => {
     const url = generateSharedLink();

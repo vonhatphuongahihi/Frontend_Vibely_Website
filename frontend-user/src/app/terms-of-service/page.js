@@ -1,7 +1,9 @@
 "use client";
 import { FaFileContract, FaUserCheck, FaBan, FaCheckCircle, FaExclamationTriangle, FaInfoCircle, FaEnvelope, FaBuilding, FaPhone, FaGraduationCap, FaInstagram, FaFacebookF, FaTwitter, FaLinkedinIn } from "react-icons/fa";
+import { useEffect, useState } from "react";
 
 export default function TermsOfService() {
+
     return (
         <main className="container mx-auto px-4 py-12 max-w-5xl">
             {/* Policy Header */}
@@ -30,7 +32,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">1</div>
-                            <h2 className="text-2xl font-bold">Chấp nhận điều khoản</h2>
+                            <p className="text-2xl font-bold">Chấp nhận điều khoản</p>
                         </div>
                         <div className="pl-14">
                             <p className="mb-4">
@@ -60,7 +62,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">2</div>
-                            <h2 className="text-2xl font-bold">Quy định sử dụng</h2>
+                            <p className="text-2xl font-bold">Quy định sử dụng</p>
                         </div>
                         <div className="pl-14">
                             <p className="mb-4">
@@ -113,7 +115,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">3</div>
-                            <h2 className="text-2xl font-bold">Nội dung người dùng</h2>
+                            <p className="text-2xl font-bold">Nội dung người dùng</p>
                         </div>
                         <div className="pl-14">
                             <div className="flex flex-col md:flex-row gap-8 mb-6">
@@ -145,7 +147,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">4</div>
-                            <h2 className="text-2xl font-bold">Quyền sở hữu trí tuệ</h2>
+                            <p className="text-2xl font-bold">Quyền sở hữu trí tuệ</p>
                         </div>
                         <div className="pl-14">
                             <div className="grid md:grid-cols-2 gap-6 mb-6">
@@ -177,7 +179,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">5</div>
-                            <h2 className="text-2xl font-bold">Bảo mật và dữ liệu</h2>
+                            <p className="text-2xl font-bold">Bảo mật và dữ liệu</p>
                         </div>
                         <div className="pl-14">
                             <div className="mb-6">
@@ -220,7 +222,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <div className="bg-[#4F46E5] rounded-full w-10 h-10 flex items-center justify-center text-white font-bold mr-4">6</div>
-                            <h2 className="text-2xl font-bold">Thay đổi và chấm dứt</h2>
+                            <p className="text-2xl font-bold">Thay đổi và chấm dứt</p>
                         </div>
                         <div className="pl-14">
                             <div className="grid md:grid-cols-2 gap-8 mb-6">
@@ -253,7 +255,7 @@ export default function TermsOfService() {
                     <section>
                         <div className="flex items-center mb-6">
                             <FaEnvelope className="text-[#4F46E5] text-2xl mr-4" />
-                            <h2 className="text-2xl font-bold">Liên hệ</h2>
+                            <p className="text-2xl font-bold">Liên hệ</p>
                         </div>
                         <div className="pl-14">
                             <p className="mb-6">

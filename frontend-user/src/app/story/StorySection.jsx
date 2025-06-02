@@ -12,16 +12,12 @@ const StorySection = () => {
   const [maxScroll, setMaxScroll] = useState(0);
   const containerRef = useRef();
   const { stories, fetchStories, handleReactStory, handleDeleteStory } = usePostStore()
-  
+
   // Tải stories
   useEffect(() => {
     fetchStories();
   }, [fetchStories]);
-  
-  // Log stories sau khi đã cập nhật
-  useEffect(() => {
-    console.log("Stories sau khi cập nhật:", stories);
-  }, [stories]);
+
 
   // các hàm hỗ trợ lướt ngang cho các story
   useEffect(() => {

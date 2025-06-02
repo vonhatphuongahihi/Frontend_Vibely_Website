@@ -31,14 +31,14 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
   const [fileType, setFileType] = useState("")
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef(null)
-  
+
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       // Kiểm tra kích thước file
       const fileSizeMB = file.size / (1024 * 1024);
       console.log(`File được chọn: ${file.name}, kích thước: ${fileSizeMB.toFixed(2)}MB, loại: ${file.type}`);
-      
+
       // Kiểm tra nếu là video và kích thước quá lớn
       if (file.type.startsWith('video/') && fileSizeMB > 90) {
         toast.warning(`Video có kích thước ${fileSizeMB.toFixed(2)}MB. Nên chọn video nhỏ hơn 90MB để tránh lỗi.`);
@@ -47,30 +47,30 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
         event.target.value = '';
         return;
       }
-      
+
       setSelectedFile(file);
       setFileType(file.type);
       setFilePreview(URL.createObjectURL(file));
     }
   };
 
-  
+
   // đăng bài
   const handlePost = async () => {
     try {
       setLoading(true);
-  
+
       const formData = new FormData();
       formData.append("content", postContent);
-  
+
       if (selectedFile instanceof File) {
         formData.append("file", selectedFile, selectedFile.name);
       } else {
         console.warn("selectedFile is not a valid File instance:", selectedFile);
       }
-  
+
       await handleCreatePost(formData);
-      
+
       // Reset state
       setPostContent("");
       setSelectedFile(null);
@@ -82,7 +82,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
       setLoading(false);
     }
   };
-  
+
 
   useEffect(() => {
     if (defaultImage) {
