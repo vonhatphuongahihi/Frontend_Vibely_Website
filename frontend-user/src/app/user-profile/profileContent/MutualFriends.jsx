@@ -27,8 +27,7 @@ export const MutualFriends = ({ id, isOwner }) => {
     }
   }, [id, fetchMutualFriends]);
   useEffect(() => {
-  console.log("Mutual Friends Updated: ", mutualFriends);
-}, [mutualFriends]);
+  }, [mutualFriends]);
 
   const handleUnfollow = async (userId) => {
     await UnfollowUser(userId);
@@ -41,27 +40,27 @@ export const MutualFriends = ({ id, isOwner }) => {
     setSearchQuery(event.target.value);
   };
 
-const filteredFriends = Array.isArray(mutualFriends)
-  ? mutualFriends.filter((friend) =>
+  const filteredFriends = Array.isArray(mutualFriends)
+    ? mutualFriends.filter((friend) =>
       friend?.username?.toLowerCase().includes(searchQuery.toLowerCase())
     )
-  : [];
+    : [];
 
-  const Tabs = ({className}) =>{
-    return(
+  const Tabs = ({ className }) => {
+    return (
       <div className={`flex flex-wrap gap-4 justify-end md:w-[260px] ${className}`}>
-          <p
-            className="text-[#086280] font-semibold cursor-pointer"
-            onClick={() => handleNavigation("/friends-list")}
-          >
-            Lời mời kết bạn
-          </p>
-          <p
-            className="text-[#086280] font-semibold cursor-pointer"
-            onClick={() => handleNavigation("/friends-list")}
-          >
-            Tìm bạn bè
-          </p>
+        <p
+          className="text-[#086280] font-semibold cursor-pointer"
+          onClick={() => handleNavigation("/friends-list")}
+        >
+          Lời mời kết bạn
+        </p>
+        <p
+          className="text-[#086280] font-semibold cursor-pointer"
+          onClick={() => handleNavigation("/friends-list")}
+        >
+          Tìm bạn bè
+        </p>
       </div>
     )
   }
@@ -73,34 +72,34 @@ const filteredFriends = Array.isArray(mutualFriends)
       className="mb-4"
     >
       <Card className="bg-white shadow-md rounded-lg border border-gray-200 p-4">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 mb-4 relative">
-      {/* Trái: Tiêu đề */}
-      <div className="flex justify-between items-center">
-        <p className="text-xl font-semibold dark:text-gray-300 md:w-[160px]">Bạn bè</p>
-        <Tabs className="md:hidden"/>
-      </div>
-      
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4 mb-4 relative">
+          {/* Trái: Tiêu đề */}
+          <div className="flex justify-between items-center">
+            <p className="text-xl font-semibold dark:text-gray-300 md:w-[160px]">Bạn bè</p>
+            <Tabs className="md:hidden" />
+          </div>
 
-      {/* Giữa: Thanh tìm kiếm */}
-      <div className="relative flex items-center w-full md:flex-1">
-        <input
-          type="text"
-          placeholder="Tìm kiếm..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="w-full px-6 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#086280]"
-        />
-        <button className="ml-2 p-2 bg-[#086280] text-white rounded-lg hover:bg-[#064d5f]">
-          <Search className="h-5 w-5" />
-        </button>
-      </div>
 
-      {/* Phải: Tabs điều hướng */}
-      {isOwner && (
-        <Tabs className="hidden md:inline-flex"/>
-      )}
-      
-    </div>
+          {/* Giữa: Thanh tìm kiếm */}
+          <div className="relative flex items-center w-full md:flex-1">
+            <input
+              type="text"
+              placeholder="Tìm kiếm..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="w-full px-6 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#086280]"
+            />
+            <button className="ml-2 p-2 bg-[#086280] text-white rounded-lg hover:bg-[#064d5f]">
+              <Search className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Phải: Tabs điều hướng */}
+          {isOwner && (
+            <Tabs className="hidden md:inline-flex" />
+          )}
+
+        </div>
 
 
         <CardContent>
@@ -112,24 +111,21 @@ const filteredFriends = Array.isArray(mutualFriends)
                 className="flex items-center justify-between bg-white shadow-md rounded-lg border border-gray-200 p-3"
               >
                 {/* Avatar + Tên */}
-                <div className="flex items-center space-x-4 rounded-md">
+                <div 
+                  className="flex items-center space-x-4 rounded-md cursor-pointer" 
+                  onClick={() => router.push(`/user-profile/${friend.id}`)}
+                >
                   <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-700">
                     {friend?.profilePicture ? (
-                      <AvatarImage
-                        src={friend?.profilePicture}
-                        alt={friend?.username}
-                      />
+                      <AvatarImage src={friend?.profilePicture} alt={friend?.username} />
                     ) : (
                       <AvatarFallback className="bg-gray-400">
-                        {friend?.username
-                          ?.split(" ")
-                          .map((name) => name[0])
-                          .join("")}
+                        {friend?.username?.split(" ").map((name) => name[0]).join("")}
                       </AvatarFallback>
                     )}
                   </Avatar>
                   <div>
-                    <p className="font-semibold dark:text-gray-100">
+                    <p className="font-semibold dark:text-gray-100 hover:underline">
                       {friend?.username}
                     </p>
                     <p className="text-sm text-gray-400">
