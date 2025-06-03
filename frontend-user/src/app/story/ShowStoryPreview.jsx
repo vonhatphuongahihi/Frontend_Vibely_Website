@@ -1,27 +1,25 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import userStore from '@/store/userStore'
 import { Heart, X } from 'lucide-react'
 import Image from 'next/image'
-import React from 'react'
-import { motion } from 'framer-motion'
-import userStore from '@/store/userStore'
 
 const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userStory, avatar, isLoading, onReact, reaction, reactions, onDelete }) => {
     // Chỉ log khi cần debug
     // console.log({ userStory })
-    
+
     // Đảm bảo userStory không null trước khi truy cập thuộc tính
     const userPlaceholder = userStory?.username?.split(" ")?.map((name) => name?.[0])?.join("") || ""; //tên người dùng viết tắt
-    
+
     //xóa tin (dành cho người đăng tin)
     const handleDeleteStory = () => {
         if (onDelete) onDelete();
         onClose();
     }
-    
+
     const { user } = userStore()
     // console.log({ id: user?.id, userStoryId: userStory?.id })
-    
+
     return (
         <div className='fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50'>
             <div className='relative w-full max-w-md h-[70vh] flex flex-col bg-white rounded-lg overflow-hidden'>
@@ -68,27 +66,28 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                             onClick={onPost}
                             disabled={isLoading}
                         >
-                            {isLoading ? "Đang lưu..." : "Đăng"}
+                            {isLoading ? "Đang đăng..." : "Đăng"}
                         </Button>
                     </div>
                 )}
                 {/*tym*/}
                 {!isNewStory && user && userStory && (
-                    <div>
+                    <div className='absolute bottom-4 left-4 z-10'>
                         {/*Chỉ người đăng tin mới xem được số lượt tim và có thể xóa story*/}
                         {user?.id === userStory?.id && (
-                            <div>
-                                <div className='absolute bottom-20 left-5 transform flex gap-5'>
-                                    <Image 
-                                        src="/love.png" 
-                                        alt="loved" 
-                                        width={24} 
+                            <div className='flex flex-col gap-2'>
+                                <div className='flex items-center gap-2'>
+                                    <Image
+                                        src="/love.png"
+                                        alt="loved"
+                                        width={24}
                                         height={24}
-                                        style={{ width: 'auto', height: 'auto' }} 
+                                        style={{ width: 'auto', height: 'auto' }}
                                     />
-                                    <p className='text-lg font-semibold'>{reactions?.length || 0}</p>
+                                    <p className='text-lg font-semibold text-white'>{reactions?.length || 0}</p>
                                 </div>
-                                <Button className='absolute bottom-6 left-5 transform py-3 bg-red-300 opacity-70'
+                                <Button
+                                    className='bg-red-500 hover:bg-red-600 text-white'
                                     variant="ghost"
                                     onClick={() => handleDeleteStory()}
                                 >
@@ -98,15 +97,13 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                         )}
                         {/*Nút thả tim cho người khác xem story*/}
                         {user?.id !== userStory?.id && (
-                            <div className='absolute bottom-6 left-5 transform'>
-                                <Button
-                                    variant="ghost"
-                                    className={`rounded-full p-2 ${reaction ? 'bg-red-100' : 'bg-gray-100'}`}
-                                    onClick={() => onReact && onReact("tym")}
-                                >
-                                    <Heart className={`h-6 w-6 ${reaction ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
-                                </Button>
-                            </div>
+                            <Button
+                                variant="ghost"
+                                className={`rounded-full p-2 ${reaction ? 'bg-red-100' : 'bg-gray-100'} hover:bg-red-100`}
+                                onClick={() => onReact && onReact("tym")}
+                            >
+                                <Heart className={`h-6 w-6 ${reaction ? 'fill-red-500 text-red-500' : 'text-gray-500'}`} />
+                            </Button>
                         )}
                     </div>
                 )}

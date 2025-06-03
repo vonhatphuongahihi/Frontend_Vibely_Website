@@ -57,7 +57,6 @@ export default function AuthWrapper({ children }) {
                 console.log("Received online users:", users);
             });
 
-            console.log("Socket connected for user:", userId);
         }
     };
 

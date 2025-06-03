@@ -217,8 +217,12 @@ const DocumentPage = () => {
                             <h3 className="font-semibold text-[18px]">{truncateText(doc.title, 50)}</h3>
                             <p className="text-[13px] font-semibold mt-1 italic">{doc.pages} trang</p>
                             <div className="flex justify-between mt-2">
-                                <p className="text-[13px] text-gray-500 font-semibold italic">{doc.level.name}</p>
-                                <p className="text-[13px] text-gray-500 font-semibold italic">{doc.subject.name}</p>
+                                <p className="text-[13px] text-gray-500 font-semibold italic">
+                                    {doc.levelName || 'Chưa phân loại'}
+                                </p>
+                                <p className="text-[13px] text-gray-500 font-semibold italic">
+                                    {doc.subjectName || 'Chưa phân loại'}
+                                </p>
                             </div>
                         </div>
                     ))}

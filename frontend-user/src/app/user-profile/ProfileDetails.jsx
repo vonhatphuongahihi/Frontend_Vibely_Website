@@ -23,6 +23,7 @@ export const ProfileDetails = ({
   const [isEditBioModal, setIsEditBioModal] = useState(false);
   const [bio, setBio] = useState("");
   const [tempBio, setTempBio] = useState(bio);
+  const [isPostsLoading, setIsPostsLoading] = useState(true);
 
   // const handleSaveBio = () => {
   //   setBio(tempBio);
@@ -36,17 +37,17 @@ export const ProfileDetails = ({
         return;
       }
 
-    const fullBio = {
-      ...profileData.bio,
-      bioText: tempBio, // chỉ thay đổi phần bioText
-    };
+      const fullBio = {
+        ...profileData.bio,
+        bioText: tempBio, // chỉ thay đổi phần bioText
+      };
 
-    const updatedBio = await createOrUpdateUserBio(id, fullBio);
+      const updatedBio = await createOrUpdateUserBio(id, fullBio);
 
-    setProfileData((prev) => ({
-      ...prev,
-      bio: updatedBio,
-    }));
+      setProfileData((prev) => ({
+        ...prev,
+        bio: updatedBio,
+      }));
 
       // Đóng modal chỉnh sửa
       setIsEditBioModal(false);
@@ -70,7 +71,8 @@ export const ProfileDetails = ({
 
   useEffect(() => {
     if (id) {
-      fetchUserPost(id);
+      setIsPostsLoading(true);
+      fetchUserPost(id).finally(() => setIsPostsLoading(false));
     }
   }, [id, fetchUserPost]);
 
@@ -89,7 +91,7 @@ export const ProfileDetails = ({
     } else {
       updatedReactPosts[postId] = reactType; // cập nhật cảm xúc mới
     }
-    
+
     setReactPosts(updatedReactPosts);
     localStorage.setItem("reactPosts", JSON.stringify(updatedReactPosts));
 
@@ -214,7 +216,11 @@ export const ProfileDetails = ({
               setIsPostFormOpen={setIsPostFormOpen}
             />
           }
-          {userPosts?.length > 0 ? (
+          {isPostsLoading ? (
+            <div className="flex justify-center items-center py-10">
+              <div className="w-12 h-12 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          ) : userPosts?.length > 0 ? (
             userPosts.map((post) => (
               <PostsContent
                 key={post?.id}
@@ -352,7 +358,7 @@ export const ProfileDetails = ({
         </Card>
       </motion.div>
     ),
-    files: <SavedDocuments />,
+    files: <SavedDocuments isOwner={isOwner} />,
   };
   return <div>{tabContent[activeTab] || null}</div>;
 };

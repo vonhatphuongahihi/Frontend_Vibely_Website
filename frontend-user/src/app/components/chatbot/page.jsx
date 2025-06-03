@@ -11,27 +11,24 @@ const Chatbot = ({ isOpen, onClose }) => {
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [token, setToken] = useState(null);
+    const [isClient, setIsClient] = useState(false);
     const messagesEndRef = useRef(null);
     const router = useRouter();
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8081";
 
-    // Lấy token từ localStorage trên client
+    // Set isClient to true after mount
     useEffect(() => {
-        const storedToken = localStorage.getItem("auth_token");
-        if (storedToken) {
-            setToken(storedToken);
-        } else {
-            router.push('/user-login');
-        }
-    }, [router]);
+        setIsClient(true);
+    }, []);
 
     // Lấy lịch sử chat khi mở popup
     useEffect(() => {
         const fetchChatHistory = async () => {
-            if (!token || !isOpen) return;
+            if (!isClient || !isOpen) return;
 
             try {
+                const token = localStorage.getItem("auth_token");
+
                 const response = await fetch(`${API_URL}/chatbot/history`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
@@ -41,13 +38,15 @@ const Chatbot = ({ isOpen, onClose }) => {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.history && data.history.length > 0) {
-                        // Chuyển đổi lịch sử chat từ database sang định dạng messages
-                        const formattedMessages = data.history.flatMap(chat =>
-                            chat.history.map(msg => ({
-                                role: msg.role === 'user' ? 'user' : 'assistant',
-                                content: msg.parts[0].text
-                            }))
-                        );
+                        const formattedMessages = [];
+                        data.history.slice().reverse().forEach(chat => {
+                            chat.history.forEach(msg => {
+                                formattedMessages.push({
+                                    role: msg.role === 'user' ? 'user' : 'assistant',
+                                    content: msg.parts[0].text
+                                });
+                            });
+                        });
                         setMessages(formattedMessages);
                     } else {
                         // Nếu chưa có lịch sử, thêm tin nhắn chào mừng
@@ -56,6 +55,8 @@ const Chatbot = ({ isOpen, onClose }) => {
                             { role: "assistant", content: "Chào bạn! Tôi là trợ lý học tập của Vibely. Tôi có thể giúp gì cho bạn?" }
                         ]);
                     }
+                } else {
+                    console.error("Failed to fetch history:", response.status, response.statusText);
                 }
             } catch (error) {
                 console.error("Lỗi khi lấy lịch sử chat:", error);
@@ -63,7 +64,7 @@ const Chatbot = ({ isOpen, onClose }) => {
         };
 
         fetchChatHistory();
-    }, [token, isOpen]);
+    }, [isOpen, isClient]);
 
     // Cuộn xuống cuối cùng khi có tin nhắn mới
     const scrollToBottom = () => {
@@ -78,33 +79,24 @@ const Chatbot = ({ isOpen, onClose }) => {
     const sendMessage = async () => {
         if (!input.trim() || isLoading) return;
 
-        const userMessage = { role: "user", content: input };
+        const userMessage = { role: "user", content: input.trim() };
         setMessages(prev => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
 
         try {
-            const currentToken = localStorage.getItem("auth_token");
-            const userData = JSON.parse(localStorage.getItem("user"));
+            const token = localStorage.getItem("auth_token");
 
-            if (!currentToken || !userData) {
-                setMessages(prev => [...prev, {
-                    role: "assistant",
-                    content: "Bạn cần đăng nhập để sử dụng chatbot. Vui lòng đăng nhập và thử lại."
-                }]);
-                router.push('/user-login');
-                setIsLoading(false);
-                return;
-            }
-
-            // Gọi API chatbot để nhận câu trả lời
             const response = await fetch(`${API_URL}/chatbot/handleMessage`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${currentToken.trim()}`
+                    "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ message: input })
+                body: JSON.stringify({
+                    message: input.trim(),
+                    maxLength: 2000
+                })
             });
 
             if (!response.ok) {
@@ -147,9 +139,11 @@ const Chatbot = ({ isOpen, onClose }) => {
 
     // Xử lý xóa lịch sử chat
     const handleDeleteHistory = async () => {
-        if (!token) return;
+        if (!isClient) return;
 
         try {
+            const token = localStorage.getItem("auth_token");
+
             const response = await fetch(`${API_URL}/chatbot/history`, {
                 method: 'DELETE',
                 headers: {
@@ -159,8 +153,11 @@ const Chatbot = ({ isOpen, onClose }) => {
 
             if (response.ok) {
                 setMessages([
+                    { role: "user", content: "Xin chào, chatbot!" },
                     { role: "assistant", content: "Chào bạn! Tôi là trợ lý học tập của Vibely. Tôi có thể giúp gì cho bạn?" }
                 ]);
+            } else {
+                console.error("Failed to delete history:", response.status, response.statusText);
             }
         } catch (error) {
             console.error("Lỗi khi xóa lịch sử chat:", error);
@@ -213,7 +210,6 @@ const Chatbot = ({ isOpen, onClose }) => {
             </div>
         </div>
     );
-
 };
 
 export default Chatbot;

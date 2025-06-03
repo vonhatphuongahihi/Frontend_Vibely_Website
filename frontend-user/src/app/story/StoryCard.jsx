@@ -41,42 +41,45 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       setLoading(true)
       const formData = new FormData()
       if (selectedFile) {
+        // Kiểm tra kích thước file
+        if (selectedFile.size > 90 * 1024 * 1024) {
+          toast.error("File quá lớn, vui lòng chọn file nhỏ hơn 90MB")
+          setLoading(false)
+          return
+        }
         formData.append('file', selectedFile)
-        console.log(`Đang gửi file: ${selectedFile.name}, kích thước: ${selectedFile.size} bytes, loại: ${selectedFile.type}`)
       } else {
         console.error("Không có file được chọn")
         toast.error("Vui lòng chọn một file để tạo story")
         setLoading(false)
         return
       }
-      
+
       const result = await handleCreateStory(formData)
-      console.log("Kết quả tạo story:", result)
-      resetStoryState()
+      if (result) {
+        toast.success("Tạo story thành công")
+        resetStoryState()
+      }
     } catch (error) {
       console.error("Lỗi khi tạo story:", error)
-      toast.error(`Lỗi khi tạo story: ${error.message || "Không xác định"}`)
+      toast.error(error.message || "Đã xảy ra lỗi khi tạo story. Vui lòng thử lại.")
+    } finally {
       setLoading(false)
     }
   }
   // tải nội dung story nếu ko phải đang tạo tin mới
   const handleStoryClick = () => {
-    console.log("Story đầy đủ:", story);
-    
+
     if (!story) {
       console.error("Story không tồn tại");
       return;
     }
-    
+
     if (!story.mediaUrl) {
       console.error("Story data is missing or incomplete:", story);
-      // Thử truy cập thuộc tính lồng nhau
-      console.log("ID:", story.id);
-      console.log("User:", story.user);
-      console.log("Các thuộc tính khác:", Object.keys(story));
       return;
     }
-    
+
     setFilePreview(story.mediaUrl);
     setFileType(story.mediaType);
     setIsNewStory(false);

@@ -91,7 +91,15 @@ const DocumentDetail = () => {
     };
 
     if (!document) {
-        return <div className="text-center mt-20 text-xl">Đang tải dữ liệu...</div>;
+        return (
+            <div className="flex flex-row w-full min-h-screen bg-[#F4F7FE]">
+                <div className="w-full md:w-4/5 md:ml-52 py-6 px-6 overflow-y-auto">
+                    <div className="flex items-center justify-center h-full">
+                        <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -168,13 +176,19 @@ const DocumentDetail = () => {
 
             {/* Nội dung tài liệu bên phải */}
             <div className="flex-1 pr-7 pl-12 pt-8 pb-0">
-                <iframe
-                    src={document.fileUrl.replace("/view", "/preview")}
-                    width="100%"
-                    height="100%"
-                    allow="autoplay"
-                    className="border border-gray-300 rounded-lg shadow-lg"
-                ></iframe>
+                {document?.fileUrl ? (
+                    <iframe
+                        src={document.fileUrl.includes("/view") ? document.fileUrl.replace("/view", "/preview") : document.fileUrl}
+                        width="100%"
+                        height="100%"
+                        allow="autoplay"
+                        className="border border-gray-300 rounded-lg shadow-lg"
+                    />
+                ) : (
+                    <div className="flex items-center justify-center h-full">
+                        <p className="text-gray-500">Không thể hiển thị tài liệu</p>
+                    </div>
+                )}
             </div>
 
             {/* Popup chia sẻ */}

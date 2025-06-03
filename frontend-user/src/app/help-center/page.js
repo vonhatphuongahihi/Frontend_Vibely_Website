@@ -285,7 +285,7 @@ const HelpCenter = () => {
                                         }}
                                     >
                                         Đăng nhập tài khoản Vibely?
-                                        {loginQuestion1 ? <ChevronDown size={20} /> : <ChevronUp size={20} />}
+                                        {loginQuestion1 ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                                     </button>
 
                                     <motion.div

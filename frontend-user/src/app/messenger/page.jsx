@@ -97,7 +97,7 @@ const Messenger = () => {
         };
     }, [user, API_URL]);
 
-   
+
 
     // Kiểm tra xác thực người dùng
     useEffect(() => {
@@ -261,14 +261,14 @@ const Messenger = () => {
         // Debug logging
         console.log("🔍 Searching for:", value);
         console.log("📞 Available conversations:", conversations);
-        
+
         // Lọc friends
         const filtered = friends.filter((friend) =>
             friend.username.toLowerCase().includes(value)
         );
 
         setFilteredFriends(filtered);
-        
+
         // Debug kết quả lọc conversations
         const filteredConvs = conversations.filter(c => {
             if (c.membersData && Array.isArray(c.membersData)) {
@@ -281,7 +281,7 @@ const Messenger = () => {
             }
             return false;
         });
-        
+
         console.log("✅ Filtered conversations:", filteredConvs);
     };
 
@@ -667,7 +667,36 @@ const Messenger = () => {
                                     </button>
                                 );
                             }
-                            return null;
+
+                            // Debug logging cho friend data
+                            console.log("🧑‍🤝‍🧑 Friend data for conversation:", {
+                                conversationId: conv.id,
+                                friend: friend,
+                                hasProfilePicture: !!friend.profilePicture,
+                                profilePictureUrl: friend.profilePicture,
+                                membersData: conv.membersData
+                            });
+
+                            // Sử dụng trường unread trả về từ backend
+                            const unread = !!conv.unread;
+                            return (
+                                <button
+                                    key={conv.id}
+                                    onClick={async () => {
+                                        try {
+                                            setCurrentChat(conv);
+                                            setSelectedFriend(friend);
+                                            setOpenChat(true);
+                                            await markMessagesAsRead();
+                                        } catch (err) {
+                                            console.error("Lỗi khi chọn hội thoại:", err);
+                                        }
+                                    }}
+                                    className="w-full text-left"
+                                >
+                                    <Conversation friend={friend} currentChat={currentChat} lastMessage={conv.lastMessage} unread={unread} />
+                                </button>
+                            );
                         })
                     ) : (
                         <p>Không có bạn bè nào</p>
@@ -737,12 +766,12 @@ const Messenger = () => {
                                         if (currentChat?.membersData && msg.senderId) {
                                             senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
                                         }
-                                        
+
                                         return (
                                             <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
-                                                <Message 
-                                                    message={msg} 
-                                                    own={msg.senderId === user.id} 
+                                                <Message
+                                                    message={msg}
+                                                    own={msg.senderId === user.id}
                                                     senderInfo={senderInfo}
                                                 />
                                             </div>
@@ -849,12 +878,12 @@ const Messenger = () => {
                                     if (currentChat?.membersData && msg.senderId) {
                                         senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
                                     }
-                                    
+
                                     return (
                                         <div key={msg.id} ref={scrollRef}>
-                                            <Message 
-                                                message={msg} 
-                                                own={msg.senderId === user.id} 
+                                            <Message
+                                                message={msg}
+                                                own={msg.senderId === user.id}
                                                 senderInfo={senderInfo}
                                             />
                                         </div>

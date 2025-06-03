@@ -1,9 +1,9 @@
 'use client';
-import React, { useEffect, useState } from 'react';
-import QuizCard from '../components/quiz/QuizCard';
 import { getAllQuizzes } from '@/service/quiz.service';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import LeftSideBar from '../components/LeftSideBar';
+import QuizCard from '../components/quiz/QuizCard';
 
 function QuizzesArea() {
   const [allQuizzes, setAllQuizzes] = useState([]);
@@ -30,7 +30,11 @@ function QuizzesArea() {
         <LeftSideBar />
       </div>
       {isLoading ? (
-        <div>Loading...</div>
+        (
+          <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
+            <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )
       ) : (
         <div>
           <p className="text-xl font-bold">Vibely Quizzes</p>
