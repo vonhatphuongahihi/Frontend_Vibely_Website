@@ -23,7 +23,7 @@ const LeftSideBar = () => {
     <aside
 
 
-      className={`fixed top-14 left-0 h-full w-72 transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col z-50 md:z-0 ${isSidebarOpen
+      className={`fixed top-14 left-0 h-full w-[330px] transform transition-transform duration-200 ease-in-out md:translate-x-0 flex flex-col z-50 md:z-0 ${isSidebarOpen
         ? "translate-x-0 shadow-lg  "
         : " -translate-x-full"
 

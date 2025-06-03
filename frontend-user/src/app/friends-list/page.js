@@ -36,7 +36,7 @@ const Page = () => {
   return (
     <div className="min-h-screen">
       <LeftSideBar />
-      <main className="ml-0 md:ml-72 mt-16 p-6">
+      <main className="ml-0 md:ml-[330px] mt-16 p-6">
         <h1 className="text-xl font-bold mb-6">Lời mời kết bạn</h1>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {loading ? (
