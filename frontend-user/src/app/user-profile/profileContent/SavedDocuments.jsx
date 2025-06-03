@@ -65,8 +65,8 @@ export const SavedDocuments = ({isOwner}) => {
                                 <p className="text-[13px] font-semibold mt-1 italic">{doc.pages} trang</p>
                                 {/* Level và Subject trên cùng một hàng */}
                                 <div className="flex justify-between text-[13px] text-gray-500 font-semibold italic mt-2">
-                                    <span>{doc.level.name}</span>
-                                    <span>{doc.subject.name}</span>
+                                    <span>{doc.levelName}</span>
+                                    <span>{doc.subjectName}</span>
                                 </div>
 
                                 {/* Nút Hành Động */}

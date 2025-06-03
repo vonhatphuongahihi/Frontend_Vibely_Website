@@ -39,7 +39,7 @@ const SavedDocumentDetail = () => {
         if (storedToken) {
             setToken(storedToken);
         } else {
-            console.error("Lỗi: Không tìm thấy token");
+            return;
         }
     }, []);
 
@@ -56,7 +56,7 @@ const SavedDocumentDetail = () => {
 
                     setDocument(result.data.data);
                 } catch (err) {
-                    console.error("Lỗi khi lấy chi tiết tài liệu:", err);
+                    toast.error("Lỗi khi lấy chi tiết tài liệu");
                 }
             };
 
@@ -84,7 +84,6 @@ const SavedDocumentDetail = () => {
 
         } catch (error) {
             toast.error(error.response?.data?.message || error.message);
-            console.error("Lỗi khi bỏ lưu tài liệu:", error.response?.data?.message || error.message);
         }
     };
 
@@ -143,13 +142,13 @@ const SavedDocumentDetail = () => {
                             <span className="mr-3"><BookMarked size={20} /></span>
                             <span>Môn học</span>
                         </p>
-                        <p className="font-bold ml-8">{document.subject.name}</p>
+                        <p className="font-bold ml-8">{document.subjectName}</p>
 
                         <p className="flex items-center">
                             <span className="mr-3"><GraduationCap size={20} /></span>
                             <span>Cấp bậc</span>
                         </p>
-                        <p className="font-bold ml-8">{document.level.name}</p>
+                        <p className="font-bold ml-8">{document.levelName}</p>
 
                         <p className="flex items-center">
                             <span className="mr-3"><CalendarDays size={20} /></span>

@@ -287,7 +287,92 @@ const Messenger = () => {
 
     const displayedFriends = searchValue.length > 0 ? filteredFriends : friends;
 
-    // Sắp xếp hội thoại theo lastMessageTime giảm dần
+    // Tạo danh sách hiển thị kết hợp friends và conversations
+    const createCombinedList = () => {
+        if (!friends || !user) return [];
+        
+        // Tạo Set để track những friend đã có conversation
+        const friendsWithConversation = new Set();
+        
+        // Map conversations thành định dạng chuẩn
+        const conversationItems = conversations.map(conv => {
+            let friend = {};
+            if (conv.membersData) {
+                friend = conv.membersData.find(m => m.id !== user.id) || {};
+            } else if (conv.members) {
+                const friendId = conv.members.find(id => id !== user.id);
+                const friendFromList = friends.find(f => f.id === friendId);
+                friend = friendFromList || { id: friendId, username: `User ${friendId}` };
+            }
+            
+            // Track friend này đã có conversation
+            if (friend.id) {
+                friendsWithConversation.add(friend.id);
+            }
+            
+            return {
+                type: 'conversation',
+                id: conv.id,
+                friend: friend,
+                lastMessage: conv.lastMessage,
+                lastMessageTime: conv.lastMessageTime,
+                unread: !!conv.unread,
+                conversationData: conv
+            };
+        });
+        
+        // Tạo items cho những friends chưa có conversation
+        const friendsWithoutConversation = friends
+            .filter(friend => !friendsWithConversation.has(friend.id))
+            .map(friend => ({
+                type: 'friend',
+                id: `friend-${friend.id}`,
+                friend: friend,
+                lastMessage: null,
+                lastMessageTime: null,
+                unread: false,
+                conversationData: null
+            }));
+        
+        // Kết hợp và sắp xếp
+        const combined = [...conversationItems, ...friendsWithoutConversation];
+        
+        // Sắp xếp: conversations có tin nhắn lên đầu (theo thời gian), friends không có conversation cuối
+        return combined.sort((a, b) => {
+            // Nếu cả hai đều có lastMessageTime, sắp xếp theo thời gian
+            if (a.lastMessageTime && b.lastMessageTime) {
+                return new Date(b.lastMessageTime) - new Date(a.lastMessageTime);
+            }
+            // Nếu chỉ a có lastMessageTime, a lên trước
+            if (a.lastMessageTime && !b.lastMessageTime) {
+                return -1;
+            }
+            // Nếu chỉ b có lastMessageTime, b lên trước
+            if (!a.lastMessageTime && b.lastMessageTime) {
+                return 1;
+            }
+            // Nếu cả hai đều không có lastMessageTime, sắp xếp theo tên
+            return (a.friend.username || '').localeCompare(b.friend.username || '');
+        });
+    };
+
+    // Áp dụng filter tìm kiếm nếu có
+    const getDisplayedItems = () => {
+        const combinedList = createCombinedList();
+        
+        if (searchValue.length > 0) {
+            return combinedList.filter(item => {
+                const friendName = item.friend?.username || '';
+                return friendName.toLowerCase().includes(searchValue.toLowerCase());
+            });
+        }
+        
+        return combinedList;
+    };
+
+    const displayedItems = getDisplayedItems();
+
+    // Sắp xếp hội thoại theo lastMessageTime giảm dần (giữ lại code cũ để backup)
     const displayedConversations = (searchValue.length > 0 ?
         conversations.filter(c => {
             // Lọc conversation theo tên của member (không phải current user)
@@ -532,15 +617,55 @@ const Messenger = () => {
                         </div>
                     </div>
                     {/* Danh sách hội thoại */}
-                    {displayedConversations.length > 0 ? (
-                        displayedConversations.map((conv) => {
-                            // Lấy bạn bè (không phải mình)
-                            let friend = {};
-                            if (conv.membersData) {
-                                friend = conv.membersData.find(m => m.id !== user.id) || {};
-                            } else if (conv.members) {
-                                const friendId = conv.members.find(id => id !== user.id);
-                                friend = { id: friendId, username: friendId };
+                    {displayedItems.length > 0 ? (
+                        displayedItems.map((item) => {
+                            if (item.type === 'conversation') {
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={async () => {
+                                            try {
+                                                setCurrentChat(item.conversationData);
+                                                setSelectedFriend(item.friend);
+                                                setOpenChat(true);
+                                                await markMessagesAsRead();
+                                            } catch (err) {
+                                                console.error("Lỗi khi chọn hội thoại:", err);
+                                            }
+                                        }}
+                                        className="w-full text-left"
+                                    >
+                                        <Conversation friend={item.friend} currentChat={currentChat} lastMessage={item.lastMessage} unread={item.unread} />
+                                    </button>
+                                );
+                            } else if (item.type === 'friend') {
+                                // Hiển thị friend chưa có conversation
+                                return (
+                                    <button
+                                        key={item.id}
+                                        onClick={async () => {
+                                            try {
+                                                // Tạo hoặc lấy conversation giữa user và friend
+                                                const res = await axios.post(`${API_URL}/conversation`, {
+                                                    senderId: user.id,
+                                                    receiverId: item.friend.id,
+                                                });
+                                                
+                                                setCurrentChat(res.data);
+                                                setSelectedFriend(item.friend);
+                                                setOpenChat(true);
+                                                
+                                                // Refresh lại danh sách conversations
+                                                fetchConversations(user.id);
+                                            } catch (err) {
+                                                console.error("Lỗi khi tạo hội thoại mới:", err);
+                                            }
+                                        }}
+                                        className="w-full text-left"
+                                    >
+                                        <Conversation friend={item.friend} currentChat={currentChat} lastMessage={null} unread={false} />
+                                    </button>
+                                );
                             }
 
                             // Debug logging cho friend data
@@ -574,7 +699,7 @@ const Messenger = () => {
                             );
                         })
                     ) : (
-                        <p>Không có hội thoại nào</p>
+                        <p>Không có bạn bè nào</p>
                     )}
                 </div>
             </div>

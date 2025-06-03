@@ -112,41 +112,6 @@ const SavedPage = () => {
         fetchFilteredDocs();
     }, [query, selectedLevelId, selectedSubjectId, token]);
 
-    // Gọi API để lấy danh sách tài liệu đã lưu
-    useEffect(() => {
-        if (token) {
-            const fetchSavedDocuments = async () => {
-                try {
-                    const result = await axios.get(`${API_URL}/users/saved`, {
-                        headers: { Authorization: `Bearer ${token}` },
-                    });
-
-                    // Lấy thông tin chi tiết cho từng document
-                    const documentsWithDetails = await Promise.all(
-                        result.data.data.map(async (doc) => {
-                            try {
-                                const docResult = await axios.get(`${API_URL}/documents/${doc._id}`, {
-                                    headers: { Authorization: `Bearer ${token}` },
-                                });
-                                return docResult.data.data;
-                            } catch (err) {
-                                console.error(`Lỗi khi lấy chi tiết tài liệu ${doc._id}:`, err);
-                                return null;
-                            }
-                        })
-                    );
-
-                    // Lọc bỏ các document null
-                    setDocuments(documentsWithDetails.filter(doc => doc !== null));
-                } catch (err) {
-                    console.error("Lỗi khi lấy danh sách tài liệu đã lưu:", err);
-                }
-            };
-
-            fetchSavedDocuments();
-        }
-    }, [token]);
-
     if (isPageLoading) {
         return (
             <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
