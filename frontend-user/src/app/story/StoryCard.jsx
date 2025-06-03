@@ -41,6 +41,12 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       setLoading(true)
       const formData = new FormData()
       if (selectedFile) {
+        // Kiểm tra kích thước file
+        if (selectedFile.size > 90 * 1024 * 1024) {
+          toast.error("File quá lớn, vui lòng chọn file nhỏ hơn 90MB")
+          setLoading(false)
+          return
+        }
         formData.append('file', selectedFile)
       } else {
         console.error("Không có file được chọn")
@@ -50,10 +56,14 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       }
 
       const result = await handleCreateStory(formData)
-      resetStoryState()
+      if (result) {
+        toast.success("Tạo story thành công")
+        resetStoryState()
+      }
     } catch (error) {
       console.error("Lỗi khi tạo story:", error)
-      toast.error(`Lỗi khi tạo story: ${error.message || "Không xác định"}`)
+      toast.error(error.message || "Đã xảy ra lỗi khi tạo story. Vui lòng thử lại.")
+    } finally {
       setLoading(false)
     }
   }

@@ -97,7 +97,7 @@ const Messenger = () => {
         };
     }, [user, API_URL]);
 
-   
+
 
     // Kiểm tra xác thực người dùng
     useEffect(() => {
@@ -261,14 +261,14 @@ const Messenger = () => {
         // Debug logging
         console.log("🔍 Searching for:", value);
         console.log("📞 Available conversations:", conversations);
-        
+
         // Lọc friends
         const filtered = friends.filter((friend) =>
             friend.username.toLowerCase().includes(value)
         );
 
         setFilteredFriends(filtered);
-        
+
         // Debug kết quả lọc conversations
         const filteredConvs = conversations.filter(c => {
             if (c.membersData && Array.isArray(c.membersData)) {
@@ -281,7 +281,7 @@ const Messenger = () => {
             }
             return false;
         });
-        
+
         console.log("✅ Filtered conversations:", filteredConvs);
     };
 
@@ -542,7 +542,7 @@ const Messenger = () => {
                                 const friendId = conv.members.find(id => id !== user.id);
                                 friend = { id: friendId, username: friendId };
                             }
-                            
+
                             // Debug logging cho friend data
                             console.log("🧑‍🤝‍🧑 Friend data for conversation:", {
                                 conversationId: conv.id,
@@ -551,7 +551,7 @@ const Messenger = () => {
                                 profilePictureUrl: friend.profilePicture,
                                 membersData: conv.membersData
                             });
-                            
+
                             // Sử dụng trường unread trả về từ backend
                             const unread = !!conv.unread;
                             return (
@@ -641,12 +641,12 @@ const Messenger = () => {
                                         if (currentChat?.membersData && msg.senderId) {
                                             senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
                                         }
-                                        
+
                                         return (
                                             <div key={msg.id} ref={scrollRef} data-message-id={msg.id}>
-                                                <Message 
-                                                    message={msg} 
-                                                    own={msg.senderId === user.id} 
+                                                <Message
+                                                    message={msg}
+                                                    own={msg.senderId === user.id}
                                                     senderInfo={senderInfo}
                                                 />
                                             </div>
@@ -753,12 +753,12 @@ const Messenger = () => {
                                     if (currentChat?.membersData && msg.senderId) {
                                         senderInfo = currentChat.membersData.find(member => member.id === msg.senderId);
                                     }
-                                    
+
                                     return (
                                         <div key={msg.id} ref={scrollRef}>
-                                            <Message 
-                                                message={msg} 
-                                                own={msg.senderId === user.id} 
+                                            <Message
+                                                message={msg}
+                                                own={msg.senderId === user.id}
                                                 senderInfo={senderInfo}
                                             />
                                         </div>

@@ -8,43 +8,43 @@ import { ChevronDown, ChevronUp, Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import PostComment from "./PostComment";
 import { usePostStore } from "@/store/usePostStore";
+import { useRouter } from "next/navigation";
+
 const PostComments = ({ post, onComment, commentInputRef }) => {
     const [showAllComments, setShowAllComments] = useState(false);
     const [commentText, setCommentText] = useState("")
     const { user } = userStore();
+    const router = useRouter();
     const visibleComments = showAllComments ? post?.comments : post?.comments?.slice(0, 2);
     const userPlaceholder = user?.username?.split(" ").map((name) => name[0]).join(""); // tên người dùng viết tắt
 
-    const { fetchPosts, handleReplyComment, handleDeleteComment, handleDeleteReply, handleLikeComment } = usePostStore()
+    const { handleReplyComment, handleDeleteComment, handleDeleteReply, handleLikeComment } = usePostStore()
+
     const handleCommentSubmit = async () => {
         if (commentText.trim()) {
             onComment({ text: commentText })
             setCommentText("")
         }
     }
+
     return (
         <div className="mt-2">
             <h3 className="font-semibold mb-3">Bình luận</h3>
             <div className="max-h-60 overflow-y-auto pr-2">
                 {/*Danh sách các cmt*/}
                 {visibleComments?.map((comment, index) => (
-
                     <PostComment key={index} comment={comment}
                         onReply={async (replyText) => {
                             await handleReplyComment(post?.id, comment?.id, replyText)
-                            await fetchPosts()
                         }}
                         onDeleteComment={async () => {
                             await handleDeleteComment(post?.id, comment?.id)
-                            await fetchPosts()
                         }}
                         onDeleteReply={async (replyId) => {
                             await handleDeleteReply(post?.id, comment?.id, replyId)
-                            await fetchPosts()
                         }}
                         likeComment={async () => {
                             await handleLikeComment(post?.id, comment?.id)
-                            await fetchPosts()
                         }}
                     />
                 ))}
@@ -64,7 +64,7 @@ const PostComments = ({ post, onComment, commentInputRef }) => {
             </div>
             {/*Viết bình luận*/}
             <div className="flex items-center space-x-2 mt-4">
-                <Avatar className='w-8 h-8'>
+                <Avatar className='w-8 h-8 cursor-pointer' onClick={() => router.push(`/user-profile/${user?.id}`)}>
                     {user?.profilePicture ? (
                         <AvatarImage src={user?.profilePicture} alt={user?.username} />
                     ) : (
