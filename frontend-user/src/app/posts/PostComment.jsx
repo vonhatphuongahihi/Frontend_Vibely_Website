@@ -7,6 +7,7 @@ import { ChevronDown, ChevronUp, MoreHorizontal, Send } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { AiOutlineDelete } from "react-icons/ai";
+import { useRouter } from "next/navigation";
 
 function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeComment }) {
   const [showAllReplies, setShowAllReplies] = useState(false); //xem tất cả/2 cái đầu
@@ -14,6 +15,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
   const [showReplies, setShowReplies] = useState(false); //mở xem replies
   const [replyText, setReplyText] = useState("");
   const { user } = userStore();
+  const router = useRouter();
   const replyInputRef = useRef(null);
   const visibleReplies = showAllReplies //số lượng reply hiển thị
     ? comment?.replies
@@ -69,7 +71,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
       {/*Nội dung bình luận */}
       <div className="flex items-start space-x-2 mb-2 w-full">
         {/*Avt người đăng bình luận*/}
-        <Avatar className="h-8 w-8">
+        <Avatar className="h-8 w-8 cursor-pointer" onClick={() => router.push(`/user-profile/${comment?.user?.id}`)}>
           {comment?.user?.profilePicture ? (
             <AvatarImage
               src={comment?.user?.profilePicture}
@@ -88,7 +90,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
         <div className="flex flex-col">
           <div className="flex items-center gap-2">
             <div className="bg-[#F0F2F5] rounded-lg px-3 py-2">
-              <p className="font-semibold text-[13px]">
+              <p className="font-semibold text-[13px] cursor-pointer hover:underline" onClick={() => router.push(`/user-profile/${comment?.user?.id}`)}>
                 {comment?.user?.username}
               </p>
               <p className="text-[15px]">{comment?.text}</p>
@@ -209,7 +211,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
               className="flex items-start space-x-2 mt-2 ml-10 w-3/4"
             >
               {/*Avt người đăng phản hồi*/}
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 cursor-pointer" onClick={() => router.push(`/user-profile/${reply?.user?.id}`)}>
                 {reply?.user?.profilePicture ? (
                   <AvatarImage
                     src={reply?.user?.profilePicture}
@@ -228,7 +230,7 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
                   <div className="bg-[#F0F2F5] rounded-lg px-3 py-2">
-                    <p className="font-semibold text-[13px]">
+                    <p className="font-semibold text-[13px] cursor-pointer hover:underline" onClick={() => router.push(`/user-profile/${reply?.user?.id}`)}>
                       {reply?.user?.username}
                     </p>
                     <p className="text-[15px]">{reply?.text}</p>
@@ -304,9 +306,12 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
           )}
           {/*Viết phản hồi */}
           <div className="flex items-center space-x-2 w-2/3 mb-4 ml-10">
-            <Avatar className="w-8 h-8">
+            <Avatar className="w-8 h-8 cursor-pointer" onClick={() => router.push(`/user-profile/${user?.id}`)}>
               {user?.profilePicture ? (
-                <AvatarImage src={user?.profilePicture} alt={user?.username} />
+                <AvatarImage
+                  src={user?.profilePicture}
+                  alt={user?.username}
+                />
               ) : (
                 <AvatarFallback className="bg-gray-200">
                   {userPlaceholder}
