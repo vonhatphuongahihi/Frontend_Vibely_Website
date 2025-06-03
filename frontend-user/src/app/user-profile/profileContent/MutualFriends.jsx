@@ -111,24 +111,21 @@ export const MutualFriends = ({ id, isOwner }) => {
                 className="flex items-center justify-between bg-white shadow-md rounded-lg border border-gray-200 p-3"
               >
                 {/* Avatar + Tên */}
-                <div className="flex items-center space-x-4 rounded-md">
+                <div 
+                  className="flex items-center space-x-4 rounded-md cursor-pointer" 
+                  onClick={() => router.push(`/user-profile/${friend.id}`)}
+                >
                   <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-700">
                     {friend?.profilePicture ? (
-                      <AvatarImage
-                        src={friend?.profilePicture}
-                        alt={friend?.username}
-                      />
+                      <AvatarImage src={friend?.profilePicture} alt={friend?.username} />
                     ) : (
                       <AvatarFallback className="bg-gray-400">
-                        {friend?.username
-                          ?.split(" ")
-                          .map((name) => name[0])
-                          .join("")}
+                        {friend?.username?.split(" ").map((name) => name[0]).join("")}
                       </AvatarFallback>
                     )}
                   </Avatar>
                   <div>
-                    <p className="font-semibold dark:text-gray-100">
+                    <p className="font-semibold dark:text-gray-100 hover:underline">
                       {friend?.username}
                     </p>
                     <p className="text-sm text-gray-400">
