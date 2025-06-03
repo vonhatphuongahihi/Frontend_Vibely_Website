@@ -8,11 +8,13 @@ import userStore from '@/store/userStore'
 import { usePostStore } from '@/store/usePostStore'
 import ShowStoryPreview from './ShowStoryPreview'
 import { toast } from 'react-hot-toast'
+import { useRouter } from 'next/navigation'
 
 const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
   const [filePreview, setFilePreview] = useState(null)
   const { handleCreateStory } = usePostStore()
   const { user } = userStore() //lấy thông tin người dùng
+  const router = useRouter()
   const storyUserPlaceholder = story?.user?.username?.split(" ")?.map((name) => name?.[0])?.join("") || ""; //tên người đăng bài viết tắt
   const userPlaceholder = user?.username?.split(" ")?.map((name) => name?.[0])?.join("") || ""; //tên người dùng viết tắt
   const [isNewStory, setIsNewStory] = useState(false)
@@ -99,8 +101,21 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
     setLoading(false) // Thêm reset loading
   }
 
+  //đi đến trang người đăng story
+  const handleUserProfile = (e) => {
+    e.stopPropagation() // Ngăn chặn event bubbling để không trigger handleStoryClick
+    if (story?.user?.id) {
+      router.push(`/user-profile/${story.user.id}`)
+    }
+  }
+
   // Chỉ log khi cần debug, tránh lỗi khi story là undefined
   // console.log({ isNewStory, user, story })
+  
+  // Debug reactions
+  console.log("🔍 Story reactions:", story?.reactions);
+  console.log("🔍 Current user ID:", user?.id);
+  console.log("🔍 User reaction:", story?.reactions?.find(react => react?.userId === user?.id));
 
   return (
     <>
@@ -158,7 +173,10 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
                 </div>
               )}
               <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full ">
-                <Avatar className="w-8 h-8 bg-gray-100">
+                <Avatar 
+                  className="w-8 h-8 bg-gray-100 cursor-pointer" 
+                  onClick={handleUserProfile}
+                >
                   {story?.user?.profilePicture ? (
                     <AvatarImage src={story?.user?.profilePicture} alt={story?.user?.username} />
                   ) : (
@@ -185,7 +203,7 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
           avatar={isNewStory ? user?.profilePicture : story?.user?.profilePicture}
           isLoading={loading}
           reactions={story?.reactions}
-          reaction={story?.reactions?.find(react => react?.user?.id?.toString() === user?.id) ? "tym" : null}
+          reaction={story?.reactions?.find(react => react?.userId === user?.id) ? "tym" : null}
           onReact={(reactType) => onReact && onReact(reactType)}
           onDelete={() => onDelete && onDelete()}
         />

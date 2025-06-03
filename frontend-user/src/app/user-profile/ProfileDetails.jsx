@@ -67,14 +67,21 @@ export const ProfileDetails = ({
     handleCommentPost,
     handleSharePost,
     handleDeletePost,
+    setCurrentUserId,
+    handleReplyComment,
+    handleDeleteComment,
+    handleDeleteReply,
+    handleLikeComment,
   } = usePostStore();
 
   useEffect(() => {
     if (id) {
       setIsPostsLoading(true);
+      console.log("🔍 Setting currentUserId to:", id);
+      setCurrentUserId(id); // Lưu ID của user hiện tại đang xem profile
       fetchUserPost(id).finally(() => setIsPostsLoading(false));
     }
-  }, [id, fetchUserPost]);
+  }, [id, fetchUserPost, setCurrentUserId]);
 
   const [reactPosts, setReactPosts] = useState(new Set()); // danh sách những bài viết mà người dùng đã react
   useEffect(() => {
@@ -97,7 +104,6 @@ export const ProfileDetails = ({
 
     try {
       await handleReactPost(postId, reactType);
-      await fetchUserPost(id);
     } catch (error) {
       console.log(error);
       toast.error(
@@ -230,17 +236,31 @@ export const ProfileDetails = ({
                 onComment={async (commentText) => {
                   // Chức năng comment
                   await handleCommentPost(post?.id, commentText);
-                  await fetchUserPost(id);
+                  await fetchUserPost(id); // Reload dữ liệu từ server như homepage
+                }}
+                onReplyComment={async (postId, commentId, replyText) => {
+                  await handleReplyComment(postId, commentId, replyText);
+                  await fetchUserPost(id); // Reload sau khi reply
+                }}
+                onDeleteComment={async (postId, commentId) => {
+                  await handleDeleteComment(postId, commentId);
+                  await fetchUserPost(id); // Reload sau khi xóa comment
+                }}
+                onDeleteReply={async (postId, commentId, replyId) => {
+                  await handleDeleteReply(postId, commentId, replyId);
+                  await fetchUserPost(id); // Reload sau khi xóa reply
+                }}
+                onLikeComment={async (postId, commentId) => {
+                  await handleLikeComment(postId, commentId);
+                  await fetchUserPost(id); // Reload sau khi like comment
                 }}
                 onShare={async () => {
                   // Chức năng share
                   await handleSharePost(post?.id);
-                  await fetchUserPost(id);
                 }}
                 onDelete={async () => {
                   // Chức năng xóa bài viết
                   await handleDeletePost(post?.id);
-                  await fetchUserPost(id);
                 }}
               />
             ))

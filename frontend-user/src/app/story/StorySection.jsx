@@ -69,7 +69,7 @@ const StorySection = () => {
           {stories?.map((story) => (
             <StoryCard story={story} key={story.id}
               onReact={async (reactType) => {
-                await handleReactStory(story?.id, reactType)
+                await handleReactStory(story?.id)
                 await fetchStories()// tải lại danh sách
               }}
               onDelete={async () => {

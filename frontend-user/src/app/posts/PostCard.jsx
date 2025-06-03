@@ -254,7 +254,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
           <div className="flex items-center justify-between mb-4 relative">
             <div className="flex items-center space-x-3 cursor-pointer">
               {/*Avt người đăng bài*/}
-              <Avatar>
+              <Avatar onClick={handleUserProfile} className="cursor-pointer">
                 {post?.user?.profilePicture ? (
                   <AvatarImage src={post?.user?.profilePicture} alt={post?.user?.username} />
                 ) : (
@@ -263,10 +263,10 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
               </Avatar>
               {/*Tên người đăng, thời gian đăng, khi nhấp vào sẽ chuyển đến trang tương ứng*/}
               <div>
-                <p className="font-semibold" onClick={handleUserProfile}>
+                <p className="font-semibold cursor-pointer" onClick={handleUserProfile}>
                   {post?.user?.username} {/*tên người đăng bài*/}
                 </p>
-                <p className="font-sm text-gray-500 text-xs" onClick={handleSinglePost}>
+                <p className="font-sm text-gray-500 text-xs cursor-pointer" onClick={handleSinglePost}>
                   {formatedDate(post?.createdAt)} {/*thời gian đăng bài*/}
                 </p>
               </div>
