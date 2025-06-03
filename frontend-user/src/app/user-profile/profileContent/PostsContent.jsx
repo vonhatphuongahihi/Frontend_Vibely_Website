@@ -18,7 +18,7 @@ import userStore from '@/store/userStore'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
-export const PostsContent = ({ post, onReact, onComment, onShare, onDelete }) => {
+export const PostsContent = ({ post, onReact, onComment, onShare, onDelete, onReplyComment, onDeleteComment, onDeleteReply, onLikeComment }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const [showComments, setShowComments] = useState(false)
   const [showReactionChooser, setShowReactionChooser] = useState(false)
@@ -520,6 +520,10 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete }) =>
                 <PostComments
                   post={post}
                   onComment={onComment}
+                  onReplyComment={onReplyComment}
+                  onDeleteComment={onDeleteComment}
+                  onDeleteReply={onDeleteReply}
+                  onLikeComment={onLikeComment}
                   commentInputRef={commentInputRef}
                 />
               </motion.div>

@@ -10,7 +10,7 @@ import PostComment from "./PostComment";
 import { usePostStore } from "@/store/usePostStore";
 import { useRouter } from "next/navigation";
 
-const PostComments = ({ post, onComment, commentInputRef }) => {
+const PostComments = ({ post, onComment, commentInputRef, onReplyComment, onDeleteComment, onDeleteReply, onLikeComment }) => {
     const [showAllComments, setShowAllComments] = useState(false);
     const [commentText, setCommentText] = useState("")
     const { user } = userStore();
@@ -35,16 +35,32 @@ const PostComments = ({ post, onComment, commentInputRef }) => {
                 {visibleComments?.map((comment, index) => (
                     <PostComment key={index} comment={comment}
                         onReply={async (replyText) => {
-                            await handleReplyComment(post?.id, comment?.id, replyText)
+                            if (onReplyComment) {
+                                await onReplyComment(post?.id, comment?.id, replyText)
+                            } else {
+                                await handleReplyComment(post?.id, comment?.id, replyText)
+                            }
                         }}
                         onDeleteComment={async () => {
-                            await handleDeleteComment(post?.id, comment?.id)
+                            if (onDeleteComment) {
+                                await onDeleteComment(post?.id, comment?.id)
+                            } else {
+                                await handleDeleteComment(post?.id, comment?.id)
+                            }
                         }}
                         onDeleteReply={async (replyId) => {
-                            await handleDeleteReply(post?.id, comment?.id, replyId)
+                            if (onDeleteReply) {
+                                await onDeleteReply(post?.id, comment?.id, replyId)
+                            } else {
+                                await handleDeleteReply(post?.id, comment?.id, replyId)
+                            }
                         }}
                         likeComment={async () => {
-                            await handleLikeComment(post?.id, comment?.id)
+                            if (onLikeComment) {
+                                await onLikeComment(post?.id, comment?.id)
+                            } else {
+                                await handleLikeComment(post?.id, comment?.id)
+                            }
                         }}
                     />
                 ))}

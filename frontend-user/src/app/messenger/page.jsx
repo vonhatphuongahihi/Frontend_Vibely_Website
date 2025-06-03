@@ -80,11 +80,15 @@ const Messenger = () => {
                 stompClient.current.subscribe(`/user/${user.id}/queue/users`, (message) => {
                     const users = JSON.parse(message.body);
                     console.log("Messenger received online users:", users);
-                    if (user.followings && Array.isArray(user.followings)) {
-                        setOnlineUsers(user.followings.filter((f) => users.some((u) => u.userId === f)));
-                    } else {
-                        setOnlineUsers([]);
+                    
+                    // Chuyển đổi users thành array userId nếu cần
+                    let onlineUserIds = users;
+                    if (users.length > 0 && typeof users[0] === 'object' && users[0].userId) {
+                        onlineUserIds = users.map(u => u.userId);
                     }
+                    
+                    // Cập nhật danh sách online users dựa trên friends
+                    setOnlineUsers(onlineUserIds);
                 });
             },
             onStompError: (frame) => {
@@ -196,13 +200,13 @@ const Messenger = () => {
             });
             // Sort lại
             const sorted = updated.slice().sort((a, b) => {
-                console.log("Re-sorting after new message:", {
-                    a: a.lastMessageTime,
-                    b: b.lastMessageTime
-                });
+                // console.log("Re-sorting after new message:", {
+                //     a: a.lastMessageTime,
+                //     b: b.lastMessageTime
+                // });
                 return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
             });
-            console.log("Updated conversations after new message:", sorted);
+            // console.log("Updated conversations after new message:", sorted);
             return sorted;
         });
     }, [arrivalMessage]);
@@ -388,10 +392,10 @@ const Messenger = () => {
         }) :
         conversations
     ).slice().sort((a, b) => {
-        console.log("Sorting displayed conversations:", {
-            a: a.lastMessageTime,
-            b: b.lastMessageTime
-        });
+        // console.log("Sorting displayed conversations:", {
+        //     a: a.lastMessageTime,
+        //     b: b.lastMessageTime
+        // });
         return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
     });
 
@@ -418,14 +422,14 @@ const Messenger = () => {
             if (!currentChat || !currentChat.id || !selectedFriend || !user) return;
 
             try {
-                const friendNicknameRes = await axios.get(`${API_URL}/conversations/nickname/${currentChat.id}/${selectedFriend.id}`, {
+                const friendNicknameRes = await axios.get(`${API_URL}/conversations/${currentChat.id}/nickname/${selectedFriend.id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('auth_token')}`
                     }
                 });
                 setFriendNickname(friendNicknameRes.data.nickname);
 
-                const myNicknameRes = await axios.get(`${API_URL}/conversation/nickname/${currentChat.id}/${user.id}`, {
+                const myNicknameRes = await axios.get(`${API_URL}/conversations/${currentChat.id}/nickname/${user.id}`, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('auth_token')}`
                     }
@@ -645,12 +649,18 @@ const Messenger = () => {
                                         key={item.id}
                                         onClick={async () => {
                                             try {
+                                                console.log("Creating conversation with friend:", item.friend);
                                                 // Tạo hoặc lấy conversation giữa user và friend
-                                                const res = await axios.post(`${API_URL}/conversation`, {
+                                                const res = await axios.post(`${API_URL}/conversations`, {
                                                     senderId: user.id,
                                                     receiverId: item.friend.id,
+                                                }, {
+                                                    headers: {
+                                                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                                                    }
                                                 });
                                                 
+                                                console.log("Conversation created/retrieved:", res.data);
                                                 setCurrentChat(res.data);
                                                 setSelectedFriend(item.friend);
                                                 setOpenChat(true);
@@ -667,36 +677,8 @@ const Messenger = () => {
                                     </button>
                                 );
                             }
-
-                            // Debug logging cho friend data
-                            console.log("🧑‍🤝‍🧑 Friend data for conversation:", {
-                                conversationId: conv.id,
-                                friend: friend,
-                                hasProfilePicture: !!friend.profilePicture,
-                                profilePictureUrl: friend.profilePicture,
-                                membersData: conv.membersData
-                            });
-
-                            // Sử dụng trường unread trả về từ backend
-                            const unread = !!conv.unread;
-                            return (
-                                <button
-                                    key={conv.id}
-                                    onClick={async () => {
-                                        try {
-                                            setCurrentChat(conv);
-                                            setSelectedFriend(friend);
-                                            setOpenChat(true);
-                                            await markMessagesAsRead();
-                                        } catch (err) {
-                                            console.error("Lỗi khi chọn hội thoại:", err);
-                                        }
-                                    }}
-                                    className="w-full text-left"
-                                >
-                                    <Conversation friend={friend} currentChat={currentChat} lastMessage={conv.lastMessage} unread={unread} />
-                                </button>
-                            );
+                            
+                            return null;
                         })
                     ) : (
                         <p>Không có bạn bè nào</p>

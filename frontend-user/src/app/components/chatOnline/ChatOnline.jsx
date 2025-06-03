@@ -50,9 +50,14 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
   // Xử lý khi người dùng nhấp vào bạn bè online
   const handleClick = async (user) => {
     try {
-      const res = await axios.post(`${API_URL}/conversation`, {
+      const token = localStorage.getItem("auth_token");
+      const res = await axios.post(`${API_URL}/conversations`, {
         senderId: currentId,
         receiverId: user.id,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       });
       setCurrentChat(res.data);
       setSelectedFriend(user);
