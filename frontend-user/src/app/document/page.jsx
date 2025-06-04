@@ -22,6 +22,7 @@ const DocumentPage = () => {
     const [selectedSubjectId, setSelectedSubjectId] = useState(null);
     const [token, setToken] = useState(null);
     const [query, setQuery] = useState("");
+    const [isPageLoading, setIsPageLoading] = useState(true);
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
 
     const truncateText = (text, maxLength) => {
@@ -54,8 +55,10 @@ const DocumentPage = () => {
                 });
 
                 setDocuments(docsRes.data.data);
+                setIsPageLoading(false);
             } catch (err) {
                 toast.error("Lỗi khi lấy dữ liệu ban đầu");
+                setIsPageLoading(false);
             }
         };
 
@@ -108,6 +111,13 @@ const DocumentPage = () => {
         fetchFilteredDocs();
     }, [query, selectedLevelId, selectedSubjectId, token]);
 
+    if (isPageLoading) {
+        return (
+            <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
+                <div className="w-16 h-16 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="flex h-screen p-5 bg-background pt-16 justify-center lg:justify-between">
