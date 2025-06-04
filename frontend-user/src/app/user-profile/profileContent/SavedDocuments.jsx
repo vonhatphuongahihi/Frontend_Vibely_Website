@@ -6,7 +6,7 @@ import { useEffect } from "react";
 // import { toast } from "react-hot-toast";
 import { GoBookmarkSlashFill } from "react-icons/go";
 
-export const SavedDocuments = ({isOwner}) => {
+export const SavedDocuments = ({isOwner, userId}) => {
     const { savedDocuments, fetchSavedDocuments, fetchSavedDocumentById, unsaveDocument } = useSavedDocumentsStore();
     const router = useRouter();
     const handleNavigation = (path) => {
@@ -17,7 +17,7 @@ export const SavedDocuments = ({isOwner}) => {
     };
 
     useEffect(() => {
-        fetchSavedDocuments();
+        fetchSavedDocuments(userId);
     }, [fetchSavedDocuments]);
 
     const handleUnsaveDocument = async (documentId) => {
@@ -44,7 +44,19 @@ export const SavedDocuments = ({isOwner}) => {
                     </p>
 
                     <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-4">
-                        {savedDocuments.map((doc) => (
+                        {savedDocuments.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center text-center space-y-4 col-span-full">
+                                <img
+                                    src="/novideo.png"
+                                    alt="No saved documents"
+                                    className="h-[180px] mx-auto"
+                                />
+                                <p className="text-center text-gray-500">
+                                    Bạn chưa lưu tài liệu nào
+                                </p>
+                            </div>
+                        ) : (
+                        savedDocuments.map((doc) => (
                             <div
                                 key={doc.id}
                                 className={`relative flex flex-col p-4 border border-gray-200 rounded-lg shadow-md bg-white
@@ -83,7 +95,7 @@ export const SavedDocuments = ({isOwner}) => {
                                     </button>
                                 }
                             </div>
-                        ))}
+                        )))}
                     </div>
                 </CardContent>
             </Card>

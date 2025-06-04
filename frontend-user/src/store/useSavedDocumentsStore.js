@@ -8,10 +8,10 @@ export const useSavedDocumentsStore = create((set) => ({
     loading: false,
     error: null,
 
-    fetchSavedDocuments: async () => {
+    fetchSavedDocuments: async (userId) => {
         set({ loading: true })
         try {
-            const savedDocuments = await getSavedDocuments();
+            const savedDocuments = await getSavedDocuments(userId);
             set({ savedDocuments, loading: false })
         } catch (error) {
             set({ error, loading: false })
