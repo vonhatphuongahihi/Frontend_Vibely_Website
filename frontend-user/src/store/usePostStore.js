@@ -81,10 +81,10 @@ export const usePostStore = create((set, get) => ({
         try {
             set({ loading: true });
             const newPost = await createPost(postData);
-            
+
             const { currentUserId } = get();
             const currentUser = userStore.getState().user;
-            
+
             console.log("🔍 Debug handleCreatePost:");
             console.log("- newPost:", newPost);
             console.log("- newPost.user:", newPost?.user);
@@ -92,7 +92,7 @@ export const usePostStore = create((set, get) => ({
             console.log("- newPost.user.id:", newPost?.user?.id);
             console.log("- newPost.userId:", newPost?.userId);
             console.log("- Should update userPosts:", currentUserId && (newPost?.userId === currentUserId || newPost?.userId?.toString() === currentUserId?.toString()));
-            
+
             // Bổ sung thông tin user nếu thiếu
             if (newPost && !newPost.user && newPost.userId === currentUser?.id) {
                 newPost.user = {
@@ -102,12 +102,12 @@ export const usePostStore = create((set, get) => ({
                 };
                 console.log("✅ Added user info to newPost:", newPost.user);
             }
-            
+
             set((state) => ({
                 posts: [newPost, ...state.posts],   //thêm bài đăng mới vào danh sách các bài đăng
                 // Nếu bài viết được tạo bởi user hiện tại đang xem profile, thêm vào userPosts
                 userPosts: currentUserId && (newPost?.userId === currentUserId || newPost?.userId?.toString() === currentUserId?.toString())
-                    ? [newPost, ...state.userPosts] 
+                    ? [newPost, ...state.userPosts]
                     : state.userPosts,
                 loading: false,
             }));
@@ -209,11 +209,11 @@ export const usePostStore = create((set, get) => ({
         try {
             const result = await reactStory(storyId);
             console.log("🔍 Story react result:", result);
-            
+
             set((state) => ({
                 stories: state.stories.map(story =>
-                    story.id === storyId ? { 
-                        ...story, 
+                    story.id === storyId ? {
+                        ...story,
                         reactionStats: result.reactionStats || story.reactionStats,
                         reactions: result.reactions || story.reactions
                     } : story
@@ -247,7 +247,42 @@ export const usePostStore = create((set, get) => ({
         try {
             const result = await addReplyToPost(postId, commentId, replyText)
             console.log("🔍 Reply result:", result);
-            set({ loading: false })
+
+            // Cập nhật state ngay lập tức với reply mới
+            set((state) => ({
+                posts: state.posts.map((post) =>
+                    post?.id === postId
+                        ? {
+                            ...post,
+                            comments: post.comments.map((comment) =>
+                                comment?.id === commentId
+                                    ? {
+                                        ...comment,
+                                        replies: [...(comment.replies || []), result.data]
+                                    }
+                                    : comment
+                            )
+                        }
+                        : post
+                ),
+                userPosts: state.userPosts.map((post) =>
+                    post?.id === postId
+                        ? {
+                            ...post,
+                            comments: post.comments.map((comment) =>
+                                comment?.id === commentId
+                                    ? {
+                                        ...comment,
+                                        replies: [...(comment.replies || []), result.data]
+                                    }
+                                    : comment
+                            )
+                        }
+                        : post
+                ),
+                loading: false
+            }))
+
             toast.success("Thêm phản hồi thành công.")
             return result;
         } catch (error) {
@@ -272,14 +307,14 @@ export const usePostStore = create((set, get) => ({
         set({ loading: true })
         try {
             await deletePost(postId)
-            
+
             // Cập nhật state sau khi xóa bài viết
             set((state) => ({
                 posts: state.posts.filter(post => post.id !== postId),
                 userPosts: state.userPosts.filter(post => post.id !== postId),
                 loading: false
             }))
-            
+
             toast.success("Xóa bài viết thành công.")
         } catch (error) {
             set({ error, loading: false })

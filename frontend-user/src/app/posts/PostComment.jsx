@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 
 function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeComment }) {
   const [showAllReplies, setShowAllReplies] = useState(false); //xem tất cả/2 cái đầu
-
+  const [isReplying, setIsReplying] = useState(false);
   const [showReplies, setShowReplies] = useState(false); //mở xem replies
   const [replyText, setReplyText] = useState("");
   const { user } = userStore();
@@ -27,9 +27,16 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
 
   // đăng reply 
   const handleReplySubmit = async () => {
-    if (replyText.trim()) {
-      onReply(replyText);
-      setReplyText("");
+    if (replyText.trim() && !isReplying) {
+      setIsReplying(true);
+      try {
+        await onReply(replyText);
+        setReplyText("");
+      } catch (error) {
+        console.error("Error submitting reply:", error);
+      } finally {
+        setIsReplying(false);
+      }
     }
   };
 
@@ -325,15 +332,17 @@ function PostComment({ comment, onReply, onDeleteComment, onDeleteReply, likeCom
               ref={replyInputRef}
               onChange={(e) => setReplyText(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleReplySubmit()}
+              disabled={isReplying}
             />
             <Button
               variant="ghost"
               size="icon"
               className="hover:bg-transparent"
               onClick={handleReplySubmit}
+              disabled={isReplying}
             >
               <Send
-                className="text-[#086280]"
+                className={`${isReplying ? "text-gray-400" : "text-[#086280]"}`}
                 style={{ width: "20px", height: "20px" }}
               />
             </Button>
