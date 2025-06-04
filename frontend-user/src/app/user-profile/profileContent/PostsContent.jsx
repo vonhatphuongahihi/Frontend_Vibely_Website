@@ -18,7 +18,7 @@ import userStore from '@/store/userStore'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 
-export const PostsContent = ({ post, onReact, onComment, onShare, onDelete, onReplyComment, onDeleteComment, onDeleteReply, onLikeComment }) => {
+export const PostsContent = ({ post, onReact, onComment, onShare, onDelete }) => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const [showComments, setShowComments] = useState(false)
   const [showReactionChooser, setShowReactionChooser] = useState(false)
@@ -76,41 +76,58 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete, onRe
   const [currentReactionDetail, setCurrentReaction] = useState("like"); //reaction hiện tại của bảng chi tiết, mặc định là like
   useEffect(() => {
     // Kiểm tra post và user trước khi set reaction
-    if (!post || !user || !post.reactions) {
+    if (!post || !user) {
       setReaction(null);
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
 
-    setReaction(post?.reactions?.find(react => react?.user?.id == user?.id) ? post?.reactions?.find(react => react?.user?.id == user?.id).type : null)
-    //đảm bảo object hợp lệ
-    if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
+    // Set current user's reaction từ post.reactions
+    if (post.reactions && post.reactions.length > 0) {
+      const userReaction = post.reactions.find(react => {
+        // Xử lý cả trường hợp react.user.id và react.userId từ backend
+        const reactUserId = react?.user?.id || react?.userId;
+        return reactUserId === user.id;
+      });
+      setReaction(userReaction ? userReaction.type : null);
+    } else {
+      setReaction(null);
+    }
+
+    // Process reaction stats để tính top reactions
+    if (!post.reactionStats || typeof post.reactionStats !== "object") {
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
 
-    // Group reactions by type
-    const reactionGroups = post.reactions.reduce((acc, react) => {
-      if (!acc[react.type]) {
-        acc[react.type] = [];
-      }
-      if (react.user) {
-        acc[react.type].push(react.user);
-      }
-      return acc;
-    }, {});
+    // Tính top reactions từ reactionStats để cập nhật ngay
+    const reactionStatsArray = Object.entries(post.reactionStats)
+      .filter(([type, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
 
-    // cập nhật danh sách top reactions
-    const filteredReactions = Object.entries(post?.reactionStats)
-      .filter(([key, value]) => value > 0) // loại bỏ reaction có số lượng = 0
-      .sort((a, b) => b[1] - a[1]) // sắp xếp giảm dần theo số lượng
-      .slice(0, 3); // lấy 3 reaction nhiều nhất
+    setTopReactions(reactionStatsArray.map(([type]) => type));
 
-    setTopReactions(filteredReactions);
-    setReactionUserGroups(reactionGroups);
-  }, [post, user, post?.reactionStats]);
+    // Group reactions by type để hiển thị danh sách user
+    if (post.reactions && post.reactions.length > 0) {
+      const reactionGroups = post.reactions.reduce((acc, react) => {
+        if (!acc[react.type]) {
+          acc[react.type] = [];
+        }
+        // Xử lý user object: có thể là react.user hoặc cần tạo từ react.userId
+        const userObj = react.user || { id: react.userId };
+        if (userObj) {
+          acc[react.type].push(userObj);
+        }
+        return acc;
+      }, {});
+      setReactionUserGroups(reactionGroups);
+    } else {
+      setReactionUserGroups({});
+    }
+  }, [post?.id, user?.id, post?.reactionStats, post?.reactions]); // Thêm post?.reactions vào dependencies
 
   const generateSharedLink = () => {
     return `https://vibely-study-social-website.vercel.app/posts/${post?.id}`;
@@ -311,15 +328,20 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete, onRe
                         {user?.profilePicture ? (
                           <AvatarImage
                             src={user?.profilePicture}
-                            alt={user?.username}
+                            alt={user?.username || 'User'}
                           />
                         ) : (
                           <AvatarFallback>
-                            {user?.username?.split(" ").map((name) => name[0]).join("")}
+                            {user?.username ? 
+                              user.username.split(" ").map((name) => name[0]).join("") : 
+                              user?.id?.slice(0, 2).toUpperCase() || "U"
+                            }
                           </AvatarFallback>
                         )}
                       </Avatar>
-                      <p className="text-sm font-medium leading-none">{user?.username}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user?.username || `User ${user?.id?.slice(0, 8) || 'Unknown'}`}
+                      </p>
                     </div>
                   )
                 })}
@@ -333,7 +355,7 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete, onRe
               onClick={() => { handleReactionDetail() }}>
               {
                 topReactions.map((reaction) => (
-                  <Image src={`/${reaction[0]}.png`} alt={`${reaction[0]}`} width={18} height={18} key={reaction[0]} />
+                  <Image src={`/${reaction}.png`} alt={reaction} width={18} height={18} key={reaction} />
                 ))
               }
               &nbsp;
@@ -520,10 +542,6 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete, onRe
                 <PostComments
                   post={post}
                   onComment={onComment}
-                  onReplyComment={onReplyComment}
-                  onDeleteComment={onDeleteComment}
-                  onDeleteReply={onDeleteReply}
-                  onLikeComment={onLikeComment}
                   commentInputRef={commentInputRef}
                 />
               </motion.div>

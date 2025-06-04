@@ -1,20 +1,15 @@
 import { addCommentToPost, addReplyToPost, createPost, createStory, deleteComment, deletePost, deleteReply, deleteStory, editPost, getAllPosts, getAllStories, getAllUserPosts, likeComment, reactPost, reactStory, sharePost } from '@/service/post.service';
 import toast from 'react-hot-toast';
 import { create } from 'zustand';
-import userStore from './userStore';
 //quản lý trạng thái các bài viết và story
-export const usePostStore = create((set, get) => ({
+export const usePostStore = create((set) => ({
     posts: [],   //lưu danh sách tất cả bài viết.
     stories: [], //lưu danh sách tất cả story
 
     userPosts: [],   //lưu danh sách bài viết của người dùng
-    currentUserId: null, // Lưu ID của user hiện tại đang xem profile
 
     loading: false,  //trạng thái tải
     error: null, //lưu lỗi
-
-    // Thêm action để set current user ID
-    setCurrentUserId: (userId) => set({ currentUserId: userId }),
 
     fetchPosts: async () => {
         set({ loading: true })
@@ -28,7 +23,7 @@ export const usePostStore = create((set, get) => ({
 
     //fetch user posts
     fetchUserPost: async (userId) => {
-        set({ loading: true, currentUserId: userId });
+        set({ loading: true });
         try {
             const userPosts = await getAllUserPosts(userId);
             set({ userPosts, loading: false });
@@ -81,34 +76,8 @@ export const usePostStore = create((set, get) => ({
         try {
             set({ loading: true });
             const newPost = await createPost(postData);
-
-            const { currentUserId } = get();
-            const currentUser = userStore.getState().user;
-
-            console.log("🔍 Debug handleCreatePost:");
-            console.log("- newPost:", newPost);
-            console.log("- newPost.user:", newPost?.user);
-            console.log("- currentUserId:", currentUserId);
-            console.log("- newPost.user.id:", newPost?.user?.id);
-            console.log("- newPost.userId:", newPost?.userId);
-            console.log("- Should update userPosts:", currentUserId && (newPost?.userId === currentUserId || newPost?.userId?.toString() === currentUserId?.toString()));
-
-            // Bổ sung thông tin user nếu thiếu
-            if (newPost && !newPost.user && newPost.userId === currentUser?.id) {
-                newPost.user = {
-                    id: currentUser.id,
-                    username: currentUser.username,
-                    profilePicture: currentUser.profilePicture
-                };
-                console.log("✅ Added user info to newPost:", newPost.user);
-            }
-
             set((state) => ({
                 posts: [newPost, ...state.posts],   //thêm bài đăng mới vào danh sách các bài đăng
-                // Nếu bài viết được tạo bởi user hiện tại đang xem profile, thêm vào userPosts
-                userPosts: currentUserId && (newPost?.userId === currentUserId || newPost?.userId?.toString() === currentUserId?.toString())
-                    ? [newPost, ...state.userPosts]
-                    : state.userPosts,
                 loading: false,
             }));
             toast.success("Tạo bài đăng thành công.");
@@ -189,17 +158,30 @@ export const usePostStore = create((set, get) => ({
     handleReactPost: async (postId, reactType) => {
         set({ loading: true });
         try {
-            const updatedStats = await reactPost(postId, reactType);
+            const updatedData = await reactPost(postId, reactType);
+            console.log("🔍 React post result:", updatedData);
+            console.log("🔍 React post reactionStats:", updatedData?.reactionStats);
+            console.log("🔍 React post reactions:", updatedData?.reactions);
+            
             set((state) => ({
                 posts: state.posts.map(post =>
-                    post.id === postId ? { ...post, reactionStats: updatedStats.reactionStats } : post
+                    post.id === postId ? { 
+                        ...post, 
+                        reactionStats: updatedData.reactionStats,
+                        reactions: updatedData.reactions 
+                    } : post
                 ),
                 userPosts: state.userPosts.map(post =>
-                    post.id === postId ? { ...post, reactionStats: updatedStats.reactionStats } : post
+                    post.id === postId ? { 
+                        ...post, 
+                        reactionStats: updatedData.reactionStats,
+                        reactions: updatedData.reactions 
+                    } : post
                 ),
                 loading: false
             }));
         } catch (error) {
+            console.error("❌ Error reacting to post:", error);
             set({ error, loading: false });
             toast.error("Lỗi khi react bài viết. Vui lòng thử lại.");
         }
@@ -207,21 +189,14 @@ export const usePostStore = create((set, get) => ({
     handleReactStory: async (storyId) => {
         set({ loading: true });
         try {
-            const result = await reactStory(storyId);
-            console.log("🔍 Story react result:", result);
-
+            const updatedStats = await reactStory(storyId);
             set((state) => ({
                 stories: state.stories.map(story =>
-                    story.id === storyId ? {
-                        ...story,
-                        reactionStats: result.reactionStats || story.reactionStats,
-                        reactions: result.reactions || story.reactions
-                    } : story
+                    story.id === storyId ? { ...story, reactionStats: updatedStats.reactionStats } : story
                 ),
                 loading: false
             }));
         } catch (error) {
-            console.error("❌ Error reacting to story:", error);
             set({ error, loading: false });
             toast.error("Lỗi khi react story. Vui lòng thử lại.");
         }
@@ -231,11 +206,51 @@ export const usePostStore = create((set, get) => ({
         set({ loading: true })
         try {
             const result = await addCommentToPost(postId, commentData)
-            console.log("🔍 Comment result:", result);
-            set({ loading: false })
+            console.log("🔍 Comment result from service:", result);
+            console.log("🔍 Comment data to add:", result.data);
+            
+            // Đảm bảo comment có cấu trúc đúng
+            const newComment = {
+                id: result.data.id,
+                text: result.data.text,
+                createdAt: result.data.createdAt,
+                user: result.data.user,
+                reactions: result.data.reactions || [],
+                replies: result.data.replies || []
+            };
+            
+            console.log("🔍 New comment object:", newComment);
+            
+            // Cập nhật state với comment mới cho cả posts và userPosts
+            set((state) => ({
+                posts: state.posts.map((post) => {
+                    if (post?.id === postId) {
+                        const updatedPost = {
+                            ...post,
+                            comments: [...(post.comments || []), newComment],
+                            commentCount: (post.commentCount || 0) + 1
+                        };
+                        console.log("🔍 Updated post comments:", updatedPost.comments);
+                        return updatedPost;
+                    }
+                    return post;
+                }),
+                userPosts: state.userPosts.map((post) => {
+                    if (post?.id === postId) {
+                        return {
+                            ...post,
+                            comments: [...(post.comments || []), newComment],
+                            commentCount: (post.commentCount || 0) + 1
+                        };
+                    }
+                    return post;
+                }),
+                loading: false
+            }))
             toast.success("Thêm bình luận thành công.")
             return result;
         } catch (error) {
+            console.error("❌ Error adding comment:", error);
             set({ error, loading: false })
             toast.error("Đã xảy ra lỗi khi thêm bình luận. Vui lòng thử lại.")
             throw error;
@@ -247,8 +262,8 @@ export const usePostStore = create((set, get) => ({
         try {
             const result = await addReplyToPost(postId, commentId, replyText)
             console.log("🔍 Reply result:", result);
-
-            // Cập nhật state ngay lập tức với reply mới
+            
+            // Cập nhật state với reply mới cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) =>
                     post?.id === postId
@@ -258,10 +273,16 @@ export const usePostStore = create((set, get) => ({
                                 comment?.id === commentId
                                     ? {
                                         ...comment,
-                                        replies: [...(comment.replies || []), result.data]
+                                        replies: [...(comment.replies || []), {
+                                            ...result.data,
+                                            user: result.data.user,
+                                            text: result.data.text,
+                                            id: result.data.id
+                                        }]
                                     }
                                     : comment
-                            )
+                            ),
+                            commentCount: (post.commentCount || 0) + 1 // Tăng số lượng comment khi có reply
                         }
                         : post
                 ),
@@ -273,19 +294,25 @@ export const usePostStore = create((set, get) => ({
                                 comment?.id === commentId
                                     ? {
                                         ...comment,
-                                        replies: [...(comment.replies || []), result.data]
+                                        replies: [...(comment.replies || []), {
+                                            ...result.data,
+                                            user: result.data.user,
+                                            text: result.data.text,
+                                            id: result.data.id
+                                        }]
                                     }
                                     : comment
-                            )
+                            ),
+                            commentCount: (post.commentCount || 0) + 1 // Tăng số lượng comment khi có reply
                         }
                         : post
                 ),
                 loading: false
             }))
-
             toast.success("Thêm phản hồi thành công.")
             return result;
         } catch (error) {
+            console.error("❌ Error adding reply:", error);
             set({ error, loading: false })
             toast.error("Đã xảy ra lỗi khi thêm phản hồi. Vui lòng thử lại.")
             throw error;
@@ -307,14 +334,14 @@ export const usePostStore = create((set, get) => ({
         set({ loading: true })
         try {
             await deletePost(postId)
-
+            
             // Cập nhật state sau khi xóa bài viết
             set((state) => ({
                 posts: state.posts.filter(post => post.id !== postId),
                 userPosts: state.userPosts.filter(post => post.id !== postId),
                 loading: false
             }))
-
+            
             toast.success("Xóa bài viết thành công.")
         } catch (error) {
             set({ error, loading: false })
@@ -326,28 +353,38 @@ export const usePostStore = create((set, get) => ({
         set({ loading: true })
         try {
             await deleteComment(postId, commentId)
-            // Cập nhật state sau khi xóa comment
+            
+            // Cập nhật state sau khi xóa comment cho cả posts và userPosts
             set((state) => ({
-                posts: state.posts.map((post) =>
-                    post?.id === postId
-                        ? {
+                posts: state.posts.map((post) => {
+                    if (post?.id === postId) {
+                        const deletedComment = post.comments.find(comment => comment.id === commentId);
+                        const repliesCount = deletedComment?.replies?.length || 0;
+                        return {
                             ...post,
-                            comments: post.comments.filter(comment => comment.id !== commentId)
+                            comments: post.comments.filter(comment => comment.id !== commentId),
+                            commentCount: Math.max(0, (post.commentCount || 0) - 1 - repliesCount) // Giảm cả comment và replies
                         }
-                        : post
-                ),
-                userPosts: state.userPosts.map((post) =>
-                    post?.id === postId
-                        ? {
+                    }
+                    return post;
+                }),
+                userPosts: state.userPosts.map((post) => {
+                    if (post?.id === postId) {
+                        const deletedComment = post.comments.find(comment => comment.id === commentId);
+                        const repliesCount = deletedComment?.replies?.length || 0;
+                        return {
                             ...post,
-                            comments: post.comments.filter(comment => comment.id !== commentId)
+                            comments: post.comments.filter(comment => comment.id !== commentId),
+                            commentCount: Math.max(0, (post.commentCount || 0) - 1 - repliesCount) // Giảm cả comment và replies
                         }
-                        : post
-                ),
+                    }
+                    return post;
+                }),
                 loading: false
             }))
             toast.success("Xóa bình luận thành công.")
         } catch (error) {
+            console.error("❌ Error deleting comment:", error);
             set({ error, loading: false })
             toast.error("Đã xảy ra lỗi khi xóa bình luận. Vui lòng thử lại.")
         }
@@ -357,7 +394,8 @@ export const usePostStore = create((set, get) => ({
         set({ loading: true })
         try {
             await deleteReply(postId, commentId, replyId)
-            // Cập nhật state sau khi xóa reply
+            
+            // Cập nhật state sau khi xóa reply cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) =>
                     post?.id === postId
@@ -370,7 +408,8 @@ export const usePostStore = create((set, get) => ({
                                         replies: comment.replies.filter(reply => reply.id !== replyId)
                                     }
                                     : comment
-                            )
+                            ),
+                            commentCount: Math.max(0, (post.commentCount || 0) - 1) // Giảm số lượng comment
                         }
                         : post
                 ),
@@ -385,7 +424,8 @@ export const usePostStore = create((set, get) => ({
                                         replies: comment.replies.filter(reply => reply.id !== replyId)
                                     }
                                     : comment
-                            )
+                            ),
+                            commentCount: Math.max(0, (post.commentCount || 0) - 1) // Giảm số lượng comment
                         }
                         : post
                 ),
@@ -393,6 +433,7 @@ export const usePostStore = create((set, get) => ({
             }))
             toast.success("Xóa phản hồi thành công.")
         } catch (error) {
+            console.error("❌ Error deleting reply:", error);
             set({ error, loading: false })
             toast.error("Đã xảy ra lỗi khi xóa phản hồi. Vui lòng thử lại.")
         }
@@ -402,7 +443,8 @@ export const usePostStore = create((set, get) => ({
         set({ loading: true })
         try {
             const result = await likeComment(postId, commentId)
-            // Cập nhật state sau khi like comment
+            
+            // Cập nhật state sau khi like comment cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) =>
                     post?.id === postId
@@ -437,6 +479,7 @@ export const usePostStore = create((set, get) => ({
                 loading: false
             }))
         } catch (error) {
+            console.error("❌ Error liking comment:", error);
             set({ error, loading: false })
             toast.error("Đã xảy ra lỗi khi thích bình luận. Vui lòng thử lại.")
         }

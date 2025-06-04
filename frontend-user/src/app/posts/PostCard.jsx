@@ -86,43 +86,58 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [currentReactionDetail, setCurrentReaction] = useState("like"); //reaction hiện tại của bảng chi tiết, mặc định là like
   useEffect(() => {
     // Kiểm tra post và user trước khi set reaction
-    if (!post || !user || !post.reactions) {
+    if (!post || !user) {
       setReaction(null);
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
 
-    // Set current user's reaction
-    const userReaction = post.reactions.find(react => react?.user?.id === user.id);
-    setReaction(userReaction ? userReaction.type : null);
+    // Set current user's reaction từ post.reactions
+    if (post.reactions && post.reactions.length > 0) {
+      const userReaction = post.reactions.find(react => {
+        // Xử lý cả trường hợp react.user.id và react.userId từ backend
+        const reactUserId = react?.user?.id || react?.userId;
+        return reactUserId === user.id;
+      });
+      setReaction(userReaction ? userReaction.type : null);
+    } else {
+      setReaction(null);
+    }
 
-    // Process reaction stats
+    // Process reaction stats để tính top reactions
     if (!post.reactionStats || typeof post.reactionStats !== "object") {
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
 
-    // Group reactions by type
-    const reactionGroups = post.reactions.reduce((acc, react) => {
-      if (!acc[react.type]) {
-        acc[react.type] = [];
-      }
-      if (react.user) {
-        acc[react.type].push(react.user);
-      }
-      return acc;
-    }, {});
-
-    // Get top 3 reactions
-    const sortedReactions = Object.entries(reactionGroups)
-      .sort((a, b) => b[1].length - a[1].length)
+    // Tính top reactions từ reactionStats để cập nhật ngay
+    const reactionStatsArray = Object.entries(post.reactionStats)
+      .filter(([type, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
       .slice(0, 3);
 
-    setTopReactions(sortedReactions.map(([reaction]) => reaction));
-    setReactionUserGroups(reactionGroups);
-  }, [post, user, post?.reactionStats]); // Dependencies updated
+    setTopReactions(reactionStatsArray.map(([type]) => type));
+
+    // Group reactions by type để hiển thị danh sách user
+    if (post.reactions && post.reactions.length > 0) {
+      const reactionGroups = post.reactions.reduce((acc, react) => {
+        if (!acc[react.type]) {
+          acc[react.type] = [];
+        }
+        // Xử lý user object: có thể là react.user hoặc cần tạo từ react.userId
+        const userObj = react.user || { id: react.userId };
+        if (userObj) {
+          acc[react.type].push(userObj);
+        }
+        return acc;
+      }, {});
+      setReactionUserGroups(reactionGroups);
+    } else {
+      setReactionUserGroups({});
+    }
+  }, [post?.id, user?.id, post?.reactionStats, post?.reactions]); // Thêm post?.reactions vào dependencies
 
   //mở bảng chi tiết reaction
   const [reactDetailOpen, setReactDetailOpen] = useState(false)
@@ -254,7 +269,7 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
           <div className="flex items-center justify-between mb-4 relative">
             <div className="flex items-center space-x-3 cursor-pointer">
               {/*Avt người đăng bài*/}
-              <Avatar onClick={handleUserProfile} className="cursor-pointer">
+              <Avatar>
                 {post?.user?.profilePicture ? (
                   <AvatarImage src={post?.user?.profilePicture} alt={post?.user?.username} />
                 ) : (
@@ -263,10 +278,10 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
               </Avatar>
               {/*Tên người đăng, thời gian đăng, khi nhấp vào sẽ chuyển đến trang tương ứng*/}
               <div>
-                <p className="font-semibold cursor-pointer" onClick={handleUserProfile}>
+                <p className="font-semibold" onClick={handleUserProfile}>
                   {post?.user?.username} {/*tên người đăng bài*/}
                 </p>
-                <p className="font-sm text-gray-500 text-xs cursor-pointer" onClick={handleSinglePost}>
+                <p className="font-sm text-gray-500 text-xs" onClick={handleSinglePost}>
                   {formatedDate(post?.createdAt)} {/*thời gian đăng bài*/}
                 </p>
               </div>
@@ -507,15 +522,20 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                         {user?.profilePicture ? (
                           <AvatarImage
                             src={user?.profilePicture}
-                            alt={user?.username}
+                            alt={user?.username || 'User'}
                           />
                         ) : (
                           <AvatarFallback>
-                            {user?.username?.split(" ").map((name) => name[0]).join("")}
+                            {user?.username ? 
+                              user.username.split(" ").map((name) => name[0]).join("") : 
+                              user?.id?.slice(0, 2).toUpperCase() || "U"
+                            }
                           </AvatarFallback>
                         )}
                       </Avatar>
-                      <p className="text-sm font-medium leading-none">{user?.username}</p>
+                      <p className="text-sm font-medium leading-none">
+                        {user?.username || `User ${user?.id?.slice(0, 8) || 'Unknown'}`}
+                      </p>
                     </div>
                   )
                 })}

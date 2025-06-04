@@ -25,15 +25,12 @@ const Page = () => {
               post={post}
               onReact={async (reactType) => {
                 await handleReactPost(post?.id, reactType)
-                await fetchPosts()// tải lại danh sách
               }}
               onComment={async (commentText) => {  //chức năng comment
                 await handleCommentPost(post?.id, commentText)
-                await fetchPosts()
               }}
               onShare={async () => {  //chức năng share
                 await handleSharePost(post?.id)
-                await fetchPosts()
               }}
             />
           ))}

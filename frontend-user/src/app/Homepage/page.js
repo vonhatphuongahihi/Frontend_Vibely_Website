@@ -51,23 +51,18 @@ const Homepage = () => {
                   post={post}
                   onReact={async (reactType) => {
                     await handleReactPost(post?.id, reactType)
-                    await fetchPosts() // tải lại danh sách
                   }}
                   onComment={async (commentText) => {  // chức năng comment
                     await handleCommentPost(post?.id, commentText)
-                    await fetchPosts()
                   }}
                   onShare={async () => {  // chức năng share
                     await handleSharePost(post?.id)
-                    await fetchPosts()
                   }}
                   onDelete={async () => {  // chức năng xóa
                     await handleDeletePost(post?.id)
-                    await fetchPosts()
                   }}
                   onEdit={async (postData) => {
                     await handleEditPost(post?.id, postData)
-                    await fetchPosts()
                   }}
                 />
               ))}
