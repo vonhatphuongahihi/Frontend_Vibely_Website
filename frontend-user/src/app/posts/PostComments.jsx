@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 const PostComments = ({ post, onComment, commentInputRef, onReplyComment, onDeleteComment, onDeleteReply, onLikeComment }) => {
     const [showAllComments, setShowAllComments] = useState(false);
     const [commentText, setCommentText] = useState("")
+    const [isCommenting, setIsCommenting] = useState(false);
     const { user } = userStore();
     const router = useRouter();
     const visibleComments = showAllComments ? post?.comments : post?.comments?.slice(0, 2);
@@ -21,9 +22,16 @@ const PostComments = ({ post, onComment, commentInputRef, onReplyComment, onDele
     const { handleReplyComment, handleDeleteComment, handleDeleteReply, handleLikeComment } = usePostStore()
 
     const handleCommentSubmit = async () => {
-        if (commentText.trim()) {
-            onComment({ text: commentText })
-            setCommentText("")
+        if (commentText.trim() && !isCommenting) {
+            setIsCommenting(true);
+            try {
+                await onComment({ text: commentText });
+                setCommentText("");
+            } catch (error) {
+                console.error("Error submitting comment:", error);
+            } finally {
+                setIsCommenting(false);
+            }
         }
     }
 
@@ -89,14 +97,19 @@ const PostComments = ({ post, onComment, commentInputRef, onReplyComment, onDele
                 </Avatar>
                 <Input
                     placeholder="Viết bình luận..."
-                    className="flex-grow cursor-poiter rounded-full h-12 "
+                    className="flex-grow cursor-poiter rounded-full h-12"
                     value={commentText}
                     ref={commentInputRef}
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit()}
+                    disabled={isCommenting}
                 />
-                <Button variant="ghost" size="icon" className="hover:bg-transparent"
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-transparent"
                     onClick={handleCommentSubmit}
+                    disabled={isCommenting}
                 >
                     <Send className="text-[#086280]" style={{ width: "20px", height: "20px" }} />
                 </Button>
