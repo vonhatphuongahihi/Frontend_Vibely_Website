@@ -40,34 +40,58 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
   const [currentReactionDetail, setCurrentReaction] = useState("like");
   useEffect(() => {
     // Kiểm tra post và user trước khi set reaction
-    if (!post || !user || !post.reactions) {
+    if (!post || !user) {
       setReaction(null);
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
 
-    setReaction(post?.reactions?.find(react => react?.user?.id == user?.id) ? post?.reactions?.find(react => react?.user?.id == user?.id).type : null)
-    //đảm bảo object hợp lệ
-    if (!post?.reactionStats || typeof post?.reactionStats !== "object") {
+    // Set current user's reaction từ post.reactions
+    if (post.reactions && post.reactions.length > 0) {
+      const userReaction = post.reactions.find(react => {
+        // Xử lý cả trường hợp react.user.id và react.userId từ backend
+        const reactUserId = react?.user?.id || react?.userId;
+        return reactUserId === user.id;
+      });
+      setReaction(userReaction ? userReaction.type : null);
+    } else {
+      setReaction(null);
+    }
+
+    // Process reaction stats để tính top reactions
+    if (!post.reactionStats || typeof post.reactionStats !== "object") {
       setTopReactions([]);
       setReactionUserGroups({});
       return;
     }
-    const reactionGroups = post.reactions.reduce((acc, react) => {
-      if (!acc[react.type]) {
-        acc[react.type] = [];
-      }
-      acc[react.type].push(react.user);
-      return acc;
-    }, {});
-    // cập nhật danh sách top reactions
-    const sortedReactions = Object.entries(reactionGroups)
-      .sort((a, b) => b[1].length - a[1].length) // Sắp xếp theo số lượng user
-      .slice(0, 3); // Lấy top 3 reactions
-    setTopReactions(sortedReactions.map(([reaction]) => reaction));
-    setReactionUserGroups(reactionGroups);
-  }, [post?.reactionStats]); // Chạy lại khi reactionStats thay đổi
+
+    // Tính top reactions từ reactionStats để cập nhật ngay
+    const reactionStatsArray = Object.entries(post.reactionStats)
+      .filter(([type, count]) => count > 0)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+
+    setTopReactions(reactionStatsArray.map(([type]) => type));
+
+    // Group reactions by type để hiển thị danh sách user
+    if (post.reactions && post.reactions.length > 0) {
+      const reactionGroups = post.reactions.reduce((acc, react) => {
+        if (!acc[react.type]) {
+          acc[react.type] = [];
+        }
+        // Xử lý user object: có thể là react.user hoặc cần tạo từ react.userId
+        const userObj = react.user || { id: react.userId };
+        if (userObj) {
+          acc[react.type].push(userObj);
+        }
+        return acc;
+      }, {});
+      setReactionUserGroups(reactionGroups);
+    } else {
+      setReactionUserGroups({});
+    }
+  }, [post?.id, user?.id, post?.reactionStats, post?.reactions]); // Thêm post?.reactions vào dependencies
 
   const handleUserProfile = () => {
     router.push(`/user-profile/${post?.user?.id}`)
@@ -269,15 +293,20 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                   {user?.profilePicture ? (
                     <AvatarImage
                       src={user?.profilePicture}
-                      alt={user?.username}
+                      alt={user?.username || 'User'}
                     />
                   ) : (
                     <AvatarFallback>
-                      {user?.username?.split(" ").map((name) => name[0]).join("")}
+                      {user?.username ? 
+                        user.username.split(" ").map((name) => name[0]).join("") : 
+                        user?.id?.slice(0, 2).toUpperCase() || "U"
+                      }
                     </AvatarFallback>
                   )}
                 </Avatar>
-                <p className="text-sm font-medium leading-none">{user?.username}</p>
+                <p className="text-sm font-medium leading-none">
+                  {user?.username || `User ${user?.id?.slice(0, 8) || 'Unknown'}`}
+                </p>
               </div>
             )
           })}

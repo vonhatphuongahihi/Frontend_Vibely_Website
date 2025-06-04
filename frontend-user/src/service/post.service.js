@@ -146,67 +146,16 @@ export const getAllUserPosts = async (userId) => {
         const result = await axiosInstance.get(`/users/posts/user/${userId}`)
         const posts = result?.data?.data;
 
-        // Lấy thông tin user cho mỗi comment và reply
+        // Lấy thông tin user cho mỗi comment
         const postsWithUserInfo = await Promise.all(posts.map(async (post) => {
             if (post.comments && post.comments.length > 0) {
                 const commentsWithUserInfo = await Promise.all(
                     post.comments.map(async (comment) => {
                         try {
-                            // Lấy thông tin user cho comment
-                            const commentUserId = comment.user?.id || comment.user_id
-                            let userInfo = null
-                            if (commentUserId) {
-                                try {
-                                    userInfo = await getUserInfo(commentUserId)
-                                } catch (error) {
-                                    console.error(`❌ Lỗi khi lấy thông tin user cho comment ${comment._id}:`, error)
-                                }
-                            } else {
-                                console.warn(`⚠️ Comment ${comment._id} không có user ID hợp lệ`);
-                            }
-
-                            // Lấy user cho từng reply
-                            let repliesWithUserInfo = []
-                            if (comment.replies && comment.replies.length > 0) {
-                                repliesWithUserInfo = await Promise.all(
-                                    comment.replies.map(async (reply) => {
-                                        try {
-                                            const replyUserId = reply.user?.id || reply.user_id
-                                            if (replyUserId && replyUserId !== 'undefined') {
-                                                try {
-                                                    const replyUserInfo = await getUserInfo(replyUserId)
-                                                    return {
-                                                        ...reply,
-                                                        user: replyUserInfo,
-                                                        text: reply.text || reply.content // Đảm bảo có trường text
-                                                    }
-                                                } catch (error) {
-                                                    console.error(`❌ Lỗi khi lấy thông tin user cho reply ${reply._id}:`, error)
-                                                    return {
-                                                        ...reply,
-                                                        text: reply.text || reply.content
-                                                    }
-                                                }
-                                            } else {
-                                                console.warn(`⚠️ Reply ${reply._id} không có user ID hợp lệ:`, replyUserId);
-                                                return {
-                                                    ...reply,
-                                                    text: reply.text || reply.content
-                                                }
-                                            }
-                                        } catch (error) {
-                                            console.error(`❌ Lỗi khi xử lý reply ${reply._id}:`, error)
-                                            return reply
-                                        }
-                                    })
-                                )
-                            }
-
+                            const userInfo = await getUserInfo(comment.user_id)
                             return {
                                 ...comment,
-                                user: userInfo,
-                                replies: repliesWithUserInfo,
-                                text: comment.text || comment.content // Đảm bảo có trường text
+                                user: userInfo
                             }
                         } catch (error) {
                             console.error(`Lỗi khi lấy thông tin user cho comment ${comment._id}:`, error)
@@ -244,9 +193,10 @@ export const getAllStories = async () => {
 export const reactPost = async (postId, reactType) => {
     try {
         const result = await axiosInstance.post(`users/posts/react/${postId}`, { type: reactType });
-        return result?.data;
+        console.log("🔍 React API response:", result?.data);
+        return result?.data?.data;
     } catch (error) {
-        //console.error("Lỗi khi react bài viết:", error);
+        console.error("Lỗi khi react bài viết:", error);
         throw error;
     }
 };
@@ -255,7 +205,9 @@ export const reactPost = async (postId, reactType) => {
 export const addCommentToPost = async (postId, commentData) => {
     try {
         const result = await axiosInstance.post(`/users/posts/comments/${postId}`, commentData)
-        // Lấy thông tin user cho comment mới
+        console.log("🔍 API comment response:", result?.data);
+        
+        // Backend bây giờ trả về comment data trực tiếp với user_id
         if (result?.data?.data?.user_id) {
             try {
                 const userInfo = await getUserInfo(result.data.data.user_id)
@@ -263,13 +215,29 @@ export const addCommentToPost = async (postId, commentData) => {
                     ...result.data,
                     data: {
                         ...result.data.data,
-                        user: userInfo
+                        user: userInfo,
+                        // Đảm bảo có các trường cần thiết
+                        id: result.data.data.id,
+                        text: result.data.data.text,
+                        createdAt: result.data.data.createdAt,
+                        reactions: result.data.data.reactions || [],
+                        replies: result.data.data.replies || []
                     }
                 }
             } catch (userError) {
                 console.error("Lỗi khi lấy thông tin user:", userError)
                 // Nếu không lấy được thông tin user, vẫn trả về comment
-                return result.data
+                return {
+                    ...result.data,
+                    data: {
+                        ...result.data.data,
+                        id: result.data.data.id,
+                        text: result.data.data.text,
+                        createdAt: result.data.data.createdAt,
+                        reactions: result.data.data.reactions || [],
+                        replies: result.data.data.replies || []
+                    }
+                }
             }
         }
         return result?.data
