@@ -25,11 +25,6 @@ export const ProfileDetails = ({
   const [tempBio, setTempBio] = useState(bio);
   const [isPostsLoading, setIsPostsLoading] = useState(true);
 
-  // const handleSaveBio = () => {
-  //   setBio(tempBio);
-  //   setIsEditBioModal(false);
-  // };
-
   const handleSaveBio = async () => {
     try {
       if (!tempBio.trim()) {
@@ -39,7 +34,7 @@ export const ProfileDetails = ({
 
       const fullBio = {
         ...profileData.bio,
-        bioText: tempBio, // chỉ thay đổi phần bioText
+        bioText: tempBio,
       };
 
       const updatedBio = await createOrUpdateUserBio(id, fullBio);
@@ -49,7 +44,6 @@ export const ProfileDetails = ({
         bio: updatedBio,
       }));
 
-      // Đóng modal chỉnh sửa
       setIsEditBioModal(false);
     } catch (error) {
       console.error("❌ Lỗi khi cập nhật Bio:", error);
@@ -67,7 +61,6 @@ export const ProfileDetails = ({
     handleCommentPost,
     handleSharePost,
     handleDeletePost,
-    setCurrentUserId,
     handleReplyComment,
     handleDeleteComment,
     handleDeleteReply,
@@ -77,26 +70,29 @@ export const ProfileDetails = ({
   useEffect(() => {
     if (id) {
       setIsPostsLoading(true);
-      console.log("🔍 Setting currentUserId to:", id);
-      setCurrentUserId(id); // Lưu ID của user hiện tại đang xem profile
-      fetchUserPost(id).finally(() => setIsPostsLoading(false));
+      fetchUserPost(id).then(() => {
+        setIsPostsLoading(false);
+      }).catch(() => {
+        setIsPostsLoading(false);
+      });
     }
-  }, [id, fetchUserPost, setCurrentUserId]);
+  }, [id, fetchUserPost]);
 
-  const [reactPosts, setReactPosts] = useState(new Set()); // danh sách những bài viết mà người dùng đã react
+  const [reactPosts, setReactPosts] = useState(new Set());
   useEffect(() => {
     const saveReacts = localStorage.getItem("reactPosts");
     if (saveReacts) {
       setReactPosts(JSON.parse(saveReacts));
     }
   }, []);
+
   const handleReact = async (postId, reactType) => {
     const updatedReactPosts = { ...reactPosts };
 
     if (updatedReactPosts && updatedReactPosts[postId] === reactType) {
-      delete updatedReactPosts[postId]; // hủy react nếu nhấn lại
+      delete updatedReactPosts[postId];
     } else {
-      updatedReactPosts[postId] = reactType; // cập nhật cảm xúc mới
+      updatedReactPosts[postId] = reactType;
     }
 
     setReactPosts(updatedReactPosts);
@@ -111,9 +107,10 @@ export const ProfileDetails = ({
       );
     }
   };
-  const router = useRouter();
 
-  const [isPostFormOpen, setIsPostFormOpen] = useState(false)
+  const router = useRouter();
+  const [isPostFormOpen, setIsPostFormOpen] = useState(false);
+
   const tabContent = {
     posts: (
       <div className="flex flex-col lg:flex-row gap-6 ">
@@ -123,7 +120,6 @@ export const ProfileDetails = ({
               <p className="text-xl font-semibold mb-4 dark:text-gray-300">
                 Giới thiệu
               </p>
-              {/* Hiện Textarea khi nhấn Chỉnh sửa tiểu sử */}
               {isEditBioModal ? (
                 <div>
                   <textarea
@@ -214,7 +210,6 @@ export const ProfileDetails = ({
             </CardContent>
           </Card>
         </div>
-        {/* Bài viết đã đăng của người dùng */}
         <div className="w-full lg:w-[70%] space-y-6 mb-4">
           {isOwner &&
             <NewPostForm
@@ -224,42 +219,39 @@ export const ProfileDetails = ({
           }
           {isPostsLoading ? (
             <div className="flex justify-center items-center py-10">
-              <div className="w-12 h-12 border-4 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-8 h-8 border-2 border-[#23CAF1] border-t-transparent rounded-full animate-spin"></div>
             </div>
           ) : userPosts?.length > 0 ? (
             userPosts.map((post) => (
               <PostsContent
                 key={post?.id}
                 post={post}
-                reaction={reactPosts[post?.id] || null} // Loại react
-                onReact={(reactType) => handleReact(post?.id, reactType)} // Chức năng react
+                reaction={reactPosts[post?.id] || null}
+                onReact={(reactType) => handleReact(post?.id, reactType)}
                 onComment={async (commentText) => {
-                  // Chức năng comment
                   await handleCommentPost(post?.id, commentText);
-                  await fetchUserPost(id); // Reload dữ liệu từ server như homepage
+                  await fetchUserPost(id);
                 }}
                 onReplyComment={async (postId, commentId, replyText) => {
                   await handleReplyComment(postId, commentId, replyText);
-                  await fetchUserPost(id); // Reload sau khi reply
+                  await fetchUserPost(id);
                 }}
                 onDeleteComment={async (postId, commentId) => {
                   await handleDeleteComment(postId, commentId);
-                  await fetchUserPost(id); // Reload sau khi xóa comment
+                  await fetchUserPost(id);
                 }}
                 onDeleteReply={async (postId, commentId, replyId) => {
                   await handleDeleteReply(postId, commentId, replyId);
-                  await fetchUserPost(id); // Reload sau khi xóa reply
+                  await fetchUserPost(id);
                 }}
                 onLikeComment={async (postId, commentId) => {
                   await handleLikeComment(postId, commentId);
-                  await fetchUserPost(id); // Reload sau khi like comment
+                  await fetchUserPost(id);
                 }}
                 onShare={async () => {
-                  // Chức năng share
                   await handleSharePost(post?.id);
                 }}
                 onDelete={async () => {
-                  // Chức năng xóa bài viết
                   await handleDeletePost(post?.id);
                 }}
               />
@@ -378,7 +370,7 @@ export const ProfileDetails = ({
         </Card>
       </motion.div>
     ),
-    files: <SavedDocuments isOwner={isOwner} userId={id}/>,
+    files: <SavedDocuments isOwner={isOwner} userId={id} />,
   };
   return <div>{tabContent[activeTab] || null}</div>;
 };

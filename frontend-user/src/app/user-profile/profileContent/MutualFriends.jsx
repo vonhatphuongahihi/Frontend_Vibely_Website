@@ -111,8 +111,8 @@ export const MutualFriends = ({ id, isOwner }) => {
                 className="flex items-center justify-between bg-white shadow-md rounded-lg border border-gray-200 p-3"
               >
                 {/* Avatar + Tên */}
-                <div 
-                  className="flex items-center space-x-4 rounded-md cursor-pointer" 
+                <div
+                  className="flex items-center space-x-4 rounded-md cursor-pointer"
                   onClick={() => router.push(`/user-profile/${friend.id}`)}
                 >
                   <Avatar className="w-20 h-20 border-4 border-white dark:border-gray-700">
@@ -135,13 +135,13 @@ export const MutualFriends = ({ id, isOwner }) => {
                 </div>
 
                 {/* Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <MoreHorizontal className="h-5 w-5 text-gray-700" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  {isOwner && (
+                {isOwner && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <MoreHorizontal className="h-5 w-5 text-gray-700" />
+                      </Button>
+                    </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
                       onClick={async () => {
@@ -153,8 +153,8 @@ export const MutualFriends = ({ id, isOwner }) => {
                         <UserX className="h-4 w-4 mr-2" /> Hủy kết bạn
                       </DropdownMenuItem>
                     </DropdownMenuContent>
-                  )}
-                </DropdownMenu>
+                  </DropdownMenu>
+                )}
               </div>
             ))}
           </div>
