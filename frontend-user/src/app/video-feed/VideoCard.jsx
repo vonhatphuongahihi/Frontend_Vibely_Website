@@ -297,8 +297,8 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
                     />
                   ) : (
                     <AvatarFallback>
-                      {user?.username ? 
-                        user.username.split(" ").map((name) => name[0]).join("") : 
+                      {user?.username ?
+                        user.username.split(" ").map((name) => name[0]).join("") :
                         user?.id?.slice(0, 2).toUpperCase() || "U"
                       }
                     </AvatarFallback>
@@ -366,7 +366,7 @@ const VideoCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Chia sẻ bài viết này</DialogTitle>
+              <p className="font-bold  text-[20px]">Chia sẻ bài viết này</p>
               <DialogDescription>
                 Chọn cách bạn muốn chia sẻ bài viết này
               </DialogDescription>

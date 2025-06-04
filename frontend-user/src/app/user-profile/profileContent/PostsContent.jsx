@@ -135,15 +135,18 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete }) =>
   const handleShare = (platform) => {
     const url = generateSharedLink();
     let shareUrl;
+    const title = post?.content?.substring(0, 100) || "Bài viết từ Vibely";
+    const image = post?.mediaUrl || "https://vibely-study-social-website.vercel.app/logo.png";
+
     switch (platform) {
       case "facebook":
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}&picture=${encodeURIComponent(image)}`;
         break;
       case "x":
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}`;
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}&via=Vibely`;
         break;
       case "linkedin":
-        shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}`;
+        shareUrl = `https://www.linkedin.com/shareArticle?mini=true&url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(title)}&source=Vibely`;
         break;
       case "copy":
         navigator.clipboard.writeText(url);
@@ -332,8 +335,8 @@ export const PostsContent = ({ post, onReact, onComment, onShare, onDelete }) =>
                           />
                         ) : (
                           <AvatarFallback>
-                            {user?.username ? 
-                              user.username.split(" ").map((name) => name[0]).join("") : 
+                            {user?.username ?
+                              user.username.split(" ").map((name) => name[0]).join("") :
                               user?.id?.slice(0, 2).toUpperCase() || "U"
                             }
                           </AvatarFallback>

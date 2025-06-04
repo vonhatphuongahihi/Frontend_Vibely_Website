@@ -10,28 +10,22 @@ import ProfileTabs from "../ProfileTabs";
 const Page = () => {
   const params = useParams();
   const id = params.id;
-  console.log("🔍 User Profile Page - params:", params);
-  console.log("🔍 User Profile Page - id:", id);
-  
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isOwner, setIsOwner] = useState(false);
 
-const fetchProfile = async () => {
-  setLoading(true);
-  try {
-    console.log("🔍 Fetching profile for ID:", id);
-    const result = await fetchUserProfile(id);
-    console.log("✅ Profile result:", result);
-
-    setProfileData(result.profile);
-    setIsOwner(result.isOwner);
-  } catch (error) {
-    console.error("❌ Error fetching profile:", error);
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchProfile = async () => {
+    setLoading(true);
+    try {
+      const result = await fetchUserProfile(id);
+      setProfileData(result.profile);
+      setIsOwner(result.isOwner);
+    } catch (error) {
+      console.error("❌ Error fetching profile:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
   useEffect(() => {
