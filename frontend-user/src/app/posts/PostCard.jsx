@@ -93,11 +93,15 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       return;
     }
 
+    console.log("🔍 PostCard useEffect - post.reactions:", post.reactions);
+    console.log("🔍 PostCard useEffect - current user:", user);
+
     // Set current user's reaction từ post.reactions
     if (post.reactions && post.reactions.length > 0) {
       const userReaction = post.reactions.find(react => {
         // Xử lý cả trường hợp react.user.id và react.userId từ backend
         const reactUserId = react?.user?.id || react?.userId;
+        console.log("🔍 Comparing reactUserId:", reactUserId, "with user.id:", user.id);
         return reactUserId === user.id;
       });
       setReaction(userReaction ? userReaction.type : null);
@@ -128,11 +132,13 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
         }
         // Xử lý user object: có thể là react.user hoặc cần tạo từ react.userId
         const userObj = react.user || { id: react.userId };
+        console.log("🔍 Processing reaction userObj:", userObj, "from react:", react);
         if (userObj) {
           acc[react.type].push(userObj);
         }
         return acc;
       }, {});
+      console.log("🔍 PostCard reactionGroups:", reactionGroups);
       setReactionUserGroups(reactionGroups);
     } else {
       setReactionUserGroups({});

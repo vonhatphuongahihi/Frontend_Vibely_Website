@@ -159,9 +159,6 @@ export const usePostStore = create((set) => ({
         set({ loading: true });
         try {
             const updatedData = await reactPost(postId, reactType);
-            console.log("🔍 React post result:", updatedData);
-            console.log("🔍 React post reactionStats:", updatedData?.reactionStats);
-            console.log("🔍 React post reactions:", updatedData?.reactions);
             
             set((state) => ({
                 posts: state.posts.map(post =>
