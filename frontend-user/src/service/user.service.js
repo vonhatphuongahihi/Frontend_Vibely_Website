@@ -120,9 +120,9 @@ export const getAllUsers = async () => {
 }
 
 // Lấy danh sách tài liệu đã lưu của người dùng
-export const getSavedDocuments = async () => {
+export const getSavedDocuments = async (userId) => {
     try {
-        const response = await axiosInstance.get('/users/saved')
+        const response = await axiosInstance.get(`/users/saved/user-profile/${userId}`)
         return response?.data?.data;
     } catch (error) {
         throw error;

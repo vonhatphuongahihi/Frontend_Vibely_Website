@@ -378,7 +378,7 @@ export const ProfileDetails = ({
         </Card>
       </motion.div>
     ),
-    files: <SavedDocuments isOwner={isOwner} />,
+    files: <SavedDocuments isOwner={isOwner} userId={id}/>,
   };
   return <div>{tabContent[activeTab] || null}</div>;
 };
