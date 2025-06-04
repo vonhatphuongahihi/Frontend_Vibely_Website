@@ -3,8 +3,10 @@ import { Button } from '@/components/ui/button'
 import userStore from '@/store/userStore'
 import { Heart, X } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userStory, avatar, isLoading, onReact, reaction, reactions, onDelete }) => {
+    const router = useRouter()
     // Chỉ log khi cần debug
     // console.log({ userStory })
 
@@ -15,6 +17,14 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
     const handleDeleteStory = () => {
         if (onDelete) onDelete();
         onClose();
+    }
+
+    //đi đến trang người đăng story
+    const handleUserProfile = (e) => {
+        e.stopPropagation() // Ngăn chặn event bubbling
+        if (userStory?.id) {
+            router.push(`/user-profile/${userStory.id}`)
+        }
     }
 
     const { user } = userStore()
@@ -32,14 +42,22 @@ const ShowStoryPreview = ({ file, fileType, onClose, onPost, isNewStory, userSto
                 </Button>
                 {/*Avt+username người đăng*/}
                 <div className='absolute top-4 left-4 z-10 flex items-center'>
-                    <Avatar className='w-10 h-10 mr-2'>
+                    <Avatar
+                        className='w-10 h-10 mr-2 cursor-pointer'
+                        onClick={handleUserProfile}
+                    >
                         {avatar ? (
                             <AvatarImage src={avatar} alt={userStory?.username || ""} />
                         ) : (
                             <AvatarFallback>{userPlaceholder}</AvatarFallback>
                         )}
                     </Avatar>
-                    <span className='text-gray-700 font-semibold'>{userStory?.username || ""}</span>
+                    <span
+                        className='text-gray-700 font-semibold cursor-pointer hover:text-gray-900'
+                        onClick={handleUserProfile}
+                    >
+                        {userStory?.username || ""}
+                    </span>
                 </div>
                 {/*file phuong tien*/}
                 <div className='flex flex-grow items-center justify-center bg-gray-100'>

@@ -108,15 +108,6 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
       router.push(`/user-profile/${story.user.id}`)
     }
   }
-
-  // Chỉ log khi cần debug, tránh lỗi khi story là undefined
-  // console.log({ isNewStory, user, story })
-  
-  // Debug reactions
-  console.log("🔍 Story reactions:", story?.reactions);
-  console.log("🔍 Current user ID:", user?.id);
-  console.log("🔍 User reaction:", story?.reactions?.find(react => react?.userId === user?.id));
-
   return (
     <>
       <Card className="w-40 h-60 relative overflow-hidden group cursor-pointer rounded-xl bg-white border-none"
@@ -173,8 +164,8 @@ const StoryCard = ({ isAddStory, story, onReact, onDelete }) => {
                 </div>
               )}
               <div className="absolute top-2 left-2 ring-2 ring-blue-500 rounded-full ">
-                <Avatar 
-                  className="w-8 h-8 bg-gray-100 cursor-pointer" 
+                <Avatar
+                  className="w-8 h-8 bg-gray-100 cursor-pointer"
                   onClick={handleUserProfile}
                 >
                   {story?.user?.profilePicture ? (
