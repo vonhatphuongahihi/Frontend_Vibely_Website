@@ -34,7 +34,6 @@ export const createStory = async (storyData) => {
     try {
         // Kiểm tra xem formData có file không
         if (!storyData.get('file')) {
-            console.error("Không có file trong formData");
             throw new Error("Không có file để tạo story");
         }
 
@@ -51,19 +50,16 @@ export const createStory = async (storyData) => {
             timeout: 120000, // Tăng timeout lên 2 phút cho video
             onUploadProgress: (progressEvent) => {
                 const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
-                console.log(`Upload Progress: ${percentCompleted}%`);
             }
         })
 
         // Kiểm tra response
         if (!result?.data?.data) {
-            console.error("Response không chứa dữ liệu story:", result);
             throw new Error("Không nhận được dữ liệu story từ server");
         }
 
         return result?.data?.data;
     } catch (error) {
-        console.error("Lỗi chi tiết khi tạo story:", error.response?.data || error.message);
         if (error.code === 'ECONNABORTED') {
             throw new Error("Yêu cầu hết thời gian chờ. Vui lòng thử lại.");
         }
@@ -146,16 +142,54 @@ export const getAllUserPosts = async (userId) => {
         const result = await axiosInstance.get(`/users/posts/user/${userId}`)
         const posts = result?.data?.data;
 
-        // Lấy thông tin user cho mỗi comment
+        // Lấy thông tin user cho mỗi comment và reply
         const postsWithUserInfo = await Promise.all(posts.map(async (post) => {
             if (post.comments && post.comments.length > 0) {
                 const commentsWithUserInfo = await Promise.all(
                     post.comments.map(async (comment) => {
                         try {
-                            const userInfo = await getUserInfo(comment.user_id)
+                            // Lấy thông tin user cho comment
+                            const commentUserId = comment.user?.id || comment.user_id
+                            let userInfo = null
+                            if (commentUserId) {
+                                try {
+                                    userInfo = await getUserInfo(commentUserId)
+                                } catch (error) {
+                                    console.error(`❌ Lỗi khi lấy thông tin user cho comment ${comment._id}:`, error)
+                                }
+                            } else {
+                                console.warn(`⚠️ Comment ${comment._id} không có user ID hợp lệ`);
+                            }
+
+                            // Lấy user cho từng reply
+                            let repliesWithUserInfo = []
+                            if (comment.replies && comment.replies.length > 0) {
+                                repliesWithUserInfo = await Promise.all(
+                                    comment.replies.map(async (reply) => {
+                                        const replyUserId = reply.user?.id || reply.user_id
+                                        if (replyUserId && replyUserId !== 'undefined') {
+                                            try {
+                                                const replyUserInfo = await getUserInfo(replyUserId)
+                                                return {
+                                                    ...reply,
+                                                    user: replyUserInfo,
+                                                }
+                                            } catch (error) {
+                                                console.error(`❌ Lỗi khi lấy thông tin user cho reply ${reply._id}:`, error)
+                                                return reply
+                                            }
+                                        } else {
+                                            console.warn(`⚠️ Reply ${reply._id} không có user ID hợp lệ:`, replyUserId);
+                                            return reply
+                                        }
+                                    })
+                                )
+                            }
+
                             return {
                                 ...comment,
-                                user: userInfo
+                                user: userInfo,
+                                replies: repliesWithUserInfo,
                             }
                         } catch (error) {
                             console.error(`Lỗi khi lấy thông tin user cho comment ${comment._id}:`, error)
@@ -193,7 +227,6 @@ export const getAllStories = async () => {
 export const reactPost = async (postId, reactType) => {
     try {
         const result = await axiosInstance.post(`users/posts/react/${postId}`, { type: reactType });
-        console.log("🔍 React API response:", result?.data);
         return result?.data?.data;
     } catch (error) {
         console.error("Lỗi khi react bài viết:", error);
@@ -205,8 +238,7 @@ export const reactPost = async (postId, reactType) => {
 export const addCommentToPost = async (postId, commentData) => {
     try {
         const result = await axiosInstance.post(`/users/posts/comments/${postId}`, commentData)
-        console.log("🔍 API comment response:", result?.data);
-        
+
         // Backend bây giờ trả về comment data trực tiếp với user_id
         if (result?.data?.data?.user_id) {
             try {
@@ -425,10 +457,6 @@ export const likeComment = async (postId, commentId) => {
 //Phương thức sửa bài viết
 export const editPost = async (postId, postData) => {
     try {
-        // Log để debug
-        console.log("Editing post:", postId);
-        console.log("Post data:", postData);
-
         // Kiểm tra nếu postData đã là FormData thì dùng luôn
         // Nếu không thì tạo FormData mới
         let formData;
@@ -447,33 +475,20 @@ export const editPost = async (postId, postData) => {
             }
         }
 
-        // Log FormData contents để debug
-        console.log("FormData contents:");
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
-
         const result = await axiosInstance.put(`/users/posts/edit/${postId}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
             timeout: 30000, // Giảm timeout xuống 30 giây
         });
-
-        console.log("Edit post result:", result?.data);
         return result?.data?.data;
     } catch (error) {
-        console.error("Lỗi khi sửa bài viết:", error);
-
         // Xử lý các loại lỗi cụ thể
         if (error.code === 'ECONNABORTED') {
             throw new Error("Yêu cầu hết thời gian chờ. Vui lòng thử lại.");
         }
 
         if (error.response) {
-            console.error("Response data:", error.response.data);
-            console.error("Response status:", error.response.status);
-
             if (error.response.status === 413) {
                 throw new Error("File quá lớn. Vui lòng chọn file nhỏ hơn.");
             }
@@ -517,7 +532,7 @@ export const getUserInfo = async (userId) => {
         if (!userId || userId === 'undefined' || userId === undefined) {
             throw new Error("User ID không hợp lệ");
         }
-        
+
         const result = await axiosInstance.get(`/users/info/${userId}`)
         const userData = result?.data?.data
         // Chỉ lấy thông tin cần thiết

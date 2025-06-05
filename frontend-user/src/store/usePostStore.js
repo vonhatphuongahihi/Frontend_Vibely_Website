@@ -159,20 +159,19 @@ export const usePostStore = create((set) => ({
         set({ loading: true });
         try {
             const updatedData = await reactPost(postId, reactType);
-            
             set((state) => ({
                 posts: state.posts.map(post =>
-                    post.id === postId ? { 
-                        ...post, 
+                    post.id === postId ? {
+                        ...post,
                         reactionStats: updatedData.reactionStats,
-                        reactions: updatedData.reactions 
+                        reactions: updatedData.reactions
                     } : post
                 ),
                 userPosts: state.userPosts.map(post =>
-                    post.id === postId ? { 
-                        ...post, 
+                    post.id === postId ? {
+                        ...post,
                         reactionStats: updatedData.reactionStats,
-                        reactions: updatedData.reactions 
+                        reactions: updatedData.reactions
                     } : post
                 ),
                 loading: false
@@ -203,9 +202,6 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             const result = await addCommentToPost(postId, commentData)
-            console.log("🔍 Comment result from service:", result);
-            console.log("🔍 Comment data to add:", result.data);
-            
             // Đảm bảo comment có cấu trúc đúng
             const newComment = {
                 id: result.data.id,
@@ -215,9 +211,6 @@ export const usePostStore = create((set) => ({
                 reactions: result.data.reactions || [],
                 replies: result.data.replies || []
             };
-            
-            console.log("🔍 New comment object:", newComment);
-            
             // Cập nhật state với comment mới cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) => {
@@ -227,7 +220,6 @@ export const usePostStore = create((set) => ({
                             comments: [...(post.comments || []), newComment],
                             commentCount: (post.commentCount || 0) + 1
                         };
-                        console.log("🔍 Updated post comments:", updatedPost.comments);
                         return updatedPost;
                     }
                     return post;
@@ -258,8 +250,6 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             const result = await addReplyToPost(postId, commentId, replyText)
-            console.log("🔍 Reply result:", result);
-            
             // Cập nhật state với reply mới cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) =>
@@ -331,14 +321,14 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             await deletePost(postId)
-            
+
             // Cập nhật state sau khi xóa bài viết
             set((state) => ({
                 posts: state.posts.filter(post => post.id !== postId),
                 userPosts: state.userPosts.filter(post => post.id !== postId),
                 loading: false
             }))
-            
+
             toast.success("Xóa bài viết thành công.")
         } catch (error) {
             set({ error, loading: false })
@@ -350,7 +340,7 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             await deleteComment(postId, commentId)
-            
+
             // Cập nhật state sau khi xóa comment cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) => {
@@ -391,7 +381,7 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             await deleteReply(postId, commentId, replyId)
-            
+
             // Cập nhật state sau khi xóa reply cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) =>
@@ -440,7 +430,7 @@ export const usePostStore = create((set) => ({
         set({ loading: true })
         try {
             const result = await likeComment(postId, commentId)
-            
+
             // Cập nhật state sau khi like comment cho cả posts và userPosts
             set((state) => ({
                 posts: state.posts.map((post) =>

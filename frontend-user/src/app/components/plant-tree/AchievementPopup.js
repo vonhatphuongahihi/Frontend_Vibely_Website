@@ -54,7 +54,6 @@ const AchievementPopup = ({ isOpen, onClose, achievements, onShare }) => {
         try {
             const shutterSound = new Audio('/sounds/camera-shutter.mp3');
             shutterSound.play().catch(err => {
-                console.log('Không thể phát âm thanh chụp ảnh:', err);
             });
         } catch (error) {
             console.log('Lỗi khi tạo âm thanh chụp ảnh:', error);

@@ -18,13 +18,11 @@ export default function Message({ message, own, senderInfo }) {
   // });
 
   const handleImageLoad = () => {
-    console.log("✅ Message avatar loaded successfully:", senderInfo?.profilePicture);
     setImageLoaded(true);
     setImageError(false);
   };
 
   const handleImageError = (e) => {
-    console.log("❌ Message avatar failed to load:", senderInfo?.profilePicture);
     setImageError(true);
     e.target.src = "/images/user_default.jpg";
   };
