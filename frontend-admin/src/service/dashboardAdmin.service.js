@@ -87,8 +87,8 @@ export const getTotalQuestions = async () => {
 // Lấy dữ liệu thống kê theo năm, tháng hoặc ngày
 export const getDashboardStats = async (timeUnit = "day") => {
     try {
-        // Gửi tham số timeUnit vào URL
         const result = await axiosInstance.get(`/admin/dashboard/stats?timeUnit=${timeUnit}`, getAuthHeaders());
+
         if (result?.data?.data) {
             return {
                 postsStats: result.data.data.postsStats || [],
@@ -100,6 +100,12 @@ export const getDashboardStats = async (timeUnit = "day") => {
         throw new Error('Không nhận được dữ liệu thống kê từ server');
     } catch (error) {
         console.error("Lỗi khi lấy dữ liệu thống kê:", error);
-        return { postsStats: [], usersStats: [], inquiriesStats: [], documentsStats: [] };
+        console.error("Error details:", error.response?.data || error.message);
+        return {
+            postsStats: [],
+            usersStats: [],
+            inquiriesStats: [],
+            documentsStats: []
+        };
     }
 };
