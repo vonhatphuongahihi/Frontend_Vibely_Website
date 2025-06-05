@@ -15,7 +15,7 @@ import { toast } from 'react-hot-toast'
 
 const Picker = dynamic(() => import('emoji-picker-react'), { ssr: false })
 
-const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, defaultContent = "", hideTrigger = false }) => {
+const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, defaultContent = "", hideTrigger = false, currentUserId = null }) => {
   const [postContent, setPostContent] = useState('')
   const { handleCreatePost } = usePostStore()
   const { user } = userStore()  //lấy thông tin người dùng
@@ -67,7 +67,7 @@ const NewPostForm = ({ isPostFormOpen, setIsPostFormOpen, defaultImage = null, d
         console.warn("selectedFile is not a valid File instance:", selectedFile);
       }
 
-      await handleCreatePost(formData);
+      await handleCreatePost(formData, currentUserId);
 
       // Reset state
       setPostContent("");
