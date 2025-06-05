@@ -60,11 +60,11 @@ const Dashboard = () => {
                     count: item.count
                 };
             });
-
             setUserStats(formattedUserData);
             setPostStats(formattedPostData);
         } catch (error) {
             console.error("Lỗi khi lấy dữ liệu:", error);
+            console.error("Error details:", error.response?.data || error.message);
             setUserStats([]);
             setPostStats([]);
         }
