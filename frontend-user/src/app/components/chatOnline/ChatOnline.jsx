@@ -32,6 +32,8 @@ export default function ChatOnline({ onlineUsers, currentId, setCurrentChat, set
 
   // Lọc danh sách bạn bè đang online
   useEffect(() => {
+    // console.log('friends:', friends);
+    // console.log('onlineUsers:', onlineUsers);
     let onlineUserIds = onlineUsers;
     // Nếu onlineUsers là mảng object, chuyển thành mảng userId
     if (onlineUsers.length > 0 && typeof onlineUsers[0] === 'object' && onlineUsers[0].userId) {

@@ -1,6 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { checkUserAuth } from "@/service/auth.service";
+import onlineStatusService from "@/service/onlineStatus.service";
 import axios from "axios";
 import { ChevronLeft, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -41,7 +42,7 @@ const Messenger = () => {
     const [isViewingChat, setIsViewingChat] = useState(false);
     const [openChat, setOpenChat] = useState(false);
 
-    // Khởi tạo STOMP khi user đã có
+    // Khởi tạo STOMP khi user đã có - chỉ cho messaging
     useEffect(() => {
         if (!user) return;
         const socketUrl = `${API_URL.replace(/\/$/, '')}/ws`;
@@ -55,6 +56,10 @@ const Messenger = () => {
                         body: JSON.stringify({ userId: user.id })
                     });
                 }
+                console.log('Messenger STOMP connected');
+                
+                // Chỉ subscribe để lắng nghe tin nhắn, không gửi addUser vì đã được xử lý trong onlineStatusService
+                
                 // Lắng nghe tin nhắn mới
                 stompClient.current.subscribe(`/user/${user.id}/queue/messages`, (message) => {
                     const data = JSON.parse(message.body);
@@ -89,7 +94,7 @@ const Messenger = () => {
                 });
             },
             onStompError: (frame) => {
-                console.error('STOMP error:', frame.headers['message'], frame.body);
+                console.error('Messenger STOMP error:', frame.headers['message'], frame.body);
             },
         });
         stompClient.current.activate();
@@ -98,7 +103,24 @@ const Messenger = () => {
         };
     }, [user, API_URL]);
 
-
+    // Lắng nghe online users từ onlineStatusService
+    useEffect(() => {
+        if (!user?.id) return;
+        
+        // Đăng ký callback để nhận thông báo khi online users thay đổi
+        const unsubscribe = onlineStatusService.onOnlineUsersChange((onlineUserIds) => {
+            // console.log("Messenger received online users from service:", onlineUserIds);
+            setOnlineUsers(onlineUserIds);
+        });
+        
+        // Lấy danh sách hiện tại nếu có
+        const currentOnlineUsers = onlineStatusService.getCurrentOnlineUsers();
+        if (currentOnlineUsers.length > 0) {
+            setOnlineUsers(currentOnlineUsers);
+        }
+        
+        return unsubscribe;
+    }, [user]);
 
     // Kiểm tra xác thực người dùng
     useEffect(() => {

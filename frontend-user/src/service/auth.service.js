@@ -1,5 +1,6 @@
 import { toast } from 'react-hot-toast';
 import axiosInstance from "./url.service";
+import onlineStatusService from './onlineStatus.service';
 
 // Đăng ký người dùng
 export const registerUser = async (userData) => {
@@ -7,6 +8,12 @@ export const registerUser = async (userData) => {
         const response = await axiosInstance.post('/auth/register', userData);
         if (response.data.status === 'success' && response.data.data.token) {
             localStorage.setItem("auth_token", response.data.data.token);
+            
+            // Tự động đánh dấu user online sau khi đăng ký thành công
+            if (response.data.data.userId) {
+                onlineStatusService.connect(response.data.data.userId);
+            }
+            
             toast.success("Đăng ký thành công");
         }
         return response.data;
@@ -22,6 +29,11 @@ export const loginUser = async (userData) => {
         const response = await axiosInstance.post('/auth/login', userData);
         if (response.data.status === 'success' && response.data.data.token) {
             localStorage.setItem("auth_token", response.data.data.token);
+            
+            // Tự động đánh dấu user online sau khi đăng nhập thành công
+            if (response.data.data.userId) {
+                onlineStatusService.connect(response.data.data.userId);
+            }
         }
         return response.data;
     } catch (error) {
@@ -38,12 +50,20 @@ export const logout = async () => {
             toast.error("Bạn chưa đăng nhập");
             return;
         }
+        
+        // Ngắt kết nối online status trước khi logout
+        onlineStatusService.disconnect();
+        
         const response = await axiosInstance.post('/auth/logout');
         localStorage.removeItem("auth_token");
         return response.data;
     } catch (error) {
         console.error("Đăng xuất thất bại:", error.response?.data || error.message);
         localStorage.removeItem("auth_token"); // Xóa token ngay cả khi có lỗi
+        
+        // Vẫn ngắt kết nối online status ngay cả khi có lỗi logout
+        onlineStatusService.disconnect();
+        
         throw error;
     }
 }
@@ -97,6 +117,12 @@ export const handleSocialCallback = async (token, userId, email, username) => {
     try {
         if (token) {
             localStorage.setItem("auth_token", token);
+            
+            // Tự động đánh dấu user online sau khi login social thành công
+            if (userId) {
+                onlineStatusService.connect(userId);
+            }
+            
             return {
                 status: 'success',
                 data: {
