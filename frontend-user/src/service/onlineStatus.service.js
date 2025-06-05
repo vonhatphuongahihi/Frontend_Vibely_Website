@@ -19,7 +19,7 @@ class OnlineStatusService {
             console.log('Already connected to STOMP');
             return;
         }
-
+        //test
         this.userId = userId;
         const socketUrl = `${this.API_URL.replace(/\/$/, '')}/ws`;
         
