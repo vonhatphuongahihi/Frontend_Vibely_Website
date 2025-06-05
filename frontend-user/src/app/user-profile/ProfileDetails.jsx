@@ -215,6 +215,7 @@ export const ProfileDetails = ({
             <NewPostForm
               isPostFormOpen={isPostFormOpen}
               setIsPostFormOpen={setIsPostFormOpen}
+              currentUserId={id}
             />
           }
           {isPostsLoading ? (

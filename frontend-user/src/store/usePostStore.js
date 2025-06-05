@@ -72,14 +72,23 @@ export const usePostStore = create((set) => ({
         }
     },
 
-    handleCreatePost: async (postData) => {
+    handleCreatePost: async (postData, currentUserId = null) => {
         try {
             set({ loading: true });
             const newPost = await createPost(postData);
-            set((state) => ({
-                posts: [newPost, ...state.posts],   //thêm bài đăng mới vào danh sách các bài đăng
-                loading: false,
-            }));
+            set((state) => {
+                const updatedState = {
+                    posts: [newPost, ...state.posts],   //thêm bài đăng mới vào danh sách các bài đăng
+                    loading: false,
+                };
+
+                // Chỉ thêm vào userPosts nếu newPost.user.id === currentUserId (đang ở profile của user hiện tại)
+                if (currentUserId && newPost.user && newPost.user.id === currentUserId) {
+                    updatedState.userPosts = [newPost, ...state.userPosts];
+                }
+
+                return updatedState;
+            });
             toast.success("Tạo bài đăng thành công.");
             return newPost;
         } catch (error) {
