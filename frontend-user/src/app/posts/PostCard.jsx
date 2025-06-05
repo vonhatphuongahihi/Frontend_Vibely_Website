@@ -152,14 +152,12 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
       toast.error("Vui lòng đăng nhập để thực hiện chức năng này");
       return;
     }
-    console.log("post", post);
     if (!post?.id) {
       console.error("Invalid post ID", { post });
       toast.error("Không thể thực hiện. Bài viết không tồn tại.");
       return;
     }
 
-    console.log("Reacting to post:", post.id, "with reaction:", reaction);
     setIsChoosing(false);
     onReact(reaction);
     setShowReactionChooser(false);
@@ -231,11 +229,9 @@ const PostCard = ({ post, onReact, onComment, onShare, onDelete, onEdit }) => {
 
       if (selectedFile) {
         // Trường hợp 1: Upload file mới
-        console.log("Uploading new file:", selectedFile.name);
         formData.append('file', selectedFile);
       } else if (!filePreview && post?.mediaUrl) {
         // Trường hợp 3: Xóa media (filePreview = null nhưng bài viết gốc có media)
-        console.log("Removing media");
         formData.append('removeMedia', 'true');
       }
       // Trường hợp 2: Giữ nguyên file cũ (không làm gì - không gửi file hoặc removeMedia)

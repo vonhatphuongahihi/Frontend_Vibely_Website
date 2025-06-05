@@ -34,7 +34,6 @@ const SettingsPage = () => {
                 setNewPassword('');
                 setConfirmPassword('');
             } else {
-                console.log("⚠️ API trả về thất bại:", response);
                 setError(response.message || "⚠️ Đổi mật khẩu thất bại!");
                 toast.error(`⚠️ ${response.message || "Đổi mật khẩu thất bại!"}`);
             }
