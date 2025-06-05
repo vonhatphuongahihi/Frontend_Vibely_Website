@@ -1,6 +1,7 @@
 "use client";
 import { Input } from "@/components/ui/input";
 import { checkUserAuth } from "@/service/auth.service";
+import onlineStatusService from "@/service/onlineStatus.service";
 import axios from "axios";
 import { ChevronLeft, Search } from "lucide-react";
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
@@ -58,7 +59,7 @@ const Messenger = () => {
         userRef.current = user;
     }, [user]);
 
-    // Khởi tạo STOMP khi user đã có
+    // Khởi tạo STOMP khi user đã có - chỉ cho messaging
     useEffect(() => {
         if (!user) return;
         const socketUrl = `${API_URL.replace(/\/$/, '')}/ws`;
@@ -66,13 +67,10 @@ const Messenger = () => {
             webSocketFactory: () => new SockJS(socketUrl),
             reconnectDelay: 5000,
             onConnect: () => {
-                console.log('STOMP connected');
-                if (user?.id) {
-                    stompClient.current.publish({
-                        destination: '/app/chat.addUser',
-                        body: JSON.stringify({ userId: user.id })
-                    });
-                }
+                console.log('Messenger STOMP connected');
+                
+                // Chỉ subscribe để lắng nghe tin nhắn, không gửi addUser vì đã được xử lý trong onlineStatusService
+                
                 // Lắng nghe tin nhắn mới
                 stompClient.current.subscribe(`/user/${user.id}/queue/messages`, (message) => {
                     const data = JSON.parse(message.body);
@@ -142,23 +140,9 @@ const Messenger = () => {
                         )
                     );
                 });
-                // Thông báo user online (nếu cần)
-                stompClient.current.subscribe(`/user/${user.id}/queue/users`, (message) => {
-                    const users = JSON.parse(message.body);
-                    console.log("Messenger received online users:", users);
-                    
-                    // Chuyển đổi users thành array userId nếu cần
-                    let onlineUserIds = users;
-                    if (users.length > 0 && typeof users[0] === 'object' && users[0].userId) {
-                        onlineUserIds = users.map(u => u.userId);
-                    }
-                    
-                    // Cập nhật danh sách online users dựa trên friends
-                    setOnlineUsers(onlineUserIds);
-                });
             },
             onStompError: (frame) => {
-                console.error('STOMP error:', frame.headers['message'], frame.body);
+                console.error('Messenger STOMP error:', frame.headers['message'], frame.body);
             },
         });
         stompClient.current.activate();
@@ -167,7 +151,24 @@ const Messenger = () => {
         };
     }, [user, API_URL]);
 
-
+    // Lắng nghe online users từ onlineStatusService
+    useEffect(() => {
+        if (!user?.id) return;
+        
+        // Đăng ký callback để nhận thông báo khi online users thay đổi
+        const unsubscribe = onlineStatusService.onOnlineUsersChange((onlineUserIds) => {
+            // console.log("Messenger received online users from service:", onlineUserIds);
+            setOnlineUsers(onlineUserIds);
+        });
+        
+        // Lấy danh sách hiện tại nếu có
+        const currentOnlineUsers = onlineStatusService.getCurrentOnlineUsers();
+        if (currentOnlineUsers.length > 0) {
+            setOnlineUsers(currentOnlineUsers);
+        }
+        
+        return unsubscribe;
+    }, [user]);
 
     // Kiểm tra xác thực người dùng
     useEffect(() => {

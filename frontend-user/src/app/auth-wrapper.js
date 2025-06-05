@@ -1,12 +1,14 @@
 'use client'
 import Loader from "@/lib/Loader";
 import { checkUserAuth, handleSocialCallback, logout } from "@/service/auth.service";
+import onlineStatusService from "@/service/onlineStatus.service";
 import userStore from "@/store/userStore";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { io } from "socket.io-client";
 import Header from "./components/Header";
+import OnlineStatusIndicator from "./components/OnlineStatusIndicator";
 
 export default function AuthWrapper({ children }) {
     const { setUser, clearUser, user } = userStore();
@@ -82,6 +84,12 @@ export default function AuthWrapper({ children }) {
                 if (result.isAuthenticated) {
                     setUser(result.user);
                     setIsAuthenticated(true);
+                    
+                    // Tự động kết nối online status khi user đã xác thực
+                    if (result.user?.id && !onlineStatusService.isConnectedToOnlineStatus()) {
+                        onlineStatusService.connect(result.user.id);
+                    }
+                    
                     // connectSocket(result.user.id);
                 } else {
                     throw new Error("Không xác thực được");
@@ -103,6 +111,7 @@ export default function AuthWrapper({ children }) {
                 clearUser();
                 setIsAuthenticated(false);
                 disconnectSocket();
+                onlineStatusService.disconnect(); // Ngắt kết nối online status
                 localStorage.removeItem("auth_token");
                 if (!isPublicPage) {
                     router.push("/user-login");
@@ -127,6 +136,38 @@ export default function AuthWrapper({ children }) {
         }
     }, [user]);
 
+    // Xử lý sự kiện khi user thoát khỏi trang/đóng tab
+    useEffect(() => {
+        const handleBeforeUnload = (event) => {
+            // Ngắt kết nối online status khi user đóng tab/thoát trang
+            onlineStatusService.disconnect();
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'hidden' && user?.id) {
+                // Trang bị ẩn (user chuyển tab khác hoặc minimize)
+                // Có thể xem xét ngắt kết nối sau một khoảng thời gian
+            } else if (document.visibilityState === 'visible' && user?.id) {
+                // Trang được hiển thị lại, kết nối lại nếu chưa kết nối
+                if (!onlineStatusService.isConnectedToOnlineStatus()) {
+                    onlineStatusService.connect(user.id);
+                }
+            }
+        };
+
+        // Lắng nghe sự kiện beforeunload để ngắt kết nối khi đóng trang
+        window.addEventListener('beforeunload', handleBeforeUnload);
+        
+        // Lắng nghe sự kiện visibilitychange để xử lý khi user chuyển tab
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            onlineStatusService.disconnect();
+        };
+    }, [user]);
+
     if (loading) {
         return <Loader />;
     }
@@ -135,6 +176,8 @@ export default function AuthWrapper({ children }) {
         <>
             {isAuthenticated && !isPublicPage && <Header />}
             {children}
+            {/* Hiển thị indicator online status cho development/testing */}
+            {/* {isAuthenticated && !isPublicPage && <OnlineStatusIndicator />} */}
         </>
     );
 }

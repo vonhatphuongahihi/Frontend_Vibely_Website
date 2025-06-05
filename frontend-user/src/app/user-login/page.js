@@ -171,6 +171,7 @@ const Page = () => {
       const result = await loginUser(data);
       if (result.status === 'success') {
         toast.success('Đăng nhập tài khoản thành công');
+        // Online status sẽ được tự động kết nối trong loginUser service
         router.push('/');
       }
     } catch (error) {
