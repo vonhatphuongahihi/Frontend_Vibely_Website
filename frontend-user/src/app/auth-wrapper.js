@@ -54,9 +54,8 @@ export default function AuthWrapper({ children }) {
             socketRef.current.emit("addUser", userId);
 
             socketRef.current.on("getUsers", (users) => {
-                console.log("Received online users:", users);
+                // Handle online users silently
             });
-
         }
     };
 
@@ -65,7 +64,6 @@ export default function AuthWrapper({ children }) {
             socketRef.current.disconnect();
             socketRef.current = null;
             window.socket = null;
-            console.log("Socket disconnected");
         }
     };
 
@@ -82,12 +80,10 @@ export default function AuthWrapper({ children }) {
                 if (result.isAuthenticated) {
                     setUser(result.user);
                     setIsAuthenticated(true);
-                    // connectSocket(result.user.id);
                 } else {
                     throw new Error("Không xác thực được");
                 }
             } catch (error) {
-                console.error("Lỗi xác thực:", error);
                 await handleLogout();
             } finally {
                 setLoading(false);
@@ -98,7 +94,7 @@ export default function AuthWrapper({ children }) {
             try {
                 await logout();
             } catch (error) {
-                console.error("Logout error:", error);
+                // Handle logout error silently
             } finally {
                 clearUser();
                 setIsAuthenticated(false);

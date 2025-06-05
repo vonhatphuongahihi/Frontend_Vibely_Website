@@ -194,7 +194,6 @@ const Schedule = () => {
         const checkConnectionStatus = async () => {
             try {
                 const response = await getGoogleCalendarStatus();
-                console.log("Initial connection status:", response); // Debug log
                 setIsGoogleCalendarConnected(response.data);
             } catch (error) {
                 console.error("Lỗi kiểm tra trạng thái kết nối:", error);

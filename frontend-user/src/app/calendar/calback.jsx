@@ -22,7 +22,7 @@ const GoogleCalendarCallback = () => {
                         code: code
                     }, '*');
                 } else {
-                    console.log("Không tìm thấy window.opener");
+                    // Handle case when window.opener is not available
                 }
 
                 // Hiển thị thông báo thành công

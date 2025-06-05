@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { checkUserAuth } from "@/service/auth.service";
 import axios from "axios";
 import { ChevronLeft, Search } from "lucide-react";
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { PiDotsThreeVerticalBold } from "react-icons/pi";
 import ChatOnline from "../components/chatOnline/ChatOnline";
@@ -37,26 +37,9 @@ const Messenger = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [chatColor, setChatColor] = useState("#30BDFF");
     const [showColorModal, setShowColorModal] = useState(false);
-    const [nicknameFeatureEnabled, setNicknameFeatureEnabled] = useState(true);
-    const [nicknameErrorCount, setNicknameErrorCount] = useState(0);
-    const [lastNicknameError, setLastNicknameError] = useState(0);
-    const [batchReadEnabled, setBatchReadEnabled] = useState(true);
-    const [lastBatchRetry, setLastBatchRetry] = useState(0);
     const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8081';
     const [isViewingChat, setIsViewingChat] = useState(false);
     const [openChat, setOpenChat] = useState(false);
-    const currentChatRef = useRef(null);
-    const userRef = useRef(null);
-
-    // Cập nhật ref khi currentChat thay đổi
-    useEffect(() => {
-        currentChatRef.current = currentChat;
-    }, [currentChat]);
-
-    // Cập nhật ref khi user thay đổi
-    useEffect(() => {
-        userRef.current = user;
-    }, [user]);
 
     // Khởi tạo STOMP khi user đã có
     useEffect(() => {
@@ -66,7 +49,6 @@ const Messenger = () => {
             webSocketFactory: () => new SockJS(socketUrl),
             reconnectDelay: 5000,
             onConnect: () => {
-                console.log('STOMP connected');
                 if (user?.id) {
                     stompClient.current.publish({
                         destination: '/app/chat.addUser',
@@ -76,56 +58,7 @@ const Messenger = () => {
                 // Lắng nghe tin nhắn mới
                 stompClient.current.subscribe(`/user/${user.id}/queue/messages`, (message) => {
                     const data = JSON.parse(message.body);
-                    console.log("Received new message via STOMP:", data);
-                    
-                    // Chỉ thêm tin nhắn vào messages nếu thuộc conversation hiện tại
-                    if (currentChatRef.current && data.conversationId === currentChatRef.current.id) {
-                        console.log("Adding message to current conversation:", data);
-                        setMessages(prev => [...prev, data]);
-                    } else {
-                        console.log("Message not for current conversation:", {
-                            messageConversationId: data.conversationId,
-                            currentConversationId: currentChatRef.current?.id
-                        });
-                    }
-                    
-                    // Cập nhật conversation list với tin nhắn mới
-                    setConversations(prev => {
-                        console.log("Updating conversations with new message for conversation:", data.conversationId);
-                        const updated = prev.map(conv => {
-                            if (conv.id === data.conversationId) {
-                                console.log("Found conversation to update:", conv.id);
-                                return {
-                                    ...conv,
-                                    lastMessage: data.content,
-                                    lastMessageTime: data.createdAt,
-                                    unread: data.senderId !== userRef.current?.id // Đánh dấu unread nếu không phải tin nhắn của mình
-                                };
-                            }
-                            return conv;
-                        });
-                        
-                        // Nếu conversation chưa tồn tại trong list, thêm vào (trường hợp conversation mới)
-                        const conversationExists = prev.find(conv => conv.id === data.conversationId);
-                        if (!conversationExists) {
-                            // Tạo conversation mới với thông tin cơ bản
-                            const newConversation = {
-                                id: data.conversationId,
-                                lastMessage: data.content,
-                                lastMessageTime: data.createdAt,
-                                unread: data.senderId !== userRef.current?.id,
-                                members: [userRef.current?.id, data.senderId],
-                                membersData: [] // Sẽ được populate sau
-                            };
-                            updated.unshift(newConversation);
-                        }
-                        
-                        // Sort lại theo thời gian
-                        return updated.slice().sort((a, b) => new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0));
-                    });
-                    
-                    // Set arrival message để trigger update nếu cần
-                    setArrivalMessage(data);
+                    setMessages(prev => [...prev, data]);
                 });
                 // Lắng nghe sự kiện đã đọc
                 stompClient.current.subscribe(`/user/${user.id}/queue/read`, (message) => {
@@ -145,14 +78,12 @@ const Messenger = () => {
                 // Thông báo user online (nếu cần)
                 stompClient.current.subscribe(`/user/${user.id}/queue/users`, (message) => {
                     const users = JSON.parse(message.body);
-                    console.log("Messenger received online users:", users);
-                    
                     // Chuyển đổi users thành array userId nếu cần
                     let onlineUserIds = users;
                     if (users.length > 0 && typeof users[0] === 'object' && users[0].userId) {
                         onlineUserIds = users.map(u => u.userId);
                     }
-                    
+
                     // Cập nhật danh sách online users dựa trên friends
                     setOnlineUsers(onlineUserIds);
                 });
@@ -176,7 +107,6 @@ const Messenger = () => {
                 window.location.href = "/user-login";
             } else {
                 setUser(res.user);
-                console.log("user after checkUserAuth:", res.user); // DEBUG LOG
             }
         });
     }, []);
@@ -221,7 +151,6 @@ const Messenger = () => {
 
     // Lấy danh sách hội thoại của user
     useEffect(() => {
-        console.log("user in conversations useEffect:", user); // DEBUG LOG
         if (!user || !user.id) return;
         const getConversations = async () => {
             try {
@@ -229,18 +158,10 @@ const Messenger = () => {
                 const res = await axios.get(`${API_URL}/conversations/user/${user.id}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                console.log("Conversations from backend:", res.data);
                 // Sort conversations trước khi set
                 const sorted = (res.data || []).slice().sort((a, b) => {
-                    console.log("Comparing:", {
-                        a: a.lastMessageTime,
-                        b: b.lastMessageTime,
-                        aDate: new Date(a.lastMessageTime || 0),
-                        bDate: new Date(b.lastMessageTime || 0)
-                    });
                     return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
                 });
-                console.log("Sorted conversations:", sorted);
                 setConversations(sorted);
             } catch (err) {
                 console.error("Lỗi khi lấy danh sách hội thoại:", err);
@@ -252,16 +173,28 @@ const Messenger = () => {
     // Khi có tin nhắn mới, cập nhật lại conversations
     useEffect(() => {
         if (!arrivalMessage || !arrivalMessage.conversationId) return;
-        console.log("New message arrived:", arrivalMessage);
-        // Logic cập nhật conversation đã được xử lý trong STOMP subscription
-        // Không cần duplicate ở đây nữa
+        setConversations(prev => {
+            const updated = prev.map(conv => {
+                if (conv.id === arrivalMessage.conversationId) {
+                    return {
+                        ...conv,
+                        lastMessage: arrivalMessage.content,
+                        lastMessageTime: arrivalMessage.createdAt
+                    };
+                }
+                return conv;
+            });
+            // Sort lại
+            const sorted = updated.slice().sort((a, b) => {
+                return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
+            });
+            return sorted;
+        });
     }, [arrivalMessage]);
 
     // Gửi tin nhắn
-    const handleSubmit = useCallback(async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!newMessage.trim() || !currentChat || !user) return;
-        
         const message = {
             senderId: user.id,
             content: newMessage,
@@ -275,23 +208,6 @@ const Messenger = () => {
             });
             setMessages(prev => [...prev, res.data]);
             setNewMessage("");
-            
-            // Cập nhật conversation local với tin nhắn mới
-            setConversations(prev => {
-                const updated = prev.map(conv => {
-                    if (conv.id === currentChat.id) {
-                        return {
-                            ...conv,
-                            lastMessage: res.data.content,
-                            lastMessageTime: res.data.createdAt
-                        };
-                    }
-                    return conv;
-                });
-                // Sort lại conversations theo thời gian
-                return updated.slice().sort((a, b) => new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0));
-            });
-            
             // Gửi realtime qua STOMP
             if (stompClient.current && stompClient.current.connected) {
                 stompClient.current.publish({
@@ -302,27 +218,21 @@ const Messenger = () => {
                         ...res.data
                     })
                 });
-            } else {
-                console.error("STOMP not connected - message sent but real-time update failed");
             }
+            // Tự động load lại danh sách hội thoại
+            fetchConversations(user.id);
         } catch (err) {
             console.error("❌ Lỗi khi gửi tin nhắn:", err);
         }
-    }, [newMessage, currentChat, user, API_URL]);
+    };
 
-    // Cuộn xuống cuối cùng khi có tin nhắn mới (với debounce)
+    // Cuộn xuống cuối cùng khi có tin nhắn mới
     useEffect(() => {
-        if (messages.length === 0) return;
-        
-        const timeoutId = setTimeout(() => {
-            scrollRef.current?.scrollIntoView({ behavior: "smooth" });
-        }, 100);
-        
-        return () => clearTimeout(timeoutId);
-    }, [messages.length]); // Chỉ trigger khi số lượng messages thay đổi
+        scrollRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
 
     // Tìm kiếm bạn bè
-    const searchFriend = useCallback((e) => {
+    const searchFriend = (e) => {
         const value = e.target.value.toLowerCase();
         setSearchValue(value);
 
@@ -330,11 +240,6 @@ const Messenger = () => {
             setFilteredFriends([]);
             return;
         }
-
-        // Debug logging
-        console.log("🔍 Searching for:", value);
-        console.log("📞 Available conversations:", conversations);
-
         // Lọc friends
         const filtered = friends.filter((friend) =>
             friend.username.toLowerCase().includes(value)
@@ -348,25 +253,22 @@ const Messenger = () => {
                 const friend = c.membersData.find(m => m.id !== user?.id);
                 if (friend) {
                     const matches = friend.username?.toLowerCase().includes(value);
-                    console.log(`👤 ${friend.username} matches "${value}":`, matches);
                     return matches;
                 }
             }
             return false;
         });
-
-        console.log("✅ Filtered conversations:", filteredConvs);
-    }, [friends, conversations, user]);
+    };
 
     const displayedFriends = searchValue.length > 0 ? filteredFriends : friends;
 
     // Tạo danh sách hiển thị kết hợp friends và conversations
-    const createCombinedList = useCallback(() => {
+    const createCombinedList = () => {
         if (!friends || !user) return [];
-        
+
         // Tạo Set để track những friend đã có conversation
         const friendsWithConversation = new Set();
-        
+
         // Map conversations thành định dạng chuẩn
         const conversationItems = conversations.map(conv => {
             let friend = {};
@@ -377,12 +279,12 @@ const Messenger = () => {
                 const friendFromList = friends.find(f => f.id === friendId);
                 friend = friendFromList || { id: friendId, username: `User ${friendId}` };
             }
-            
+
             // Track friend này đã có conversation
             if (friend.id) {
                 friendsWithConversation.add(friend.id);
             }
-            
+
             return {
                 type: 'conversation',
                 id: conv.id,
@@ -393,7 +295,7 @@ const Messenger = () => {
                 conversationData: conv
             };
         });
-        
+
         // Tạo items cho những friends chưa có conversation
         const friendsWithoutConversation = friends
             .filter(friend => !friendsWithConversation.has(friend.id))
@@ -406,10 +308,10 @@ const Messenger = () => {
                 unread: false,
                 conversationData: null
             }));
-        
+
         // Kết hợp và sắp xếp
         const combined = [...conversationItems, ...friendsWithoutConversation];
-        
+
         // Sắp xếp: conversations có tin nhắn lên đầu (theo thời gian), friends không có conversation cuối
         return combined.sort((a, b) => {
             // Nếu cả hai đều có lastMessageTime, sắp xếp theo thời gian
@@ -427,21 +329,23 @@ const Messenger = () => {
             // Nếu cả hai đều không có lastMessageTime, sắp xếp theo tên
             return (a.friend.username || '').localeCompare(b.friend.username || '');
         });
-    }, [friends, user, conversations]);
+    };
 
     // Áp dụng filter tìm kiếm nếu có
-    const displayedItems = useMemo(() => {
+    const getDisplayedItems = () => {
         const combinedList = createCombinedList();
-        
+
         if (searchValue.length > 0) {
             return combinedList.filter(item => {
                 const friendName = item.friend?.username || '';
                 return friendName.toLowerCase().includes(searchValue.toLowerCase());
             });
         }
-        
+
         return combinedList;
-    }, [createCombinedList, searchValue]);
+    };
+
+    const displayedItems = getDisplayedItems();
 
     // Sắp xếp hội thoại theo lastMessageTime giảm dần (giữ lại code cũ để backup)
     const displayedConversations = (searchValue.length > 0 ?
@@ -459,10 +363,6 @@ const Messenger = () => {
         }) :
         conversations
     ).slice().sort((a, b) => {
-        // console.log("Sorting displayed conversations:", {
-        //     a: a.lastMessageTime,
-        //     b: b.lastMessageTime
-        // });
         return new Date(b.lastMessageTime || 0) - new Date(a.lastMessageTime || 0);
     });
 
@@ -486,70 +386,34 @@ const Messenger = () => {
     // Lấy biệt danh khi conversation hoặc selectedFriend thay đổi
     useEffect(() => {
         const getNicknames = async () => {
-            // Reset nicknames nếu không có đủ thông tin
-            if (!currentChat || !currentChat.id || !selectedFriend || !user) {
-                setFriendNickname(null);
-                setMyNickname(null);
-                return;
-            }
-
-            console.log(`🏷️ Fetching nicknames for conversation ${currentChat.id}`);
+            if (!currentChat || !currentChat.id || !selectedFriend || !user) return;
 
             try {
-                // Load nickname cho friend
-                try {
-                    const friendNicknameRes = await axios.get(`${API_URL}/conversations/${currentChat.id}/nickname/${selectedFriend.id}`, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                        },
-                        timeout: 8000
-                    });
-                    console.log(`✅ Friend nickname:`, friendNicknameRes.data);
-                    setFriendNickname(friendNicknameRes.data?.nickname || null);
-                } catch (friendErr) {
-                    console.log(`ℹ️ No nickname found for friend (${friendErr.response?.status})`);
-                    setFriendNickname(null);
-                }
+                const friendNicknameRes = await axios.get(`${API_URL}/conversations/${currentChat.id}/nickname/${selectedFriend.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
+                setFriendNickname(friendNicknameRes.data.nickname);
 
-                // Load nickname cho bản thân
-                try {
-                    const myNicknameRes = await axios.get(`${API_URL}/conversations/${currentChat.id}/nickname/${user.id}`, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                        },
-                        timeout: 8000
-                    });
-                    console.log(`✅ My nickname:`, myNicknameRes.data);
-                    setMyNickname(myNicknameRes.data?.nickname || null);
-                } catch (myErr) {
-                    console.log(`ℹ️ No nickname found for self (${myErr.response?.status})`);
-                    setMyNickname(null);
-                }
+                const myNicknameRes = await axios.get(`${API_URL}/conversations/${currentChat.id}/nickname/${user.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                    }
+                });
+                setMyNickname(myNicknameRes.data.nickname);
             } catch (err) {
-                console.error("❌ Error fetching nicknames:", err);
-                setFriendNickname(null);
-                setMyNickname(null);
+                console.error("Lỗi khi lấy biệt danh:", err);
             }
         };
 
-        // Debounce nickname fetch để tránh spam calls
-        const timeoutId = setTimeout(getNicknames, 200);
-        return () => clearTimeout(timeoutId);
-    }, [currentChat?.id, selectedFriend?.id, user?.id, API_URL]);
+        getNicknames();
+    }, [currentChat, selectedFriend, user]);
 
     const setUserNickname = async (userId, username, currentNickname) => {
         const newNickname = prompt(`Đặt biệt danh cho ${username}:`, currentNickname || "");
         if (newNickname !== null) {
             try {
-                console.log(`🏷️ Setting nickname for user ${userId}: "${newNickname}"`);
-                
-                // Optimistic update - cập nhật UI ngay lập tức
-                if (userId === user.id) {
-                    setMyNickname(newNickname);
-                } else {
-                    setFriendNickname(newNickname);
-                }
-                
                 await axios.put(`${API_URL}/conversations/nickname`, {
                     conversationId: currentChat.id,
                     userId: userId,
@@ -557,25 +421,16 @@ const Messenger = () => {
                 }, {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                    },
-                    timeout: 10000
+                    }
                 });
 
-                console.log(`✅ Nickname set successfully`);
-                alert(`✅ Đã đặt biệt danh "${newNickname}" cho ${username}`);
-                
-            } catch (err) {
-                console.error("❌ Cannot set nickname:", err);
-                const errorMessage = err.response?.data?.message || err.message || "Lỗi không xác định";
-                
-                // Revert optimistic update nếu có lỗi
                 if (userId === user.id) {
-                    setMyNickname(currentNickname || null);
+                    setMyNickname(newNickname);
                 } else {
-                    setFriendNickname(currentNickname || null);
+                    setFriendNickname(newNickname);
                 }
-                
-                alert(`❌ Không thể đặt biệt danh. Lỗi: ${errorMessage}`);
+            } catch (err) {
+                console.error("Không thể đặt biệt danh:", err);
             }
         }
     };
@@ -627,79 +482,15 @@ const Messenger = () => {
         setShowColorModal(false);
     };
 
-    // Optimistic update - mark conversation as read immediately in UI
-    const markConversationAsRead = useCallback((conversationId) => {
-        // 1. Ngay lập tức cập nhật UI - không chờ API
-        setConversations(prev => prev.map(conv => 
-            conv.id === conversationId 
-                ? { ...conv, unread: false }
-                : conv
-        ));
-    }, []);
-
-    // API call để đánh dấu đã đọc - chạy background, một lần duy nhất
-    const apiMarkMessagesAsRead = useCallback(async (conversationId, messagesToMark) => {
-        if (!messagesToMark || messagesToMark.length === 0) return;
-
-        const startTime = Date.now();
-        console.log(`📧 Starting mark as read for conversation ${conversationId}: ${messagesToMark.length} messages`);
+    const markMessagesAsRead = async () => {
+        if (!currentChat || !user) return;
 
         try {
-            const messageIds = messagesToMark.map(msg => msg.id);
-            
-            // Thử batch API nếu feature enabled
-            if (batchReadEnabled || (Date.now() - lastBatchRetry > 300000)) { // Retry every 5 minutes
-                try {
-                    console.log("🚀 Trying batch read API for", messageIds.length, "messages");
-                    await axios.post(`${API_URL}/messages/read-batch`, {
-                        messageIds: messageIds,
-                        userId: user.id
-                    }, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                        }
-                    });
+            const unreadMessages = messages.filter(msg =>
+                msg.senderId !== user.id && !msg.readBy?.includes(user.id)
+            );
 
-                    const duration = Date.now() - startTime;
-                    console.log(`✅ Batch read API success (${duration}ms)`);
-                    
-                    // Re-enable batch if it was disabled
-                    if (!batchReadEnabled) {
-                        console.log("🎉 Batch read feature re-enabled!");
-                        setBatchReadEnabled(true);
-                    }
-                    
-                    // Cập nhật messages state sau khi API thành công
-                    setMessages(prev => prev.map(m =>
-                        messageIds.includes(m.id)
-                            ? {
-                                ...m,
-                                readBy: [...(m.readBy || []), user.id],
-                                isRead: true
-                            }
-                            : m
-                    ));
-                    
-                    return; // Exit early nếu batch thành công
-                } catch (batchErr) {
-                    console.log("❌ Batch read API failed:", batchErr.response?.status);
-                    
-                    // Disable batch feature nếu endpoint không tồn tại
-                    if (batchErr.response?.status === 404 || batchErr.response?.status === 405) {
-                        console.log("🚫 Disabling batch read feature - backend doesn't support it");
-                        setBatchReadEnabled(false);
-                        setLastBatchRetry(Date.now());
-                    }
-                    
-                    // Continue to fallback
-                }
-            }
-            
-            // Fallback: Individual API calls
-            console.log("🔄 Using individual read API calls for", messageIds.length, "messages");
-            let successfulReads = [];
-            
-            for (const msg of messagesToMark) {
+            for (const msg of unreadMessages) {
                 try {
                     await axios.post(`${API_URL}/messages/read`, {
                         messageId: msg.id,
@@ -709,64 +500,46 @@ const Messenger = () => {
                             Authorization: `Bearer ${localStorage.getItem('auth_token')}`
                         }
                     });
-                    successfulReads.push(msg.id);
-                } catch (individualErr) {
-                    console.error(`❌ Failed to mark message ${msg.id} as read:`, individualErr.response?.status);
+
+                    setMessages(prev => prev.map(m =>
+                        m.id === msg.id
+                            ? {
+                                ...m,
+                                readBy: [...(m.readBy || []), user.id],
+                                isRead: true
+                            }
+                            : m
+                    ));
+                } catch (err) {
+                    console.error(`Lỗi khi đánh dấu tin nhắn ${msg.id} đã đọc:`, err);
                 }
             }
-
-            const duration = Date.now() - startTime;
-            console.log(`✅ Individual read completed: ${successfulReads.length}/${messageIds.length} success (${duration}ms)`);
-
-            // Cập nhật messages state chỉ cho những messages thành công
-            if (successfulReads.length > 0) {
-                setMessages(prev => prev.map(m =>
-                    successfulReads.includes(m.id)
-                        ? {
-                            ...m,
-                            readBy: [...(m.readBy || []), user.id],
-                            isRead: true
-                        }
-                        : m
-                ));
-            }
         } catch (err) {
-            const duration = Date.now() - startTime;
-            console.error(`❌ Mark as read failed completely (${duration}ms):`, err);
-            
-            // Nếu API fail, revert UI update
-            setConversations(prev => prev.map(conv => 
-                conv.id === conversationId 
-                    ? { ...conv, unread: true }
-                    : conv
-            ));
+            console.error("Lỗi khi đánh dấu tin nhắn đã đọc:", err);
         }
-    }, [user, API_URL, batchReadEnabled]);
+    };
 
-    // Separate useEffect for handling visibility changes - chỉ khi user quay lại tab
     useEffect(() => {
+        if (!currentChat || !messages.length || !user) return;
+
+        // Đánh dấu đã đọc khi người dùng đang xem chat
         const handleVisibility = () => {
-            if (document.visibilityState === 'visible' && currentChatRef.current && userRef.current) {
-                // Chỉ mark read khi user quay lại tab và có unread messages
-                setTimeout(() => {
-                    if (currentChatRef.current && userRef.current) {
-                        const currentMessages = messages.filter(msg =>
-                            msg.senderId !== userRef.current.id && !msg.readBy?.includes(userRef.current.id)
-                        );
-                        if (currentMessages.length > 0) {
-                            apiMarkMessagesAsRead(currentChatRef.current.id, currentMessages);
-                        }
-                    }
-                }, 1000); // Delay để tránh conflict
+            if (document.visibilityState === 'visible') {
+                markMessagesAsRead();
             }
         };
 
+        // Đánh dấu đã đọc khi component mount và có tin nhắn
+        markMessagesAsRead();
+
+        // Theo dõi khi user switch tab/window
         document.addEventListener('visibilitychange', handleVisibility);
-        
+
+        // Cleanup
         return () => {
             document.removeEventListener('visibilitychange', handleVisibility);
         };
-    }, []); // Empty dependency array since we use refs
+    }, [currentChat, messages, user]);
 
     // Thêm hàm này ở ngoài useEffect
     const fetchConversations = async (userId) => {
@@ -787,112 +560,6 @@ const Messenger = () => {
         if (!user || !user.id) return;
         fetchConversations(user.id);
     }, [user]);
-
-    // Tối ưu hóa việc chuyển đổi conversation
-    const switchToConversation = useCallback(async (conversationData, friend) => {
-        try {
-            // Ngăn chặn chuyển đổi liên tục
-            if (currentChat && currentChat.id === conversationData.id) return;
-            
-            // OPTIMISTIC UPDATE: Mark conversation as read NGAY LẬP TỨC trong UI
-            if (conversationData.unread) {
-                markConversationAsRead(conversationData.id);
-            }
-            
-            // Reset nicknames ngay lập tức để tránh hiển thị nickname cũ
-            setFriendNickname(null);
-            setMyNickname(null);
-            
-            // Đánh dấu đã đọc conversation hiện tại trong background (nếu có)
-            if (currentChat) {
-                const hasUnreadMessages = messages.some(msg => 
-                    msg.senderId !== user.id && !msg.readBy?.includes(user.id)
-                );
-                if (hasUnreadMessages) {
-                    // Background call - không await
-                    apiMarkMessagesAsRead(currentChat.id, messages.filter(msg =>
-                        msg.senderId !== user.id && !msg.readBy?.includes(user.id)
-                    ));
-                }
-            }
-            
-            // Clear messages và set conversation mới NGAY LẬP TỨC để UI responsive
-            setMessages([]);
-            setCurrentChat(conversationData);
-            setSelectedFriend(friend);
-            setOpenChat(true);
-            
-            // Load messages với delay nhỏ hơn để faster response
-            setTimeout(async () => {
-                try {
-                    const token = localStorage.getItem("auth_token");
-                    const response = await axios.get(`${API_URL}/messages/conversation/${conversationData.id}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    setMessages(response.data || []);
-                    
-                    // Đánh dấu đã đọc conversation mới - MỘT LẦN DUY NHẤT
-                    const newUnreadMessages = (response.data || []).filter(msg =>
-                        msg.senderId !== user.id && !msg.readBy?.includes(user.id)
-                    );
-                    if (newUnreadMessages.length > 0) {
-                        // Gọi API một lần duy nhất cho tất cả unread messages
-                        apiMarkMessagesAsRead(conversationData.id, newUnreadMessages);
-                    }
-                } catch (err) {
-                    console.error("Lỗi khi lấy tin nhắn:", err);
-                    setMessages([]);
-                }
-            }, 50); // Reduced delay for faster response
-        } catch (err) {
-            console.error("Lỗi khi chọn hội thoại:", err);
-        }
-    }, [currentChat, messages, user, apiMarkMessagesAsRead, markConversationAsRead, API_URL]);
-
-    // Tối ưu hóa việc tạo conversation mới
-    const createNewConversation = useCallback(async (friend) => {
-        try {
-            console.log("Creating conversation with friend:", friend);
-            
-            // Reset nicknames ngay lập tức cho conversation mới
-            setFriendNickname(null);
-            setMyNickname(null);
-            
-            const res = await axios.post(`${API_URL}/conversations`, {
-                senderId: user.id,
-                receiverId: friend.id,
-            }, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('auth_token')}`
-                }
-            });
-            
-            console.log("Conversation created/retrieved:", res.data);
-            
-            // Clear messages và set conversation mới
-            setMessages([]);
-            setCurrentChat(res.data);
-            setSelectedFriend(friend);
-            setOpenChat(true);
-            
-            // Thêm conversation mới vào danh sách local nếu chưa có
-            setConversations(prev => {
-                const exists = prev.find(conv => conv.id === res.data.id);
-                if (!exists) {
-                    const newConv = {
-                        ...res.data,
-                        lastMessage: null,
-                        lastMessageTime: null,
-                        unread: false
-                    };
-                    return [newConv, ...prev];
-                }
-                return prev;
-            });
-        } catch (err) {
-            console.error("Lỗi khi tạo hội thoại mới:", err);
-        }
-    }, [user, API_URL]);
 
     return (
         <div className="pt-14 messenger">
@@ -927,7 +594,16 @@ const Messenger = () => {
                                 return (
                                     <button
                                         key={item.id}
-                                        onClick={() => switchToConversation(item.conversationData, item.friend)}
+                                        onClick={async () => {
+                                            try {
+                                                setCurrentChat(item.conversationData);
+                                                setSelectedFriend(item.friend);
+                                                setOpenChat(true);
+                                                await markMessagesAsRead();
+                                            } catch (err) {
+                                                console.error("Lỗi khi chọn hội thoại:", err);
+                                            }
+                                        }}
                                         className="w-full text-left"
                                     >
                                         <Conversation friend={item.friend} currentChat={currentChat} lastMessage={item.lastMessage} unread={item.unread} />
@@ -938,14 +614,34 @@ const Messenger = () => {
                                 return (
                                     <button
                                         key={item.id}
-                                        onClick={() => createNewConversation(item.friend)}
+                                        onClick={async () => {
+                                            try {
+                                                // Tạo hoặc lấy conversation giữa user và friend
+                                                const res = await axios.post(`${API_URL}/conversations`, {
+                                                    senderId: user.id,
+                                                    receiverId: item.friend.id,
+                                                }, {
+                                                    headers: {
+                                                        Authorization: `Bearer ${localStorage.getItem('auth_token')}`
+                                                    }
+                                                });
+                                                setCurrentChat(res.data);
+                                                setSelectedFriend(item.friend);
+                                                setOpenChat(true);
+
+                                                // Refresh lại danh sách conversations
+                                                fetchConversations(user.id);
+                                            } catch (err) {
+                                                console.error("Lỗi khi tạo hội thoại mới:", err);
+                                            }
+                                        }}
                                         className="w-full text-left"
                                     >
                                         <Conversation friend={item.friend} currentChat={currentChat} lastMessage={null} unread={false} />
                                     </button>
                                 );
                             }
-                            
+
                             return null;
                         })
                     ) : (
@@ -993,6 +689,7 @@ const Messenger = () => {
                                                     >
                                                         Đặt biệt danh
                                                     </button>
+
                                                 </div>
                                                 <button
                                                     className="block w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -1070,10 +767,6 @@ const Messenger = () => {
                                     <button className="md:hidden" onClick={() => {
                                         setOpenChat(false)
                                         setCurrentChat(null)
-                                        setSelectedFriend(null)
-                                        setMessages([]) // Clear messages khi đóng chat
-                                        setFriendNickname(null) // Reset nicknames khi đóng chat
-                                        setMyNickname(null)
                                     }}>
                                         <ChevronLeft size={25} />
                                     </button>
@@ -1108,6 +801,7 @@ const Messenger = () => {
                                                 >
                                                     Đặt biệt danh
                                                 </button>
+
                                             </div>
                                             <button
                                                 className="block w-full text-left px-4 py-2 hover:bg-gray-100"

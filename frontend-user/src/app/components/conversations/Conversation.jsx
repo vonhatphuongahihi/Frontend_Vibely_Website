@@ -6,23 +6,12 @@ export default function Conversation({ friend, currentChat, lastMessage, unread 
   const [imageError, setImageError] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
 
-  // Debug logging
-  // console.log("🖼️ Conversation avatar debug:", {
-  //   friendData: friend,
-  //   profilePicture: friend?.profilePicture,
-  //   username: friend?.username,
-  //   hasProfilePicture: !!friend?.profilePicture
-  // });
-
   const handleImageLoad = () => {
-    console.log("✅ Avatar loaded successfully:", friend?.profilePicture);
     setImageLoaded(true);
     setImageError(false);
   };
 
   const handleImageError = (e) => {
-    console.log("❌ Avatar failed to load:", friend?.profilePicture);
-    console.log("Setting fallback image");
     setImageError(true);
     e.target.src = "/images/user_default.jpg";
   };

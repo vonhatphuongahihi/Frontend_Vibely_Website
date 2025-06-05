@@ -50,8 +50,6 @@ const DocumentDetail = () => {
                     const result = await axios.get(`${API_URL}/documents/${id}`, {
                         headers: { Authorization: `Bearer ${token}` },
                     });
-                    console.log(result.data.data);
-
                     setDocument(result.data.data);
                 } catch (err) {
                     toast.error("Lỗi khi lấy chi tiết tài liệu");

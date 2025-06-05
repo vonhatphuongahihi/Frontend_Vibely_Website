@@ -63,7 +63,6 @@ const Page = () => {
                     }
                 }
             } catch (error) {
-                console.log('Chưa đăng nhập');
                 localStorage.removeItem('adminToken');
             } finally {
                 setIsChecking(false);
