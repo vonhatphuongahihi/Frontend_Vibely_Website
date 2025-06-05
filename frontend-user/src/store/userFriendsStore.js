@@ -26,6 +26,7 @@ export const userFriendStore = create((set, get) => ({
       set({ loading: false });
     }
   },
+  //console.log(friendRequest)
 
   fetchFriendSuggestion: async () => {
     set({ loading: true });
